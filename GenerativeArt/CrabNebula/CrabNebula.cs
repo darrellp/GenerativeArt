@@ -7,7 +7,15 @@ using static GenerativeArt.Utilities;
 
 namespace GenerativeArt.CrabNebula
 {
-    internal class CrabNebula
+    // Current code is based on blog post here:
+    //      https://generateme.wordpress.com/2018/10/24/smooth-rendering-log-density-mapping/
+    // with a few differences - primarily that it's written in C# on a WriteableBitmap rather than in Processing.
+    // I've changed some of the parameters to suit me and though I tried some public domain noise producers, none
+    // seemed like what I wanted or I couldn't figure them out so wrote my own Perlin noise generator.  Colors are
+    // done in radial bands rather than whatever he does (which I think was a horizontal single gradation.  Probably
+    // other stuff that I didn't really understand in his code and just wrote the way that seemed right to me.
+
+    internal class CrabNebula : IGenerator
     {
         private const double NoiseScale = 800.0;
         private const double StdDev = 0.15;
@@ -22,12 +30,6 @@ namespace GenerativeArt.CrabNebula
         private readonly WriteableBitmap _wbmp;
         private readonly int _width;
         private readonly int _height;
-        private readonly Perlin _noise = new Perlin()
-        {
-            Frequency = Frequency, 
-            Persistence = Persistence,
-            Octaves = Octaves,
-        };
         private readonly Normal _distNormal;
         private readonly Color _clrInner = Colors.Red;
         private readonly Color _clrOuter = Colors.Yellow;
@@ -41,17 +43,23 @@ namespace GenerativeArt.CrabNebula
             _distNormal = new Normal(Mean, StdDev);
         }
 
-        internal void Generate()
+        public void Generate()
         {
-            var noise = new Perlin() { Frequency = 1.5, Persistence = 5, Octaves = 3 };
-
             var maxHits = 0;
             var hits = new ushort[_width, _height];
+            // ReSharper disable InconsistentNaming
             var R = new int[_width, _height];
             var G = new int[_width, _height];
             var B = new int[_width, _height];
+            // ReSharper restore InconsistentNaming
 
             // Amass our data into proper buffers
+            Perlin noise = new()
+                {
+                    Frequency = Frequency,
+                    Persistence = Persistence,
+                    Octaves = Octaves,
+                };
 
             // Generate a new random point each time through this loop
             for (var ipt = 0; ipt < CPoints; ipt++)
