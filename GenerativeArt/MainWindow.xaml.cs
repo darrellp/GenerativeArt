@@ -27,39 +27,48 @@ namespace GenerativeArt
             _distNormal = new(Mean, StdDev);
         }
 
+        // Current code is based on blog post here:
+        //      https://generateme.wordpress.com/2018/10/24/smooth-rendering-log-density-mapping/
+        // with a few differences - primarily that it's written in C# on a WriteableBitmap rather than in Processing.
+        // I've changed some of the parameters to suit me and though I tried some public domain noise producers, none
+        // seemed like what I wanted or I couldn't figure them out so wrote my own Perlin noise generator.  Colors are
+        // done in radial bands rather than whatever he does (which I think was a horizontal single gradation.  Probably
+        // other stuff that I didn't really understand in his code and just wrote the way that seemed right to me.
+        // Eventually, I will probably do other generative stuff and OnGenerate will generate one of s set of different
+        // algorithms here but for now this is the only one.  This stuff should definitely be put into a class of it's
+        // own but pressing forward with this until I start on a second algorithm.
+
         private void OnGenerate(object sender, RoutedEventArgs e)
         {
             wbmp.Clear(Colors.Black);
-            var noise = new Perlin() { Frequency = 2.5, Persistence = 5, Octaves = 2 };
+            var noise = new Perlin() { Frequency = 1.5, Persistence = 5, Octaves = 2 };
 
-            //for (int iRow = 0; iRow < height; iRow++)
-            //{
-            //    for (int iCol = 0; iCol < width; iCol++)
-            //    {
-            //        var noiseVal = noise.Value(iRow / (double)height, iCol / (double)width);
-            //        var colorByte = (byte)Math.Min(255, noiseVal * 255);
-            //        var color = Color.FromRgb(colorByte, colorByte, colorByte);
-            //        wbmp.SetPixel(iCol, iRow, color);
-            //    }
-            //}
             var maxHits = 0;
             var hits = new int[width, height];
             var R = new int[width, height];
             var G = new int[width, height];
             var B = new int[width, height];
+            
+            // Amass our data into proper buffers
 
+            // Generate a new random point each time through this loop
             for (var ipt = 0; ipt < cPoints; ipt++)
             {
+                // Calculate the point and it's color
                 var (pt, clr) = CalcNebulaPoint(noise);
+
+                // Round off to integers
                 var xPix = (int)(pt.X + 0.5);
                 var yPix = (int)(pt.Y + 0.5);
 
                 if (xPix >= 0 && xPix < width && yPix >= 0 && yPix < height)
                 {
+                    // Increment our color buffers appropriately
                     R[xPix, yPix] += clr.R;
                     G[xPix, yPix] += clr.G;
                     B[xPix, yPix] += clr.B;
 
+                    // increment the number of hits at this point
                     var hitsCur = ++hits[xPix, yPix];
                     if (hitsCur > maxHits)
                     {
@@ -68,8 +77,12 @@ namespace GenerativeArt
                 }
             }
 
+            // Use the data to actually draw stuff
+
+            // Do conversion to double once here.
             double maxHitsDbl = maxHits;
 
+            // Step through all pixels in the image
             for (var iX = 0; iX < width; iX++)
             {
                 for (var iY = 0; iY < height; iY++)
@@ -79,23 +92,28 @@ namespace GenerativeArt
                     {
                         continue;
                     }
+
+                    // Gamma correction
                     var noiseVal = Math.Pow(hitCount / maxHitsDbl, 1.0 / 5.0);
-                    if (noiseVal == 0.0)
-                    {
-                        continue;
-                    }
-                    //var colorByte = (byte)Math.Min(255, noiseVal * 255);
-                    //var color = Color.FromRgb(colorByte, colorByte, colorByte);
+
+                    // Determine gamma corrected average color at this point
                     var r = (byte)(R[iX, iY] * noiseVal / hitCount);
                     var g = (byte)(G[iX, iY] * noiseVal / hitCount);
                     var b = (byte)(B[iX, iY] * noiseVal / hitCount);
                     var color = Color.FromRgb(r, g, b);
+
+                    // Draw it
                     wbmp.SetPixel(iX, iY, color);
                 }
             }
         }
+
         private void Rectangle_Loaded(object sender, RoutedEventArgs e)
         {
+            // There's got to be an easier way than this but I'm using this to determine when the
+            // size of the WritableBitmap is actually known.  I'm not sure what the proper way to
+            // do this is, but it can't be this!
+
             width = (int)RctSize.ActualWidth;
             height = (int)RctSize.ActualHeight;
             wbmp = BitmapFactory.New(width, height);
@@ -103,27 +121,39 @@ namespace GenerativeArt
             OnGenerate(this, new RoutedEventArgs());
         }
 
-        private readonly Color _clrInner = Colors.Yellow;
-        private readonly Color _clrOuter = Colors.Red;
+        private readonly Color _clrInner = Colors.Red;
+        private readonly Color _clrOuter = Colors.Yellow;
         private const double SqrtTwo = 1.41421356237;
 
+        // Determine a random point in the nebula and what color it should be
         private (Point, Color) CalcNebulaPoint(Perlin noise)
         {
-            var xNorm = (float)_distNormal.Sample(); // take random point from gaussian distribution
+            // Pick a random normally distributed point around (0.5, 0.5)
+            var xNorm = (float)_distNormal.Sample();
             var yNorm = (float)_distNormal.Sample();
-            var x = xNorm * width; // take random point from gaussian distribution
+
+            // Pixel coordinates
+            var x = xNorm * width;
             var y = yNorm * height;
+
+            // Randomly distributed around (0, 0)
             var xc = xNorm - 0.5;
             var yc = yNorm - 0.5;
-            var dist = Math.Pow(xc * xc + yc * yc, 1/6.0);
+
+            // Distance from the center
+            var dist = Math.Sqrt(xc * xc + yc * yc);
+
+            // Normalize so 1 at the corners of (-0.5, -0.5) - (0.5, 0.5)
             var tColor = dist / SqrtTwo;
-            var r = NoiseScale * Math.Sqrt(xNorm * xNorm + yNorm * yNorm); // calculate noise scaling factor from distance
+
+            // calculate noise scaling factor from distance
+            var r = NoiseScale * 4 * dist; // Math.Sqrt(xNorm * xNorm + yNorm * yNorm); 
 
             // Pick two uncorrelated points using the Z axis
             var nx = r * (noise.Value(xNorm, yNorm, 0.75) - 0.5);
             var ny = r * (noise.Value(xNorm, yNorm, 0.25) - 0.5);
 
-            return (new Point(x + nx, y + ny), NebulaColor(5, tColor));
+            return (new Point(x + nx, y + ny), NebulaColor(8, tColor));
             // return (new Point(x + nx, y + ny), LerpColor(_clrInner, _clrOuter, tColor));
         }
 
