@@ -10,15 +10,16 @@ namespace GenerativeArt.CrabNebula
 {
     internal class Thread
     {
-        private static int _cPoints;
+        private const double SqrtTwo = 1.41421356237;
         private static double _noiseScale;
         private const double StdDev = 0.15;
         private const double Mean = 0.5;
-        private static int _cBands = 8;
-        private const double SqrtTwo = 1.41421356237;
+
+        private static int _cBands;
         private static double _frequency;
         private static double _persistence;
         private static int _octaves;
+        private static int _cPoints;
 
         private readonly int _cPointsThread;
         private readonly int _width;

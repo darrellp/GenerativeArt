@@ -28,6 +28,12 @@ namespace GenerativeArt
             _generators[tabArtType.SelectedIndex].Generate();
         }
 
+        private void BtnInitialize_Click(object sender, RoutedEventArgs e)
+        {
+            Debug.Assert(_generators != null, nameof(_generators) + " != null");
+            _generators[tabArtType.SelectedIndex].Initialize(this);
+        }
+
         private void Rectangle_Loaded(object sender, RoutedEventArgs e)
         {
             // There's got to be a better way than this but I'm using this to determine when the

@@ -35,8 +35,12 @@ namespace GenerativeArt.CrabNebula
 
         public void Initialize(MainWindow ourWindow)
         {
-            _ourWindow = ourWindow;
-            HookParameterControls();
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+            if (_ourWindow == null)
+            {
+                _ourWindow = ourWindow;
+                HookParameterControls();
+            }
             DistributeParameters();
         }
 
