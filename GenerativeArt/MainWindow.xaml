@@ -13,6 +13,46 @@
         </Grid.ColumnDefinitions>
         <Rectangle x:Name="RctSize" Loaded="Rectangle_Loaded" Visibility="Hidden" />
         <Image x:Name="Art" Grid.Column = "0" Stretch="UniformToFill" />
-        <Button x:Name="BtnGenerate" Grid.Column="1" Content="Generate" Height="30" VerticalAlignment="Top" Click="OnGenerate" />
+        <Grid Grid.Column="1" Background="#FFDC9239">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Button x:Name="BtnGenerate" Grid.Row ="0"  Content="Generate" Height="30" VerticalAlignment="Top" Click="OnGenerate" />
+            <TabControl x:Name="tabArtType" Grid.Row="1" TabStripPlacement="Left" Background="{x:Null}">
+                <TabControl.Resources>
+                    <Style TargetType="{x:Type TabItem}">
+                        <Setter Property="HeaderTemplate">
+                            <Setter.Value>
+                                <DataTemplate>
+                                    <ContentPresenter Content="{TemplateBinding Content}">
+                                        <ContentPresenter.LayoutTransform>
+                                            <RotateTransform Angle="270" />
+                                        </ContentPresenter.LayoutTransform>
+                                    </ContentPresenter>
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="Padding" Value="3" />
+                    </Style>
+                </TabControl.Resources>
+                <TabItem Header="Crab Nebula">
+                    <StackPanel Background="White">
+                        <Label x:Name="lblOctaves" Content ="Octaves" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrOctaves" Width="120" Maximum="4" Minimum="1" SmallChange="0" Value="1" IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Label x:Name="lblPersistence" Content ="Persistence" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrPersistence" Width="120" Maximum="10" Minimum="0" x:FieldModifier="public" LargeChange="0.1" TickFrequency="-1"/>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Clear">
+                    <Grid Background="#FFE5E5E5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="10*"/>
+                            <RowDefinition Height="177*"/>
+                        </Grid.RowDefinitions>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Grid>
     </Grid>
 </Window>

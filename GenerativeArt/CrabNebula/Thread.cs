@@ -17,8 +17,8 @@ namespace GenerativeArt.CrabNebula
         private const int BandCount = 8;
         private const double SqrtTwo = 1.41421356237;
         private const double Frequency = 1.5;
-        private const double Persistence = 5;
-        private const int Octaves = 3;
+        private static double _persistence = 5;
+        private static int _octaves = 3;
 
         private readonly int _cPoints;
         private readonly int _width;
@@ -37,14 +37,20 @@ namespace GenerativeArt.CrabNebula
         private readonly int[,] _b;
         // ReSharper restore InconsistentNaming
 
+        internal static void SetParameters(Parameters parameters)
+        {
+            _octaves = parameters.Octaves;
+            _persistence = parameters.Persistence;
+        }
+
         internal static async Task<(int maxhits, ushort[,] hits, int[,] r, int[,] g, int[,] b)> 
-            CreateThreads(int width, int height)
+            AmassAcrossThreads(int width, int height)
         {
             Perlin noise = new()
             {
                 Frequency = Frequency,
-                Persistence = Persistence,
-                Octaves = Octaves,
+                Persistence = _persistence,
+                Octaves = _octaves,
             };
 
             var cCore = Environment.ProcessorCount;

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -18,19 +20,35 @@ namespace GenerativeArt.CrabNebula
         private readonly WriteableBitmap _wbmp;
         private readonly int _width;
         private readonly int _height;
+        private MainWindow _ourWindow;
 
+        private Parameters parameters = new Parameters();
 
+#pragma warning disable CS8618
         internal CrabNebula(WriteableBitmap wbmp)
+#pragma warning restore CS8618
         {
             _wbmp = wbmp;
             _width = (int)_wbmp.Width;
             _height = (int)_wbmp.Height;
         }
 
+        public void Initialize()
+        {
+            _ourWindow = Application.Current.MainWindow as MainWindow ?? throw new InvalidOperationException();
+
+            HookParameterControls();
+            ParametersToControls();
+        }
+
         public async void Generate()
         {
+            // Set Parameters correctly
+            GatherParameters();
+            Thread.SetParameters(parameters);
+
             // Amass our data...
-            Task<(int, ushort[,], int[,], int[,], int[,])> task = Thread.CreateThreads(_width, _height);
+            Task<(int, ushort[,], int[,], int[,], int[,])> task = Thread.AmassAcrossThreads(_width, _height);
             var (maxHits, hits, R, G, B) = await task;
 
             // Use the data to actually draw stuff
@@ -63,5 +81,35 @@ namespace GenerativeArt.CrabNebula
                 }
             }
         }
+
+        #region Parameter Handling
+        private void GatherParameters()
+        {
+            parameters.Octaves = (int)_ourWindow.sldrOctaves.Value;
+            parameters.Persistence = _ourWindow.sldrPersistence.Value;
+        }
+
+        private void HookParameterControls()
+        {
+            _ourWindow.sldrOctaves.ValueChanged += SldrOctaves_ValueChanged;
+            _ourWindow.sldrPersistence.ValueChanged +=SldrPersistence_ValueChanged;
+        }
+
+        private void SldrPersistence_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblPersistence.Content = $"Persistence: {e.NewValue:#0.0}";
+        }
+
+        private void SldrOctaves_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblOctaves.Content = $"Octave: {(int)e.NewValue}";
+        }
+
+        private void ParametersToControls()
+        {
+            _ourWindow.sldrOctaves.Value = parameters.Octaves;
+            _ourWindow.sldrPersistence.Value = parameters.Persistence;
+        }
+        #endregion
     }
 }
