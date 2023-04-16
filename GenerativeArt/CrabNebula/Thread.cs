@@ -10,17 +10,17 @@ namespace GenerativeArt.CrabNebula
 {
     internal class Thread
     {
-        private const int CPoints = 6_000_000;
-        private const double NoiseScale = 800.0;
+        private static int _cPoints;
+        private static double _noiseScale;
         private const double StdDev = 0.15;
         private const double Mean = 0.5;
-        private const int BandCount = 8;
+        private static int _cBands = 8;
         private const double SqrtTwo = 1.41421356237;
-        private const double Frequency = 1.5;
-        private static double _persistence = 5;
-        private static int _octaves = 3;
+        private static double _frequency;
+        private static double _persistence;
+        private static int _octaves;
 
-        private readonly int _cPoints;
+        private readonly int _cPointsThread;
         private readonly int _width;
         private readonly int _height;
         private readonly Perlin _noise;
@@ -41,6 +41,10 @@ namespace GenerativeArt.CrabNebula
         {
             _octaves = parameters.Octaves;
             _persistence = parameters.Persistence;
+            _noiseScale = parameters.NoiseScale;
+            _frequency = parameters.Frequency;
+            _cPoints = parameters.CPoints;
+            _cBands = parameters.CBands;
         }
 
         internal static async Task<(int maxhits, ushort[,] hits, int[,] r, int[,] g, int[,] b)> 
@@ -48,7 +52,7 @@ namespace GenerativeArt.CrabNebula
         {
             Perlin noise = new()
             {
-                Frequency = Frequency,
+                Frequency = _frequency,
                 Persistence = _persistence,
                 Octaves = _octaves,
             };
@@ -56,7 +60,7 @@ namespace GenerativeArt.CrabNebula
             var cCore = Environment.ProcessorCount;
             var threads = Enumerable.
                 Range(0, cCore).
-                Select(_ => new Thread(CPoints / cCore, width, height, noise)).
+                Select(_ => new Thread(_cPoints / cCore, width, height, noise)).
                 ToArray();
             var tasks = threads.Select(t => new Task(t.Amass)).ToList();
             tasks.ForEach(t => t.Start());
@@ -93,9 +97,9 @@ namespace GenerativeArt.CrabNebula
             return (maxHits, hits, r, g, b);
         }
         
-        private Thread(int cPoints, int width, int height, Perlin noise)
+        private Thread(int cPointsThread, int width, int height, Perlin noise)
         {
-            _cPoints = cPoints;
+            _cPointsThread = cPointsThread;
             _width = width;
             _height = height;
             _noise = noise;
@@ -109,7 +113,7 @@ namespace GenerativeArt.CrabNebula
         internal void Amass()
         {
             // Generate a new random point each time through this loop
-            for (var ipt = 0; ipt < _cPoints; ipt++)
+            for (var ipt = 0; ipt < _cPointsThread; ipt++)
             {
                 // Calculate the point and it's color
                 var (pt, clr) = CalcNebulaPoint(_noise);
@@ -155,10 +159,10 @@ namespace GenerativeArt.CrabNebula
             // Normalize so 1 at the corners of (-0.5, -0.5) - (0.5, 0.5)
             var tColor = dist / SqrtTwo;
 
-            var nx = NoiseScale * (noise.Value(xNorm, yNorm, 0.75) - 0.5);
-            var ny = NoiseScale * (noise.Value(xNorm, yNorm, 0.25) - 0.5);
+            var nx = _noiseScale * (noise.Value(xNorm, yNorm, 0.75) - 0.5);
+            var ny = _noiseScale * (noise.Value(xNorm, yNorm, 0.25) - 0.5);
 
-            return (new Point(x + nx, y + ny), NebulaColor(BandCount, tColor));
+            return (new Point(x + nx, y + ny), NebulaColor(_cBands, tColor));
         }
 
         private Color NebulaColor(int cBands, double t, bool fHardEdge = false)

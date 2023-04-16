@@ -22,7 +22,7 @@ namespace GenerativeArt.CrabNebula
         private readonly int _height;
         private MainWindow _ourWindow;
 
-        private Parameters parameters = new Parameters();
+        private Parameters _parameters = new();
 
 #pragma warning disable CS8618
         internal CrabNebula(WriteableBitmap wbmp)
@@ -33,19 +33,18 @@ namespace GenerativeArt.CrabNebula
             _height = (int)_wbmp.Height;
         }
 
-        public void Initialize()
+        public void Initialize(MainWindow ourWindow)
         {
-            _ourWindow = Application.Current.MainWindow as MainWindow ?? throw new InvalidOperationException();
-
+            _ourWindow = ourWindow;
             HookParameterControls();
-            ParametersToControls();
+            DistributeParameters();
         }
 
         public async void Generate()
         {
             // Set Parameters correctly
             GatherParameters();
-            Thread.SetParameters(parameters);
+            Thread.SetParameters(_parameters);
 
             // Amass our data...
             Task<(int, ushort[,], int[,], int[,], int[,])> task = Thread.AmassAcrossThreads(_width, _height);
@@ -85,14 +84,53 @@ namespace GenerativeArt.CrabNebula
         #region Parameter Handling
         private void GatherParameters()
         {
-            parameters.Octaves = (int)_ourWindow.sldrOctaves.Value;
-            parameters.Persistence = _ourWindow.sldrPersistence.Value;
+            _parameters.Octaves = (int)_ourWindow.sldrOctaves.Value;
+            _parameters.Persistence = _ourWindow.sldrPersistence.Value;
+            _parameters.NoiseScale = _ourWindow.sldrNoiseScale.Value;
+            _parameters.Frequency = _ourWindow.sldrFrequency.Value;
+            _parameters.CPoints = (int)_ourWindow.sldrCPoints.Value;
+            _parameters.CBands = (int)_ourWindow.sldrCBands.Value;
         }
 
+        private void DistributeParameters()
+        {
+            _ourWindow.sldrOctaves.Value = _parameters.Octaves;
+            _ourWindow.sldrPersistence.Value = _parameters.Persistence;
+            _ourWindow.sldrNoiseScale.Value = _parameters.NoiseScale;
+            _ourWindow.sldrFrequency.Value = _parameters.Frequency;
+            _ourWindow.sldrCPoints.Value = _parameters.CPoints;
+            _ourWindow.sldrCBands.Value = _parameters.CBands;
+        }
+
+        #region Hooks
         private void HookParameterControls()
         {
             _ourWindow.sldrOctaves.ValueChanged += SldrOctaves_ValueChanged;
             _ourWindow.sldrPersistence.ValueChanged +=SldrPersistence_ValueChanged;
+            _ourWindow.sldrNoiseScale.ValueChanged +=SldrNoiseScale_ValueChanged;
+            _ourWindow.sldrFrequency.ValueChanged +=SldrFrequency_ValueChanged;
+            _ourWindow.sldrCPoints.ValueChanged +=SldrCPoints_ValueChanged;
+            _ourWindow.sldrCBands.ValueChanged +=SldrCBands_ValueChanged;
+        }
+
+        private void SldrCBands_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblCBands.Content = $"Color Bands: {e.NewValue:0}";
+        }
+
+        private void SldrCPoints_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblCPoints.Content = $"# Pts: {e.NewValue/1_000_000:#}M";
+        }
+
+        private void SldrFrequency_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblFrequency.Content = $"Frequency: {e.NewValue:0.00}";
+        }
+
+        private void SldrNoiseScale_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblNoiseScale.Content = $"Noise Scale: {e.NewValue:###0}";
         }
 
         private void SldrPersistence_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -104,12 +142,7 @@ namespace GenerativeArt.CrabNebula
         {
             _ourWindow.lblOctaves.Content = $"Octave: {(int)e.NewValue}";
         }
-
-        private void ParametersToControls()
-        {
-            _ourWindow.sldrOctaves.Value = parameters.Octaves;
-            _ourWindow.sldrPersistence.Value = parameters.Persistence;
-        }
+        #endregion
         #endregion
     }
 }

@@ -45,7 +45,7 @@ namespace GenerativeArt
                 new CrabNebula.CrabNebula(_wbmp),
                 new ClearArt(_wbmp),
             };
-            _generators.ForEach(g => g.Initialize());
+            _generators.ForEach(g => g.Initialize(this));
             OnGenerate(this, new RoutedEventArgs());
         }
     }
@@ -60,7 +60,7 @@ namespace GenerativeArt
             _wbmp.Clear(Colors.Black);
         }
 
-        public void Initialize()
+        public void Initialize(MainWindow _)
         {
         }
 
