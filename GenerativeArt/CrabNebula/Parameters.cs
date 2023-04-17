@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Windows.Media;
 
 namespace GenerativeArt.CrabNebula
 {
@@ -15,6 +11,8 @@ namespace GenerativeArt.CrabNebula
         internal double Frequency { get; set; } = 1.5;
         internal double Persistence { get; set; } = 5;
         internal int Octaves { get; set; } = 3;
+        internal Color Blend1 { get; set; } = Colors.Yellow;
+        internal Color Blend2 { get; set; } = Colors.Red;
 
         public Parameters() {}
     }

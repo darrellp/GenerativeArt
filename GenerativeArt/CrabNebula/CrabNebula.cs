@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using ColorPicker.Models;
 
 namespace GenerativeArt.CrabNebula
 {
@@ -35,6 +36,8 @@ namespace GenerativeArt.CrabNebula
 
         public void Initialize(MainWindow ourWindow)
         {
+            _parameters = new Parameters();
+
             // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
             if (_ourWindow == null)
             {
@@ -94,6 +97,12 @@ namespace GenerativeArt.CrabNebula
             _parameters.Frequency = _ourWindow.sldrFrequency.Value;
             _parameters.CPoints = (int)_ourWindow.sldrCPoints.Value;
             _parameters.CBands = (int)_ourWindow.sldrCBands.Value;
+            var btn = _ourWindow.btnBlend1;
+            var brush = (SolidColorBrush)btn.Background;
+            _parameters.Blend1 = brush.Color;
+            btn = _ourWindow.btnBlend2;
+            brush = (SolidColorBrush)btn.Background;
+            _parameters.Blend2 = brush.Color;
         }
 
         private void DistributeParameters()
@@ -104,6 +113,8 @@ namespace GenerativeArt.CrabNebula
             _ourWindow.sldrFrequency.Value = _parameters.Frequency;
             _ourWindow.sldrCPoints.Value = _parameters.CPoints;
             _ourWindow.sldrCBands.Value = _parameters.CBands;
+            _ourWindow.btnBlend1.Background = new SolidColorBrush(_parameters.Blend1);
+            _ourWindow.btnBlend2.Background = new SolidColorBrush(_parameters.Blend2);
         }
 
         #region Hooks
@@ -115,6 +126,30 @@ namespace GenerativeArt.CrabNebula
             _ourWindow.sldrFrequency.ValueChanged +=SldrFrequency_ValueChanged;
             _ourWindow.sldrCPoints.ValueChanged +=SldrCPoints_ValueChanged;
             _ourWindow.sldrCBands.ValueChanged +=SldrCBands_ValueChanged;
+            _ourWindow.btnBlend1.Click += BtnBlend1_Click;
+            _ourWindow.btnBlend2.Click += BtnBlend2_Click;
+        }
+
+        private void BtnBlend1_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = _ourWindow.btnBlend1;
+            var brush = (SolidColorBrush)btn.Background;
+            var (isAccepted, color) = ColorPickerDlg.GetUserColor(brush.Color);
+            if (isAccepted == true)
+            {
+                btn.Background = new SolidColorBrush(color);
+            }
+        }
+
+        private void BtnBlend2_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = _ourWindow.btnBlend2;
+            var brush = (SolidColorBrush)btn.Background;
+            var (isAccepted, color) = ColorPickerDlg.GetUserColor(brush.Color);
+            if (isAccepted == true)
+            {
+                btn.Background = new SolidColorBrush(color);
+            }
         }
 
         private void SldrCBands_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)

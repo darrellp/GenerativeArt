@@ -20,6 +20,8 @@ namespace GenerativeArt.CrabNebula
         private static double _persistence;
         private static int _octaves;
         private static int _cPoints;
+        private static Color _blend1 = Colors.Red;
+        private static Color _blend2 = Colors.Yellow;
 
         private readonly int _cPointsThread;
         private readonly int _width;
@@ -27,8 +29,6 @@ namespace GenerativeArt.CrabNebula
         private readonly Perlin _noise;
 
         private readonly Normal _distNormal;
-        private readonly Color _clrInner = Colors.Red;
-        private readonly Color _clrOuter = Colors.Yellow;
 
         private int _maxHits;
         private readonly ushort[,] _hits;
@@ -46,6 +46,8 @@ namespace GenerativeArt.CrabNebula
             _frequency = parameters.Frequency;
             _cPoints = parameters.CPoints;
             _cBands = parameters.CBands;
+            _blend1 = parameters.Blend1;
+            _blend2 = parameters.Blend2;
         }
 
         internal static async Task<(int maxhits, ushort[,] hits, int[,] r, int[,] g, int[,] b)> 
@@ -58,10 +60,10 @@ namespace GenerativeArt.CrabNebula
                 Octaves = _octaves,
             };
 
-            var cCore = Environment.ProcessorCount;
+            var cThreads = Environment.ProcessorCount;
             var threads = Enumerable.
-                Range(0, cCore).
-                Select(_ => new Thread(_cPoints / cCore, width, height, noise)).
+                Range(0, cThreads).
+                Select(_ => new Thread(_cPoints / cThreads, width, height, noise)).
                 ToArray();
             var tasks = threads.Select(t => new Task(t.Amass)).ToList();
             tasks.ForEach(t => t.Start());
@@ -172,11 +174,11 @@ namespace GenerativeArt.CrabNebula
             var iBand = (int)Math.Floor(band);
             if (fHardEdge)
             {
-                return (iBand & 1) == 0 ? _clrInner : _clrOuter;
+                return (iBand & 1) == 0 ? _blend1 : _blend2;
             }
             var tBand = band - iBand;
-            var color1 = _clrInner;
-            var color2 = _clrOuter;
+            var color1 = _blend1;
+            var color2 = _blend2;
 
             if ((iBand & 1) == 0)
             {

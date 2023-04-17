@@ -52,6 +52,15 @@
                         <Slider x:Name="sldrFrequency" Maximum="4" Minimum="0.1" Margin="10,0,10,0"/>
                         <Label x:Name="lblCBands" Content ="Frequency" HorizontalAlignment="Center"/>
                         <Slider x:Name="sldrCBands" Maximum="300" Minimum="1" Margin="10,0,10,0" IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Label Content ="Blend Colors" HorizontalAlignment="Center"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="btnBlend1" Grid.Column="0" MinHeight="20" Margin="10,5,5,0" Background="Yellow"/>
+                            <Button x:Name="btnBlend2" Grid.Column="1" Margin="10,5,5,0" Background="Red"/>
+                        </Grid>
                     </StackPanel>
                 </TabItem>
                 <TabItem Header="Clear">
