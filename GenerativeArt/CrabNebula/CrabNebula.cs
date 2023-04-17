@@ -103,6 +103,7 @@ namespace GenerativeArt.CrabNebula
             btn = _ourWindow.btnBlend2;
             brush = (SolidColorBrush)btn.Background;
             _parameters.Blend2 = brush.Color;
+            _parameters.FHardEdged = _ourWindow.cbxHardEdges.IsChecked ?? false;
         }
 
         private void DistributeParameters()
@@ -115,6 +116,7 @@ namespace GenerativeArt.CrabNebula
             _ourWindow.sldrCBands.Value = _parameters.CBands;
             _ourWindow.btnBlend1.Background = new SolidColorBrush(_parameters.Blend1);
             _ourWindow.btnBlend2.Background = new SolidColorBrush(_parameters.Blend2);
+            _ourWindow.cbxHardEdges.IsChecked = _parameters.FHardEdged;
         }
 
         #region Hooks

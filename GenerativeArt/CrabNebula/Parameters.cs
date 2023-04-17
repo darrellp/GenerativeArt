@@ -13,6 +13,7 @@ namespace GenerativeArt.CrabNebula
         internal int Octaves { get; set; } = 3;
         internal Color Blend1 { get; set; } = Colors.Yellow;
         internal Color Blend2 { get; set; } = Colors.Red;
+        internal bool FHardEdged { get; set; } = false;
 
         public Parameters() {}
     }

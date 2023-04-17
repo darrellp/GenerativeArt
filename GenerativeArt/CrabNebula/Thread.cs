@@ -20,8 +20,9 @@ namespace GenerativeArt.CrabNebula
         private static double _persistence;
         private static int _octaves;
         private static int _cPoints;
-        private static Color _blend1 = Colors.Red;
-        private static Color _blend2 = Colors.Yellow;
+        private static Color _blend1;
+        private static Color _blend2;
+        private static bool _fHardEdged;
 
         private readonly int _cPointsThread;
         private readonly int _width;
@@ -48,6 +49,7 @@ namespace GenerativeArt.CrabNebula
             _cBands = parameters.CBands;
             _blend1 = parameters.Blend1;
             _blend2 = parameters.Blend2;
+            _fHardEdged = parameters.FHardEdged;
         }
 
         internal static async Task<(int maxhits, ushort[,] hits, int[,] r, int[,] g, int[,] b)> 
@@ -168,11 +170,11 @@ namespace GenerativeArt.CrabNebula
             return (new Point(x + nx, y + ny), NebulaColor(_cBands, tColor));
         }
 
-        private Color NebulaColor(int cBands, double t, bool fHardEdge = false)
+        private Color NebulaColor(int cBands, double t)
         {
             var band = cBands * t;
             var iBand = (int)Math.Floor(band);
-            if (fHardEdge)
+            if (_fHardEdged)
             {
                 return (iBand & 1) == 0 ? _blend1 : _blend2;
             }

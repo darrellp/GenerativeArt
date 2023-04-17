@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GenerativeArt"
         mc:Ignorable="d"
-        Title="MainWindow" Height="800" Width="1000">
+        Title="MainWindow" Height="800" Width="1000" ResizeMode="NoResize">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="800"/>
@@ -13,7 +13,7 @@
         </Grid.ColumnDefinitions>
         <Rectangle x:Name="RctSize" Loaded="Rectangle_Loaded" Visibility="Hidden" />
         <Image x:Name="Art" Grid.Column = "0" Stretch="UniformToFill" />
-        <Grid Grid.Column="1" Background="#FFDC9239">
+        <Grid Grid.Column="1" Background="Wheat">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -61,6 +61,7 @@
                             <Button x:Name="btnBlend1" Grid.Column="0" MinHeight="20" Margin="10,5,5,0" Background="Yellow"/>
                             <Button x:Name="btnBlend2" Grid.Column="1" Margin="10,5,5,0" Background="Red"/>
                         </Grid>
+                        <CheckBox x:Name="cbxHardEdges" Content="Hard Edged Bands" HorizontalAlignment="Center" Margin="0,15,0,0"/>
                     </StackPanel>
                 </TabItem>
                 <TabItem Header="Clear">
