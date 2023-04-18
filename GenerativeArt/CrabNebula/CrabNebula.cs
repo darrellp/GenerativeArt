@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using ColorPicker.Models;
 
 namespace GenerativeArt.CrabNebula
 {
@@ -18,21 +18,14 @@ namespace GenerativeArt.CrabNebula
 
     internal class CrabNebula : IGenerator
     {
-        private readonly WriteableBitmap _wbmp;
-        private readonly int _width;
-        private readonly int _height;
+        private int _artWidth;
+        private int _artHeight;
         private MainWindow _ourWindow;
 
-        private Parameters _parameters = new();
+        private Task<(int, ushort[,], int[,], int[,], int[,])>? _taskAmass;
+        private Task<PixelColor[]>? _taskDraw;
 
-#pragma warning disable CS8618
-        internal CrabNebula(WriteableBitmap wbmp)
-#pragma warning restore CS8618
-        {
-            _wbmp = wbmp;
-            _width = (int)_wbmp.Width;
-            _height = (int)_wbmp.Height;
-        }
+        private Parameters _parameters = new();
 
         public void Initialize(MainWindow ourWindow)
         {
@@ -44,6 +37,8 @@ namespace GenerativeArt.CrabNebula
                 _ourWindow = ourWindow;
                 HookParameterControls();
             }
+            _artWidth = _ourWindow.ArtWidth;
+            _artHeight = _ourWindow.ArtHeight;
             DistributeParameters();
         }
 
@@ -52,40 +47,77 @@ namespace GenerativeArt.CrabNebula
             // Set Parameters correctly
             GatherParameters();
             Thread.SetParameters(_parameters);
+            WriteableBitmap wbmp = BitmapFactory.New(_artWidth, _artHeight);
+            wbmp.Clear(Colors.Black);
+            var t = wbmp.BackBufferStride;
+            _ourWindow.Art.Source = wbmp;
+            Debug.Assert(wbmp.Format == PixelFormats.Pbgra32);
 
             // Amass our data...
-            Task<(int, ushort[,], int[,], int[,], int[,])> task = Thread.AmassAcrossThreads(_width, _height);
-            var (maxHits, hits, R, G, B) = await task;
+            _taskAmass = Thread.AmassAcrossThreads(_artWidth, _artHeight);
+            var (maxHits, hits, R, G, B) = await _taskAmass;
+            _taskAmass = null;
 
-            // Use the data to actually draw stuff
+            // Use the data to create a pixel array
+            _taskDraw = new Task<PixelColor[]>(()=>Draw( maxHits, hits, R, G, B));
+            _taskDraw.Start();
+            var pixels = await _taskDraw;
+            _taskDraw = null;
+
+            // Write the pixel array to the art image
+            var sizePixel = Marshal.SizeOf(typeof(PixelColor));
+            var stride = _artWidth * sizePixel;
+            wbmp.WritePixels(new Int32Rect(0, 0, _ourWindow.ArtWidth, _ourWindow.ArtHeight), pixels, stride, 0);
+            _ourWindow.Art.Source = wbmp;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct PixelColor
+        {
+            public readonly byte Blue;
+            public readonly byte Green;
+            public readonly byte Red;
+            public readonly byte Alpha;
+
+            public PixelColor(byte R, byte G, byte B)
+            {
+                Red = R;
+                Green = G;
+                Blue = B;
+                Alpha = 255;
+            }
+        }
+
+        private PixelColor[] Draw( int maxHits, ushort[,] hits, int[,] R, int[,] G, int[,] B)
+        {
+            var pixelData = new PixelColor[_artWidth * _artHeight];
 
             // Do conversion to double once here.
             double maxHitsDbl = maxHits;
 
             // Step through all pixels in the image
-            for (var iX = 0; iX < _width; iX++)
+            for (var iX = 0; iX < _artWidth; iX++)
             {
-                for (var iY = 0; iY < _height; iY++)
+                for (var iY = 0; iY < _artHeight; iY++)
                 {
                     var hitCount = hits[iX, iY];
                     if (hitCount == 0)
                     {
-                        continue;
+                        pixelData[iY * _artWidth + iX] = new PixelColor(0, 0, 0);
                     }
 
                     // Gamma correction
                     var noiseVal = Math.Pow(hitCount / maxHitsDbl, 1.0 / 5.0);
-
-                    // Determine gamma corrected average color at this point
-                    var r = (byte)(R[iX, iY] * noiseVal / hitCount);
-                    var g = (byte)(G[iX, iY] * noiseVal / hitCount);
-                    var b = (byte)(B[iX, iY] * noiseVal / hitCount);
-                    var color = Color.FromRgb(r, g, b);
+                    var mult = noiseVal / hitCount;
 
                     // Draw it
-                    _wbmp.SetPixel(iX, iY, color);
+                    pixelData[iY * _artWidth + iX] = new PixelColor(
+                        (byte)(R[iX, iY] * mult),
+                        (byte)(G[iX, iY] * mult),
+                        (byte)(B[iX, iY] * mult));
                 }
             }
+            return pixelData;
         }
 
         #region Parameter Handling
