@@ -49,7 +49,6 @@ namespace GenerativeArt.CrabNebula
             Thread.SetParameters(_parameters);
             WriteableBitmap wbmp = BitmapFactory.New(_artWidth, _artHeight);
             wbmp.Clear(Colors.Black);
-            var t = wbmp.BackBufferStride;
             _ourWindow.Art.Source = wbmp;
             Debug.Assert(wbmp.Format == PixelFormats.Pbgra32);
 
@@ -68,7 +67,6 @@ namespace GenerativeArt.CrabNebula
             var sizePixel = Marshal.SizeOf(typeof(PixelColor));
             var stride = _artWidth * sizePixel;
             wbmp.WritePixels(new Int32Rect(0, 0, _ourWindow.ArtWidth, _ourWindow.ArtHeight), pixels, stride, 0);
-            _ourWindow.Art.Source = wbmp;
         }
 
         [StructLayout(LayoutKind.Sequential)]
