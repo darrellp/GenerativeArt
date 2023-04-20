@@ -4,5 +4,6 @@
     {
         void Generate();
         void Initialize(MainWindow ourWindow);
+        void Kill();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -41,13 +42,17 @@ namespace GenerativeArt.CrabNebula
         private MainWindow _ourWindow;
 #pragma warning restore CS8618
 
+        /// <summary>   Background tasks. </summary>
         private Task<(int, ushort[,], int[,], int[,], int[,])>? _taskAmass;
         private Task<PixelColor[]>? _taskDraw;
 
+        /// <summary>  Object which keeps the parameters from our tab page. </summary>
         private Parameters _parameters = new();
+
+        private CancellationTokenSource? _cts;
         #endregion
 
-        #region Initialization
+        #region Initialization / Destruction
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Initializes this object. </summary>
         ///
@@ -77,6 +82,20 @@ namespace GenerativeArt.CrabNebula
             // stuff we've set up earlier in Initialize().
             DistributeParameters();
         }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Kills any running threads. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/19/2023. </remarks>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public void Kill()
+        {
+            if (_cts != null)
+            {
+                _cts.Cancel();
+            }
+        }
         #endregion
 
         #region Generating/Drawing
@@ -88,6 +107,20 @@ namespace GenerativeArt.CrabNebula
 
         public async void Generate()
         {
+#if KILLABLE
+            // Check to see if we need to kill running threads
+            if (_taskAmass != null)
+            {
+                Debug.Assert(_cts != null, nameof(_cts) + " != null");
+                _cts.Cancel();
+            }
+            else if (_taskDraw != null)
+            {
+                Debug.Assert(_cts != null, nameof(_cts) + " != null");
+                _cts.Cancel();
+            }
+            _cts = null;
+#endif
             // Set Parameters correctly
             GatherParameters();
             Thread.SetParameters(_parameters);
@@ -97,15 +130,37 @@ namespace GenerativeArt.CrabNebula
             Debug.Assert(wbmp.Format == PixelFormats.Pbgra32);
 
             // Amass our data...
-            _taskAmass = Thread.AmassAcrossThreads(_artWidth, _artHeight);
-            var (maxHits, hits, R, G, B) = await _taskAmass;
+            _cts = new CancellationTokenSource();
+            _taskAmass = Thread.AmassAcrossThreads(_artWidth, _artHeight, _cts);
+            int maxHits;
+            ushort[,] hits;
+            int[,] R, G, B;
+            try
+            {
+                (maxHits, hits, R, G, B) = await _taskAmass;
+            }
+            catch (Exception e)
+            {
+                return;
+            }
             _taskAmass = null;
+            _cts = null;
 
             // Use the data to create a pixel array
-            _taskDraw = new Task<PixelColor[]>(()=>Draw( maxHits, hits, R, G, B));
+            _cts = new CancellationTokenSource();
+            _taskDraw = new Task<PixelColor[]>(() => Draw(maxHits, hits, R, G, B, _cts.Token));
             _taskDraw.Start();
-            var pixels = await _taskDraw;
+            PixelColor[] pixels;
+            try
+            {
+                pixels = await _taskDraw;
+            }
+            catch (OperationCanceledException e)
+            {
+                return;
+            }
             _taskDraw = null;
+            _cts = null;
 
             // Write the pixel array to the art image
             var sizePixel = Marshal.SizeOf(typeof(PixelColor));
@@ -148,7 +203,7 @@ namespace GenerativeArt.CrabNebula
         /// <returns>   A PixelColor[] with all the final color info. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private PixelColor[] Draw( int maxHits, ushort[,] hits, int[,] R, int[,] G, int[,] B)
+        private PixelColor[] Draw( int maxHits, ushort[,] hits, int[,] R, int[,] G, int[,] B, CancellationToken token)
         {
             var pixelData = new PixelColor[_artWidth * _artHeight];
 
@@ -160,6 +215,12 @@ namespace GenerativeArt.CrabNebula
             {
                 for (var iY = 0; iY < _artHeight; iY++)
                 {
+#if KILLABLE
+                    if (token.IsCancellationRequested)
+                    {
+                        token.ThrowIfCancellationRequested();
+                    }
+#endif
                     var hitCount = hits[iX, iY];
                     if (hitCount == 0)
                     {
@@ -179,7 +240,7 @@ namespace GenerativeArt.CrabNebula
             }
             return pixelData;
         }
-        #endregion
+#endregion
 
         #region Parameter Handling
         private void GatherParameters()

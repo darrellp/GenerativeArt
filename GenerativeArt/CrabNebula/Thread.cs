@@ -1,6 +1,7 @@
 ﻿using MathNet.Numerics.Distributions;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -104,7 +105,7 @@ namespace GenerativeArt.CrabNebula
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         internal static async Task<(int maxhits, ushort[,] hits, int[,] r, int[,] g, int[,] b)> 
-            AmassAcrossThreads(int width, int height)
+            AmassAcrossThreads(int width, int height, CancellationTokenSource cts)
         {
             Perlin noise = new()
             {
@@ -118,7 +119,7 @@ namespace GenerativeArt.CrabNebula
                 Range(0, cThreads).
                 Select(_ => new Thread(_cPoints / cThreads, width, height, noise)).
                 ToArray();
-            var tasks = threads.Select(t => new Task(t.Amass)).ToList();
+            var tasks = threads.Select(t => new Task(() =>t.Amass(cts.Token))).ToList();
             tasks.ForEach(t => t.Start());
             await Task.WhenAll(tasks);
             return ConsolidateThreads(threads);
@@ -170,11 +171,17 @@ namespace GenerativeArt.CrabNebula
         ///
         /// <remarks>   Darrell Plank, 4/19/2023. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        internal void Amass()
+        internal void Amass(CancellationToken token)
         {
             // Generate a new random point each time through this loop
             for (var ipt = 0; ipt < _cPointsThread; ipt++)
             {
+#if KILLABLE
+                if (token.IsCancellationRequested)
+                {
+                    token.ThrowIfCancellationRequested();
+                }
+#endif
                 // Calculate the point and it's color
                 var (pt, clr) = CalcNebulaPoint(_noise);
 
@@ -263,6 +270,6 @@ namespace GenerativeArt.CrabNebula
 
             return LerpColor(color1, color2, tBand);
         }
-        #endregion
+#endregion
     }
 }

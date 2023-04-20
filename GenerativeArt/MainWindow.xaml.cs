@@ -71,5 +71,9 @@ namespace GenerativeArt
             _ourWindow = ourWindow;
             _wbmp = BitmapFactory.New(ourWindow.ArtWidth, ourWindow.ArtHeight);
         }
+
+        public void Kill()
+        {
+        }
     }
 }
