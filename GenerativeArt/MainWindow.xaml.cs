@@ -55,8 +55,10 @@ namespace GenerativeArt
     // Dummy Class to test tabs stuff
     class ClearArt : IGenerator
     {
+#pragma warning disable CS8618
         private WriteableBitmap _wbmp;
         private MainWindow _ourWindow;
+#pragma warning restore CS8618
 
         public void Generate()
         {

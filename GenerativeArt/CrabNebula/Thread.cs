@@ -8,8 +8,19 @@ using static GenerativeArt.Utilities;
 
 namespace GenerativeArt.CrabNebula
 {
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// <summary>   This is the guts of the crab nebula art.  It figures out the detailed
+    ///             hit info by using Perlin noise.  It's designed to be run on a separate
+    ///             thread and only determines hit and color info without actually doing 
+    ///             any I/O. 
+    ///             </summary>
+    ///
+    /// <remarks>   Darrell Plank, 4/19/2023. </remarks>
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+
     internal class Thread
     {
+        #region Private Variables
         private const double SqrtTwo = 1.41421356237;
         private static double _noiseScale;
         private const double StdDev = 0.15;
@@ -38,6 +49,16 @@ namespace GenerativeArt.CrabNebula
         private readonly int[,] _g;
         private readonly int[,] _b;
         // ReSharper restore InconsistentNaming
+        #endregion
+
+        #region Parameter Setting
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Sets the parameters on our tab page from the Parameters object. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/19/2023. </remarks>
+        ///
+        /// <param name="parameters">   Parameters for our tab page. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         internal static void SetParameters(Parameters parameters)
         {
@@ -51,6 +72,36 @@ namespace GenerativeArt.CrabNebula
             _blend2 = parameters.Blend2;
             _fHardEdged = parameters.FHardEdged;
         }
+        #endregion
+
+        #region Constructor
+        private Thread(int cPointsThread, int width, int height, Perlin noise)
+        {
+            _cPointsThread = cPointsThread;
+            _width = width;
+            _height = height;
+            _noise = noise;
+            _distNormal = new Normal(Mean, StdDev);
+            _hits = new ushort[_width, _height];
+            _r = new int[_width, _height];
+            _g = new int[_width, _height];
+            _b = new int[_width, _height];
+        }
+        #endregion
+
+        #region Threading
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Sets up a number of threads to do the hit/color calculations.  Each
+        ///             thread has it's own buffers for all this info which will be combined
+        ///             into one set at the end in ConsolidateThreads(). </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/19/2023. </remarks>
+        ///
+        /// <param name="width">    The width. </param>
+        /// <param name="height">   The height. </param>
+        ///
+        /// <returns>   All the hits and color information </returns>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         internal static async Task<(int maxhits, ushort[,] hits, int[,] r, int[,] g, int[,] b)> 
             AmassAcrossThreads(int width, int height)
@@ -73,7 +124,17 @@ namespace GenerativeArt.CrabNebula
             return ConsolidateThreads(threads);
         }
 
-        static (int maxhits, ushort[,] hits, int[,] r, int[,] g, int[,] b) ConsolidateThreads(Thread[] threads)
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Consolidate the hit/color information calculated by the individual threads. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/19/2023. </remarks>
+        ///
+        /// <param name="threads">  The threads. </param>
+        ///
+        /// <returns>   All the hits and color information. </returns>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        private static (int maxhits, ushort[,] hits, int[,] r, int[,] g, int[,] b) 
+            ConsolidateThreads(Thread[] threads)
         {
             var width = threads[0]._width;
             var height = threads[0]._height;
@@ -101,20 +162,14 @@ namespace GenerativeArt.CrabNebula
 
             return (maxHits, hits, r, g, b);
         }
-        
-        private Thread(int cPointsThread, int width, int height, Perlin noise)
-        {
-            _cPointsThread = cPointsThread;
-            _width = width;
-            _height = height;
-            _noise = noise;
-            _distNormal = new Normal(Mean, StdDev);
-            _hits = new ushort[_width, _height];
-            _r = new int[_width, _height];
-            _g = new int[_width, _height];
-            _b = new int[_width, _height];
-        }
+        #endregion
 
+        #region Calculating hit/color information
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Amass all the color/hit information for this thread. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/19/2023. </remarks>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
         internal void Amass()
         {
             // Generate a new random point each time through this loop
@@ -144,6 +199,15 @@ namespace GenerativeArt.CrabNebula
             }
         }
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Calculates a nebula point and its color. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/19/2023. </remarks>
+        ///
+        /// <param name="noise">    The noise. </param>
+        ///
+        /// <returns>   The calculated nebula point. </returns>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
         internal (Point, Color) CalcNebulaPoint(Perlin noise)
         {
             // Pick a random normally distributed point around (0.5, 0.5)
@@ -170,7 +234,17 @@ namespace GenerativeArt.CrabNebula
             return (new Point(x + nx, y + ny), NebulaColor(_cBands, tColor));
         }
 
-        private Color NebulaColor(int cBands, double t)
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Determines a Nebula color. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/19/2023. </remarks>
+        ///
+        /// <param name="cBands">   The count of bands. </param>
+        /// <param name="t">        The 0-1 value with 0 at the center and 1 at the edges. </param>
+        ///
+        /// <returns>   A Color. </returns>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        private static Color NebulaColor(int cBands, double t)
         {
             var band = cBands * t;
             var iBand = (int)Math.Floor(band);
@@ -189,5 +263,6 @@ namespace GenerativeArt.CrabNebula
 
             return LerpColor(color1, color2, tBand);
         }
+        #endregion
     }
 }

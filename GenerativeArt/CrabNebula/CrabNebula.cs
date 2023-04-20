@@ -8,46 +8,90 @@ using System.Windows.Media.Imaging;
 
 namespace GenerativeArt.CrabNebula
 {
-    // Current code is based on blog post here:
-    //      https://generateme.wordpress.com/2018/10/24/smooth-rendering-log-density-mapping/
-    // with a few differences - primarily that it's written in C# on a WriteableBitmap rather than in Processing.
-    // I've changed some of the parameters to suit me and though I tried some public domain noise producers, none
-    // seemed like what I wanted or I couldn't figure them out so wrote my own Perlin noise generator.  Colors are
-    // done in radial bands rather than whatever he does (which I think was a horizontal single gradation.  Probably
-    // other stuff that I didn't really understand in his code and just wrote the way that seemed right to me.
+    // Todo: Antialiasing
+    // Todo: Other types of noise
+    // Todo: Killing running threads on new Generate
+    // Todo: General Optimization
+    // Todo: Other color schemes?
+    // Todo: Other gradient types - Horizontal, Ray, etc.
+    // Todo: Alpha
+    // Todo: Standard Deviation control
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// <summary>
+    /// Current code is based on blog post here:
+    ///      https://generateme.wordpress.com/2018/10/24/smooth-rendering-log-density-mapping/
+    /// with a few differences - primarily that it's written in C# on a WriteableBitmap rather than
+    /// in Processing. I've changed some of the parameters to suit me and though I tried some public
+    /// domain noise producers, none seemed like what I wanted or I couldn't figure them out so wrote
+    /// my own Perlin noise generator.  Colors are done in radial bands rather than whatever he does
+    /// (which I think was a horizontal single gradation.  Probably other stuff that I didn't really
+    /// understand in his code and just wrote the way that seemed right to me.
+    /// </summary>
+    ///
+    /// <remarks>   Darrell Plank, 4/19/2023. </remarks>
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     internal class CrabNebula : IGenerator
     {
+        #region Private variables
         private int _artWidth;
         private int _artHeight;
+#pragma warning disable CS8618
         private MainWindow _ourWindow;
+#pragma warning restore CS8618
 
         private Task<(int, ushort[,], int[,], int[,], int[,])>? _taskAmass;
         private Task<PixelColor[]>? _taskDraw;
 
         private Parameters _parameters = new();
+        #endregion
+
+        #region Initialization
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Initializes this object. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/19/2023. </remarks>
+        ///
+        /// <param name="ourWindow">    our window. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         public void Initialize(MainWindow ourWindow)
         {
+            // Initialize our parameters
             _parameters = new Parameters();
 
             // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
             if (_ourWindow == null)
             {
                 _ourWindow = ourWindow;
+                
+                // Grab stuff we want to react to on our tab page
                 HookParameterControls();
             }
             _artWidth = _ourWindow.ArtWidth;
             _artHeight = _ourWindow.ArtHeight;
+
+            // Place the initialized values into the controls on our tab page
+            // We're required to place this down here because the call relies on
+            // stuff we've set up earlier in Initialize().
             DistributeParameters();
         }
+        #endregion
+
+        #region Generating/Drawing
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Generates the Crab Nebula art on the Art image. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/19/2023. </remarks>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         public async void Generate()
         {
             // Set Parameters correctly
             GatherParameters();
             Thread.SetParameters(_parameters);
-            WriteableBitmap wbmp = BitmapFactory.New(_artWidth, _artHeight);
+            var wbmp = BitmapFactory.New(_artWidth, _artHeight);
             wbmp.Clear(Colors.Black);
             _ourWindow.Art.Source = wbmp;
             Debug.Assert(wbmp.Format == PixelFormats.Pbgra32);
@@ -66,7 +110,7 @@ namespace GenerativeArt.CrabNebula
             // Write the pixel array to the art image
             var sizePixel = Marshal.SizeOf(typeof(PixelColor));
             var stride = _artWidth * sizePixel;
-            wbmp.WritePixels(new Int32Rect(0, 0, _ourWindow.ArtWidth, _ourWindow.ArtHeight), pixels, stride, 0);
+            wbmp.WritePixels(new Int32Rect(0, 0, _artWidth, _artHeight), pixels, stride, 0);
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -85,6 +129,24 @@ namespace GenerativeArt.CrabNebula
                 Alpha = 255;
             }
         }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Draws the crab nebula given hit info. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/19/2023. 
+        ///             This routine does no I/O and so can be run asynchronously.  it
+        ///             puts all it's color into in an array of PixelColors which can be put
+        ///             into the WriteableBitmap by the caller in the I/O thread very quickly.
+        ///             </remarks>
+        ///
+        /// <param name="maxHits">  The maximum hits across the image. </param>
+        /// <param name="hits">     The hits at each pixel. </param>
+        /// <param name="R">        Sum of Red color hits. </param>
+        /// <param name="G">        Sum of Green color hits. </param>
+        /// <param name="B">        Sum of Blue color hits. </param>
+        ///
+        /// <returns>   A PixelColor[] with all the final color info. </returns>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         private PixelColor[] Draw( int maxHits, ushort[,] hits, int[,] R, int[,] G, int[,] B)
         {
@@ -117,6 +179,7 @@ namespace GenerativeArt.CrabNebula
             }
             return pixelData;
         }
+        #endregion
 
         #region Parameter Handling
         private void GatherParameters()
