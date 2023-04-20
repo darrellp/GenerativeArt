@@ -86,7 +86,7 @@
                         <CheckBox x:Name="cbxHardEdges" Content="Hard Edged Bands" HorizontalAlignment="Center" Margin="0,15,0,0"/>
                     </StackPanel>
                 </TabItem>
-                <TabItem Header="Clear">
+                <TabItem Header="Noise">
                     <Grid Background="#FFE5E5E5">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="10*"/>

@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics.Distributions;
+﻿using GenerativeArt.Noises;
+using MathNet.Numerics.Distributions;
 using System;
 using System.Linq;
 using System.Threading;

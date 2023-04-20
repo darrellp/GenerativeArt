@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace GenerativeArt
 {
@@ -45,35 +43,10 @@ namespace GenerativeArt
             _generators = new List<IGenerator>()
             {
                 new CrabNebula.CrabNebula(),
-                new ClearArt(),
+                new NoiseGenerator.NoiseGenerator(),
             };
             _generators.ForEach(g => g.Initialize(this));
             OnGenerate(this, new RoutedEventArgs());
-        }
-    }
-
-    // Dummy Class to test tabs stuff
-    class ClearArt : IGenerator
-    {
-#pragma warning disable CS8618
-        private WriteableBitmap _wbmp;
-        private MainWindow _ourWindow;
-#pragma warning restore CS8618
-
-        public void Generate()
-        {
-            _wbmp.Clear(Colors.Black);
-            _ourWindow.Art.Source = _wbmp;
-        }
-
-        public void Initialize(MainWindow ourWindow)
-        {
-            _ourWindow = ourWindow;
-            _wbmp = BitmapFactory.New(ourWindow.ArtWidth, ourWindow.ArtHeight);
-        }
-
-        public void Kill()
-        {
         }
     }
 }

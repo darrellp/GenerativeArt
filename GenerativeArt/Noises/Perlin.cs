@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace GenerativeArt
+namespace GenerativeArt.Noises
 {
     // Based on the article here:
     //  https://adrianb.io/2014/08/09/perlinnoise.html

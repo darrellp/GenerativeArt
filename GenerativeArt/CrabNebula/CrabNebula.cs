@@ -168,23 +168,6 @@ namespace GenerativeArt.CrabNebula
             wbmp.WritePixels(new Int32Rect(0, 0, _artWidth, _artHeight), pixels, stride, 0);
         }
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct PixelColor
-        {
-            public readonly byte Blue;
-            public readonly byte Green;
-            public readonly byte Red;
-            public readonly byte Alpha;
-
-            public PixelColor(byte R, byte G, byte B)
-            {
-                Red = R;
-                Green = G;
-                Blue = B;
-                Alpha = 255;
-            }
-        }
-
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Draws the crab nebula given hit info. </summary>
         ///
