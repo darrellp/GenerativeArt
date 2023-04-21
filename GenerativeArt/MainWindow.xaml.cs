@@ -65,33 +65,20 @@ namespace GenerativeArt
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Event handler. Called by Rectangle for loaded events.
-        ///              </summary>
+        /// <summary>   Event handler for grid loaded. </summary>
         ///
-        /// <remarks>   I'm embarrassed that I'm misusing this load on a dummy rectangle to 
-        ///             retrieve sizes but it seems that my art image claims it's size 0 until it
-        ///             gets drawn to which means I need something else to be given the actual
-        ///             size of our space.  Still - there's gotta be a better way.
+        /// <remarks>   We're able to snag the size of the bitmap when the grid is
+        ///             properly loaded so we do that here
         ///             Darrell Plank, 4/20/2023. </remarks>
         ///
         /// <param name="sender">   Source of the event. </param>
         /// <param name="e">        Routed event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        private void Rectangle_Loaded(object sender, RoutedEventArgs e)
+        ///
+        private void Grid_Loaded(object sender, RoutedEventArgs e)
         {
-            // There's got to be a better way than this but I'm using this to determine when the
-            // size of the WritableBitmap is actually known.  If I check when the Image control is loaded
-            // then I get zero size in spite of the fact that art is supposed to fill the entire
-            // cell. If I make a dummy rectangle though and check when it's loaded I get the
-            // proper size.  I'm not sure what the proper way to do this is, but it can't be this!
-
-            ArtWidth = (int)RctSize.ActualWidth;
-            ArtHeight = (int)RctSize.ActualHeight;
-
-            // Generators know about/manage their individual tab pages and so must do the I/O on those tabs.
-            // They also do the actual drawing on the art image.  For these reasons they need access
-            // to the main window which is why it's passed down as a parameter to their constructors.
+            ArtWidth = (int)ArtColumn.ActualWidth;
+            ArtHeight = (int)ArtRow.ActualHeight;
             _generators = new List<IGenerator>()
             {
                 new CrabNebula.CrabNebula(this),

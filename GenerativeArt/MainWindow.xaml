@@ -28,12 +28,14 @@
     </ControlTemplate>
 </Window.Resources>
 
-<Grid>
+<Grid Loaded="Grid_Loaded">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="800"/>
+            <ColumnDefinition x:Name="ArtColumn" Width="800"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Rectangle x:Name="RctSize" Loaded="Rectangle_Loaded" Visibility="Hidden" />
+        <Grid.RowDefinitions>
+            <RowDefinition x:Name="ArtRow"/>
+        </Grid.RowDefinitions>
         <Image x:Name="Art" Grid.Column = "0" Stretch="UniformToFill" />
         <Grid Grid.Column="1" Background="Wheat">
             <Grid.RowDefinitions>
@@ -98,5 +100,5 @@
                 </TabItem>
             </TabControl>
         </Grid>
-    </Grid>
+</Grid>
 </Window>
