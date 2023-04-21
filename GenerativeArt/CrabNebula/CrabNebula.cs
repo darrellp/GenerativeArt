@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -36,21 +37,37 @@ namespace GenerativeArt.CrabNebula
     internal class CrabNebula : IGenerator
     {
         #region Private variables
+        /// <summary>   Width of the art. </summary>
         private int _artWidth;
+
+        /// <summary>   Height of the art. </summary>
         private int _artHeight;
+
+        /// <summary>   The main window. </summary>
         private readonly MainWindow _ourWindow;
 
-        /// <summary>   Background tasks. </summary>
+        /// <summary>   Amassing tasks. </summary>
         private Task<(int, ushort[,], int[,], int[,], int[,])>? _taskAmass;
+
+        /// <summary>   The draw task. </summary>
         private Task<PixelColor[]>? _taskDraw;
 
-        /// <summary>  Object which keeps the parameters from our tab page. </summary>
+        /// <summary>   Object which keeps the parameters from our tab page. </summary>
         private Parameters _parameters = new();
 
+        /// <summary>   The Cancellation Token Source. </summary>
         private CancellationTokenSource? _cts;
         #endregion
 
         #region Constructor
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Constructor. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
+        ///
+        /// <param name="ourWindow">    our window. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         internal CrabNebula(MainWindow ourWindow)
         {
             _ourWindow = ourWindow;
@@ -60,15 +77,15 @@ namespace GenerativeArt.CrabNebula
 
         #region Initialization / Destruction
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Initializes this object. </summary>
-        /// 
+        /// <summary>   Initializes this object. Resets all the tab page controls to defaults. </summary>
+        ///
         /// <remarks>   Darrell Plank, 4/19/2023. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         public void Initialize()
         {
             // Initialize our parameters
-            _parameters = new Parameters();
+            _parameters = new();
             _artWidth = _ourWindow.ArtWidth;
             _artHeight = _ourWindow.ArtHeight;
 
@@ -125,7 +142,7 @@ namespace GenerativeArt.CrabNebula
             Debug.Assert(wbmp.Format == PixelFormats.Pbgra32);
 
             // Amass our data...
-            _cts = new CancellationTokenSource();
+            _cts = new();
             _taskAmass = Thread.AmassAcrossThreads(_artWidth, _artHeight, _cts);
             int maxHits;
             ushort[,] hits;
@@ -142,8 +159,8 @@ namespace GenerativeArt.CrabNebula
             _cts = null;
 
             // Use the data to create a pixel array
-            _cts = new CancellationTokenSource();
-            _taskDraw = new Task<PixelColor[]>(() => Draw(maxHits, hits, R, G, B, _cts.Token));
+            _cts = new();
+            _taskDraw = new(() => Draw(maxHits, hits, R, G, B, _cts.Token));
             _taskDraw.Start();
             PixelColor[] pixels;
             try
@@ -160,25 +177,27 @@ namespace GenerativeArt.CrabNebula
             // Write the pixel array to the art image
             var sizePixel = Marshal.SizeOf(typeof(PixelColor));
             var stride = _artWidth * sizePixel;
-            wbmp.WritePixels(new Int32Rect(0, 0, _artWidth, _artHeight), pixels, stride, 0);
+
+            // The only I/O done in the generation process
+            wbmp.WritePixels(new(0, 0, _artWidth, _artHeight), pixels, stride, 0);
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Draws the crab nebula given hit info. </summary>
-        /// 
-        /// <remarks>   Darrell Plank, 4/19/2023. 
-        ///             This routine does no I/O and so can be run asynchronously.  it
-        ///             puts all it's color into in an array of PixelColors which can be put
-        ///             into the WriteableBitmap by the caller in the I/O thread very quickly.
-        ///             </remarks>
-        /// 
+        ///
+        /// <remarks>
+        /// Darrell Plank, 4/19/2023. This routine does no I/O and so can be run asynchronously.  it puts
+        /// all it's color into in an array of PixelColors which can be put into the WriteableBitmap by
+        /// the caller in the I/O thread very quickly.
+        /// </remarks>
+        ///
         /// <param name="maxHits">  The maximum hits across the image. </param>
         /// <param name="hits">     The hits at each pixel. </param>
         /// <param name="R">        Sum of Red color hits. </param>
         /// <param name="G">        Sum of Green color hits. </param>
         /// <param name="B">        Sum of Blue color hits. </param>
         /// <param name="token">    Token for cancellation. </param>
-        /// 
+        ///
         /// <returns>   A PixelColor[] with all the final color info. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -203,7 +222,7 @@ namespace GenerativeArt.CrabNebula
                     var hitCount = hits[iX, iY];
                     if (hitCount == 0)
                     {
-                        pixelData[iY * _artWidth + iX] = new PixelColor(0, 0, 0);
+                        pixelData[iY * _artWidth + iX] = new(0, 0, 0);
                     }
 
                     // Gamma correction
@@ -211,7 +230,7 @@ namespace GenerativeArt.CrabNebula
                     var mult = noiseVal / hitCount;
 
                     // Draw it
-                    pixelData[iY * _artWidth + iX] = new PixelColor(
+                    pixelData[iY * _artWidth + iX] = new(
                         (byte)(R[iX, iY] * mult),
                         (byte)(G[iX, iY] * mult),
                         (byte)(B[iX, iY] * mult));
@@ -222,6 +241,12 @@ namespace GenerativeArt.CrabNebula
 #endregion
 
         #region Parameter Handling
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Gather parameters from the tab page. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void GatherParameters()
         {
             _parameters.Octaves = (int)_ourWindow.sldrCnOctaves.Value;
@@ -239,6 +264,12 @@ namespace GenerativeArt.CrabNebula
             _parameters.FHardEdged = _ourWindow.cbxHardEdges.IsChecked ?? false;
         }
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Distribute parameters from tab page to our local variables. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void DistributeParameters()
         {
             _ourWindow.sldrCnOctaves.Value = _parameters.Octaves;
@@ -253,6 +284,12 @@ namespace GenerativeArt.CrabNebula
         }
 
         #region Hooks
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Hook parameter controls. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void HookParameterControls()
         {
             _ourWindow.sldrCnOctaves.ValueChanged += SldrOctaves_ValueChanged;
@@ -265,6 +302,15 @@ namespace GenerativeArt.CrabNebula
             _ourWindow.btnBlend2.Click += BtnBlend2_Click;
         }
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Event handler. Called by BtnBlend1 for click events. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Routed event information. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void BtnBlend1_Click(object sender, RoutedEventArgs e)
         {
             var btn = _ourWindow.btnBlend1;
@@ -275,6 +321,15 @@ namespace GenerativeArt.CrabNebula
                 btn.Background = new SolidColorBrush(color);
             }
         }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Event handler. Called by BtnBlend2 for click events. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Routed event information. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         private void BtnBlend2_Click(object sender, RoutedEventArgs e)
         {
@@ -287,30 +342,84 @@ namespace GenerativeArt.CrabNebula
             }
         }
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Event handler. Called by SldrCBands for value changed events. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        A RoutedPropertyChangedEventArgs&lt;double&gt; to process. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void SldrCBands_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             _ourWindow.lblCBands.Content = $"Color Bands: {e.NewValue:0}";
         }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Event handler. Called by SldrCPoints for value changed events. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        A RoutedPropertyChangedEventArgs&lt;double&gt; to process. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         private void SldrCPoints_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             _ourWindow.lblCnCPoints.Content = $"# Pts: {e.NewValue/1_000_000:#}M";
         }
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Sldr cn frequency value changed. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        A RoutedPropertyChangedEventArgs&lt;double&gt; to process. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void SldrCnFrequencyValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             _ourWindow.lblCnFrequency.Content = $"Frequency: {e.NewValue:0.00}";
         }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Event handler. Called by SldrNoiseScale for value changed events. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        A RoutedPropertyChangedEventArgs&lt;double&gt; to process. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         private void SldrNoiseScale_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             _ourWindow.lblNoiseScale.Content = $"Noise Scale: {e.NewValue:###0}";
         }
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Sldr cn persistence value changed. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        A RoutedPropertyChangedEventArgs&lt;double&gt; to process. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void SldrCnPersistenceValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             _ourWindow.lblCnPersistence.Content = $"Persistence: {e.NewValue:#0.0}";
         }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Event handler. Called by SldrOctaves for value changed events. </summary>
+        ///
+        /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        A RoutedPropertyChangedEventArgs&lt;double&gt; to process. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         private void SldrOctaves_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {

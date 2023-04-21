@@ -1,4 +1,4 @@
-﻿namespace GenerativeArt.Noises
+﻿namespace GenerativeArt.NoiseGenerator
 {
     internal struct Parameters
     {
