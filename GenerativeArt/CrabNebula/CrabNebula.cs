@@ -38,9 +38,7 @@ namespace GenerativeArt.CrabNebula
         #region Private variables
         private int _artWidth;
         private int _artHeight;
-#pragma warning disable CS8618
-        private MainWindow _ourWindow;
-#pragma warning restore CS8618
+        private readonly MainWindow _ourWindow;
 
         /// <summary>   Background tasks. </summary>
         private Task<(int, ushort[,], int[,], int[,], int[,])>? _taskAmass;
@@ -52,28 +50,25 @@ namespace GenerativeArt.CrabNebula
         private CancellationTokenSource? _cts;
         #endregion
 
+        #region Constructor
+        internal CrabNebula(MainWindow ourWindow)
+        {
+            _ourWindow = ourWindow;
+            HookParameterControls();
+        }
+        #endregion
+
         #region Initialization / Destruction
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Initializes this object. </summary>
-        ///
+        /// 
         /// <remarks>   Darrell Plank, 4/19/2023. </remarks>
-        ///
-        /// <param name="ourWindow">    our window. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public void Initialize(MainWindow ourWindow)
+        public void Initialize()
         {
             // Initialize our parameters
             _parameters = new Parameters();
-
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-            if (_ourWindow == null)
-            {
-                _ourWindow = ourWindow;
-                
-                // Grab stuff we want to react to on our tab page
-                HookParameterControls();
-            }
             _artWidth = _ourWindow.ArtWidth;
             _artHeight = _ourWindow.ArtHeight;
 
@@ -170,19 +165,20 @@ namespace GenerativeArt.CrabNebula
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Draws the crab nebula given hit info. </summary>
-        ///
+        /// 
         /// <remarks>   Darrell Plank, 4/19/2023. 
         ///             This routine does no I/O and so can be run asynchronously.  it
         ///             puts all it's color into in an array of PixelColors which can be put
         ///             into the WriteableBitmap by the caller in the I/O thread very quickly.
         ///             </remarks>
-        ///
+        /// 
         /// <param name="maxHits">  The maximum hits across the image. </param>
         /// <param name="hits">     The hits at each pixel. </param>
         /// <param name="R">        Sum of Red color hits. </param>
         /// <param name="G">        Sum of Green color hits. </param>
         /// <param name="B">        Sum of Blue color hits. </param>
-        ///
+        /// <param name="token">    Token for cancellation. </param>
+        /// 
         /// <returns>   A PixelColor[] with all the final color info. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 

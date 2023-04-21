@@ -96,12 +96,13 @@ namespace GenerativeArt.CrabNebula
         /// <summary>   Sets up a number of threads to do the hit/color calculations.  Each
         ///             thread has it's own buffers for all this info which will be combined
         ///             into one set at the end in ConsolidateThreads(). </summary>
-        ///
+        /// 
         /// <remarks>   Darrell Plank, 4/19/2023. </remarks>
-        ///
+        /// 
         /// <param name="width">    The width. </param>
         /// <param name="height">   The height. </param>
-        ///
+        /// <param name="cts">      Cancellation Token Source. </param>
+        /// 
         /// <returns>   All the hits and color information </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 

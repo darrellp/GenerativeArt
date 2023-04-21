@@ -27,7 +27,7 @@ namespace GenerativeArt
         private void BtnInitialize_Click(object sender, RoutedEventArgs e)
         {
             Debug.Assert(_generators != null, nameof(_generators) + " != null");
-            _generators[tabArtType.SelectedIndex].Initialize(this);
+            _generators[tabArtType.SelectedIndex].Initialize();
         }
 
         private void Rectangle_Loaded(object sender, RoutedEventArgs e)
@@ -42,10 +42,10 @@ namespace GenerativeArt
             ArtHeight = (int)RctSize.ActualHeight;
             _generators = new List<IGenerator>()
             {
-                new CrabNebula.CrabNebula(),
-                new NoiseGenerator.NoiseGenerator(),
+                new CrabNebula.CrabNebula(this),
+                new NoiseGenerator.NoiseGenerator(this),
             };
-            _generators.ForEach(g => g.Initialize(this));
+            _generators.ForEach(g => g.Initialize());
             OnGenerate(this, new RoutedEventArgs());
         }
     }

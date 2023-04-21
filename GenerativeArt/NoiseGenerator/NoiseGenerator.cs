@@ -10,12 +10,20 @@ namespace GenerativeArt.NoiseGenerator
 {
     internal class NoiseGenerator : IGenerator
     {
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        MainWindow _ourWindow;
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        #region Private Variables
+        private readonly MainWindow _ourWindow;
         int _artWidth;
         int _artHeight;
-        private Parameters _params = new Parameters();
+        private Parameters _params = new();
+        #endregion
+
+        #region Constructor
+        internal NoiseGenerator(MainWindow ourWindow)
+        {
+            _ourWindow = ourWindow;
+            HookParameterControls();
+        }
+        #endregion  
 
         #region IGenerator interface
         public void Generate()
@@ -31,16 +39,9 @@ namespace GenerativeArt.NoiseGenerator
             wbmp.WritePixels(new Int32Rect(0, 0, _artWidth, _artHeight), pixels, stride, 0);
         }
 
-        public void Initialize(MainWindow ourWindow)
+        public void Initialize()
         {
             _params = new Parameters();
-
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-            if (_ourWindow == null)
-            {
-                _ourWindow = ourWindow;
-                HookParameterControls();
-            }
             _artWidth = _ourWindow.ArtWidth;
             _artHeight = _ourWindow.ArtHeight;
             DistributeParameters();

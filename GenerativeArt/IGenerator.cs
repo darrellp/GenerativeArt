@@ -3,7 +3,7 @@
     internal interface IGenerator
     {
         void Generate();
-        void Initialize(MainWindow ourWindow);
+        void Initialize();
         void Kill();
     }
 }
