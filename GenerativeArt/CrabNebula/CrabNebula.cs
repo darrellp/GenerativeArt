@@ -228,11 +228,11 @@ namespace GenerativeArt.CrabNebula
         #region Parameter Handling
         private void GatherParameters()
         {
-            _parameters.Octaves = (int)_ourWindow.sldrOctaves.Value;
-            _parameters.Persistence = _ourWindow.sldrPersistence.Value;
+            _parameters.Octaves = (int)_ourWindow.sldrCnOctaves.Value;
+            _parameters.Persistence = _ourWindow.sldrCnPersistence.Value;
             _parameters.NoiseScale = _ourWindow.sldrNoiseScale.Value;
-            _parameters.Frequency = _ourWindow.sldrFrequency.Value;
-            _parameters.CPoints = (int)_ourWindow.sldrCPoints.Value;
+            _parameters.Frequency = _ourWindow.sldrCnFrequency.Value;
+            _parameters.CPoints = (int)_ourWindow.sldrCnCPoints.Value;
             _parameters.CBands = (int)_ourWindow.sldrCBands.Value;
             var btn = _ourWindow.btnBlend1;
             var brush = (SolidColorBrush)btn.Background;
@@ -245,11 +245,11 @@ namespace GenerativeArt.CrabNebula
 
         private void DistributeParameters()
         {
-            _ourWindow.sldrOctaves.Value = _parameters.Octaves;
-            _ourWindow.sldrPersistence.Value = _parameters.Persistence;
+            _ourWindow.sldrCnOctaves.Value = _parameters.Octaves;
+            _ourWindow.sldrCnPersistence.Value = _parameters.Persistence;
             _ourWindow.sldrNoiseScale.Value = _parameters.NoiseScale;
-            _ourWindow.sldrFrequency.Value = _parameters.Frequency;
-            _ourWindow.sldrCPoints.Value = _parameters.CPoints;
+            _ourWindow.sldrCnFrequency.Value = _parameters.Frequency;
+            _ourWindow.sldrCnCPoints.Value = _parameters.CPoints;
             _ourWindow.sldrCBands.Value = _parameters.CBands;
             _ourWindow.btnBlend1.Background = new SolidColorBrush(_parameters.Blend1);
             _ourWindow.btnBlend2.Background = new SolidColorBrush(_parameters.Blend2);
@@ -259,11 +259,11 @@ namespace GenerativeArt.CrabNebula
         #region Hooks
         private void HookParameterControls()
         {
-            _ourWindow.sldrOctaves.ValueChanged += SldrOctaves_ValueChanged;
-            _ourWindow.sldrPersistence.ValueChanged +=SldrPersistence_ValueChanged;
+            _ourWindow.sldrCnOctaves.ValueChanged += SldrOctaves_ValueChanged;
+            _ourWindow.sldrCnPersistence.ValueChanged +=SldrCnPersistenceValueChanged;
             _ourWindow.sldrNoiseScale.ValueChanged +=SldrNoiseScale_ValueChanged;
-            _ourWindow.sldrFrequency.ValueChanged +=SldrFrequency_ValueChanged;
-            _ourWindow.sldrCPoints.ValueChanged +=SldrCPoints_ValueChanged;
+            _ourWindow.sldrCnFrequency.ValueChanged +=SldrCnFrequencyValueChanged;
+            _ourWindow.sldrCnCPoints.ValueChanged +=SldrCPoints_ValueChanged;
             _ourWindow.sldrCBands.ValueChanged +=SldrCBands_ValueChanged;
             _ourWindow.btnBlend1.Click += BtnBlend1_Click;
             _ourWindow.btnBlend2.Click += BtnBlend2_Click;
@@ -298,12 +298,12 @@ namespace GenerativeArt.CrabNebula
 
         private void SldrCPoints_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            _ourWindow.lblCPoints.Content = $"# Pts: {e.NewValue/1_000_000:#}M";
+            _ourWindow.lblCnCPoints.Content = $"# Pts: {e.NewValue/1_000_000:#}M";
         }
 
-        private void SldrFrequency_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void SldrCnFrequencyValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            _ourWindow.lblFrequency.Content = $"Frequency: {e.NewValue:0.00}";
+            _ourWindow.lblCnFrequency.Content = $"Frequency: {e.NewValue:0.00}";
         }
 
         private void SldrNoiseScale_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -311,14 +311,14 @@ namespace GenerativeArt.CrabNebula
             _ourWindow.lblNoiseScale.Content = $"Noise Scale: {e.NewValue:###0}";
         }
 
-        private void SldrPersistence_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void SldrCnPersistenceValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            _ourWindow.lblPersistence.Content = $"Persistence: {e.NewValue:#0.0}";
+            _ourWindow.lblCnPersistence.Content = $"Persistence: {e.NewValue:#0.0}";
         }
 
         private void SldrOctaves_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            _ourWindow.lblOctaves.Content = $"Octave: {(int)e.NewValue}";
+            _ourWindow.lblCnOctaves.Content = $"Octave: {(int)e.NewValue}";
         }
         #endregion
         #endregion

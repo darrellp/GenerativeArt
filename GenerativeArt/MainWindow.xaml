@@ -62,16 +62,16 @@
                 </TabControl.Resources>
                 <TabItem Header="Crab Nebula">
                     <StackPanel Background="White">
-                        <Label x:Name="lblCPoints" Content ="Point Count" HorizontalAlignment="Center"/>
-                        <Slider x:Name="sldrCPoints" Margin="10,0,10,0" Maximum="24000000" Minimum="1000000" IsSnapToTickEnabled="True" TickFrequency="1000000"/>
-                        <Label x:Name="lblOctaves" Content ="Octaves" HorizontalAlignment="Center"/>
-                        <Slider x:Name="sldrOctaves" Margin="10,0,10,0" Maximum="4" Minimum="1" IsSnapToTickEnabled="True" TickFrequency="1"/>
-                        <Label x:Name="lblPersistence" Content ="Persistence" HorizontalAlignment="Center"/>
-                        <Slider x:Name="sldrPersistence" Margin="10,0,10,0" Maximum="10" Minimum="0"/>
+                        <Label x:Name="lblCnCPoints" Content ="Point Count" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrCnCPoints" Margin="10,0,10,0" Maximum="24000000" Minimum="1000000" IsSnapToTickEnabled="True" TickFrequency="1000000"/>
+                        <Label x:Name="lblCnOctaves" Content ="Octaves" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrCnOctaves" Margin="10,0,10,0" Maximum="4" Minimum="1" IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Label x:Name="lblCnPersistence" Content ="Persistence" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrCnPersistence" Margin="10,0,10,0" Maximum="10" Minimum="0"/>
                         <Label x:Name="lblNoiseScale" Content ="Noise Scale" HorizontalAlignment="Center"/>
                         <Slider x:Name="sldrNoiseScale" Maximum="2000" Minimum="0" Margin="10,0,10,0"/>
-                        <Label x:Name="lblFrequency" Content ="Frequency" HorizontalAlignment="Center"/>
-                        <Slider x:Name="sldrFrequency" Maximum="4" Minimum="0.1" Margin="10,0,10,0"/>
+                        <Label x:Name="lblCnFrequency" Content ="Frequency" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrCnFrequency" Maximum="4" Minimum="0.1" Margin="10,0,10,0"/>
                         <Label x:Name="lblCBands" Content ="Frequency" HorizontalAlignment="Center"/>
                         <Slider x:Name="sldrCBands" Maximum="300" Minimum="1" Margin="10,0,10,0" IsSnapToTickEnabled="True" TickFrequency="1"/>
                         <Label Content ="Blend Colors" HorizontalAlignment="Center"/>
@@ -87,12 +87,14 @@
                     </StackPanel>
                 </TabItem>
                 <TabItem Header="Noise">
-                    <Grid Background="#FFE5E5E5">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="10*"/>
-                            <RowDefinition Height="177*"/>
-                        </Grid.RowDefinitions>
-                    </Grid>
+                    <StackPanel Background="White">
+                        <Label x:Name="lblNsOctaves" Content ="Octaves" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrNsOctaves" Margin="10,0,10,0" Maximum="8" Minimum="1" IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Label x:Name="lblNsPersistence" Content ="Persistence" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrNsPersistence" Margin="10,0,10,0" Maximum="2" Minimum="0"/>
+                        <Label x:Name="lblNsFrequency" Content ="Frequency" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrNsFrequency" Maximum="10" Minimum="0.1" Margin="10,0,10,0"/>
+                    </StackPanel>
                 </TabItem>
             </TabControl>
         </Grid>
