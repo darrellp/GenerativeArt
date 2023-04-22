@@ -93,7 +93,7 @@ namespace GenerativeArt.ShapesGenerator
 
         #region Hooks
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Hook tab page controls. </summary>
+        /// <summary>   Hook tab page controls. So we can put values on lables when sliders change. </summary>
         ///
         /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
