@@ -31,7 +31,7 @@
 <Grid Loaded="Grid_Loaded">
         <Grid.ColumnDefinitions>
             <ColumnDefinition x:Name="ArtColumn" Width="800"/>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="200"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition x:Name="ArtRow" Height="800"/>
@@ -96,6 +96,14 @@
                         <Slider x:Name="sldrNsPersistence" Margin="10,0,10,0" Maximum="2" Minimum="0"/>
                         <Label x:Name="lblNsFrequency" Content ="Frequency" HorizontalAlignment="Center"/>
                         <Slider x:Name="sldrNsFrequency" Maximum="10" Minimum="0.1" Margin="10,0,10,0"/>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Shapes">
+                    <StackPanel Background="White">
+                        <Label x:Name="lblShGridCount" Content ="Grid Count" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrShGridCount" Margin="10,0,10,0" Minimum="1" Maximum="50" IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Label x:Name="lblShBaseScale" Content ="Base Scale" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrShBaseScale"  Minimum="0.1" Maximum="2" Margin="10,0,10,0"/>
                     </StackPanel>
                 </TabItem>
             </TabControl>

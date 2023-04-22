@@ -74,7 +74,7 @@ namespace GenerativeArt
         /// <param name="sender">   Source of the event. </param>
         /// <param name="e">        Routed event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        ///
+
         private void Grid_Loaded(object sender, RoutedEventArgs e)
         {
             ArtWidth = (int)ArtColumn.ActualWidth;
@@ -83,6 +83,7 @@ namespace GenerativeArt
             {
                 new CrabNebula.CrabNebula(this),
                 new NoiseGenerator.NoiseGenerator(this),
+                new ShapesGenerator.Shapes(this),
             };
             _generators.ForEach(g => g.Initialize());
             OnGenerate(this, new RoutedEventArgs());
