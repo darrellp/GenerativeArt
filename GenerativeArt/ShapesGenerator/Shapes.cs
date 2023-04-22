@@ -33,6 +33,7 @@ namespace GenerativeArt.ShapesGenerator
                 NotifyPropertyChanged(nameof(BaseScale));
             }
         }
+        
         private int ArtWidth => _ourWindow.ArtWidth;
         private int ArtHeight => _ourWindow.ArtHeight;
         #endregion
@@ -46,8 +47,6 @@ namespace GenerativeArt.ShapesGenerator
         #endregion
 
         #region Property changes
-        public Shapes() {}
-
         public event PropertyChangedEventHandler? PropertyChanged;
 
         // This method is called by the Set accessor of each property.  
@@ -57,7 +56,6 @@ namespace GenerativeArt.ShapesGenerator
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
         #endregion
 
         #region IGenerator interface
