@@ -17,6 +17,7 @@ namespace GenerativeArt.NoiseGenerator
 
     internal class NoiseGenerator : IGenerator
     {
+        // TODO: use XAML Binding
         #region Private Variables
         private int Octaves
         {

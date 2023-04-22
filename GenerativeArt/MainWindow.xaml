@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GenerativeArt"
+        xmlns:shapes="clr-namespace:GenerativeArt.ShapesGenerator"
         mc:Ignorable="d"
         Title="MainWindow" Height="800" Width="1000" ResizeMode="NoResize" SizeToContent="WidthAndHeight">
 <Window.Resources>
@@ -98,12 +99,13 @@
                         <Slider x:Name="sldrNsFrequency" Maximum="10" Minimum="0.1" Margin="10,0,10,0"/>
                     </StackPanel>
                 </TabItem>
-                <TabItem Header="Shapes">
+                <TabItem x:Name="pgShapes" Header="Shapes">
                     <StackPanel Background="White">
                         <Label x:Name="lblShGridCount" Content ="Grid Count" HorizontalAlignment="Center"/>
-                        <Slider x:Name="sldrShGridCount" Margin="10,0,10,0" Minimum="1" Maximum="50" IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Slider x:Name="sldrShGridCount" Minimum="1" Maximum="50" Value="{Binding GridCount, Mode=TwoWay}" Margin="10,0,10,0" 
+                                IsSnapToTickEnabled="True" TickFrequency="1"/>
                         <Label x:Name="lblShBaseScale" Content ="Base Scale" HorizontalAlignment="Center"/>
-                        <Slider x:Name="sldrShBaseScale"  Minimum="0.1" Maximum="2" Margin="10,0,10,0"/>
+                        <Slider x:Name="sldrShBaseScale"  Minimum="0.1" Maximum="2" Value="{Binding BaseScale, Mode=TwoWay}" Margin="10,0,10,0"/>
                     </StackPanel>
                 </TabItem>
             </TabControl>

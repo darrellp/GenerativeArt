@@ -1,22 +1,37 @@
-﻿using System.Windows;
+﻿using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace GenerativeArt.ShapesGenerator
 {
-    class Shapes : IGenerator
+    public class Shapes : IGenerator, INotifyPropertyChanged
     {
         #region Private Variables
         private MainWindow _ourWindow { get; }
-        private int GridCount
+
+        private double _gridCount;
+        public double GridCount
         {
-            get => (int)_ourWindow.sldrShGridCount.Value;
-            set => _ourWindow.sldrShGridCount.Value = value;
+            get => _gridCount;
+            set
+            {
+                _gridCount = value;
+                NotifyPropertyChanged(nameof(GridCount));
+            }
         }
-        private double BaseScale
+
+        private double _baseScale;
+        public double BaseScale
         {
-            get => _ourWindow.sldrShBaseScale.Value;
-            set => _ourWindow.sldrShBaseScale.Value = value;
+            get => _baseScale;
+            set
+            {
+                _baseScale = value;
+                NotifyPropertyChanged(nameof(BaseScale));
+            }
         }
         private int ArtWidth => _ourWindow.ArtWidth;
         private int ArtHeight => _ourWindow.ArtHeight;
@@ -28,6 +43,21 @@ namespace GenerativeArt.ShapesGenerator
             _ourWindow = ourWindow;
             HookParameterControls();
         }
+        #endregion
+
+        #region Property changes
+        public Shapes() {}
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        // This method is called by the Set accessor of each property.  
+        // The CallerMemberName attribute that is applied to the optional propertyName  
+        // parameter causes the property name of the caller to be substituted as an argument.  
+        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         #endregion
 
         #region IGenerator interface

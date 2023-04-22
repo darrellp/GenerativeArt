@@ -87,6 +87,8 @@ namespace GenerativeArt
             };
             _generators.ForEach(g => g.Initialize());
             OnGenerate(this, new RoutedEventArgs());
+
+            pgShapes.DataContext = _generators[2];
         }
     }
 }
