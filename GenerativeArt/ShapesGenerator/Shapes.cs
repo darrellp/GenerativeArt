@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -13,7 +8,16 @@ namespace GenerativeArt.ShapesGenerator
     {
         #region Private Variables
         private MainWindow _ourWindow { get; }
-        private Parameters _params { get; set; } = new Parameters();
+        private int GridCount
+        {
+            get => (int)_ourWindow.sldrShGridCount.Value;
+            set => _ourWindow.sldrShGridCount.Value = value;
+        }
+        private double BaseScale
+        {
+            get => _ourWindow.sldrShBaseScale.Value;
+            set => _ourWindow.sldrShBaseScale.Value = value;
+        }
         private int ArtWidth => _ourWindow.ArtWidth;
         private int ArtHeight => _ourWindow.ArtHeight;
         #endregion
@@ -29,16 +33,15 @@ namespace GenerativeArt.ShapesGenerator
         #region IGenerator interface
         public void Generate()
         {
-            GatherParameters();
             var wbmp = BitmapFactory.New(ArtWidth, ArtHeight);
             using (wbmp.GetBitmapContext())
             {
                 wbmp.Clear(Colors.Black);
-                var cellSize = (double)ArtWidth / _params.GridCount;
-                var baseRadius = cellSize * _params.BaseScale / 2;
-                for (int ix = 0; ix < _params.GridCount; ix++)
+                var cellSize = (double)ArtWidth / GridCount;
+                var baseRadius = cellSize * BaseScale / 2;
+                for (var ix = 0; ix < GridCount; ix++)
                 {
-                    for (int iy = 0; iy < _params.GridCount; iy++)
+                    for (var iy = 0; iy < GridCount; iy++)
                     {
                         var xc = (ix + 0.5) * cellSize;
                         var yc = (iy + 0.5) * cellSize;
@@ -51,40 +54,14 @@ namespace GenerativeArt.ShapesGenerator
 
         public void Initialize()
         {
-            _params = new Parameters();
-            DistributeParameters();
+            GridCount = 20;
+            BaseScale = 0.5;
         }
 
         public void Kill()
         {
         }
         #endregion
-
-        #region Parameter handling
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Distribute parameters to the controls on the tabs page. </summary>
-        ///
-        /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        private void DistributeParameters()
-        {
-            _ourWindow.sldrShGridCount.Value = _params.GridCount;
-            _ourWindow.sldrShBaseScale.Value = _params.BaseScale;
-        }
-
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Gather parameters from the tabs page. </summary>
-        ///
-        /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        private void GatherParameters()
-        {
-            _params.GridCount = (int)_ourWindow.sldrShGridCount.Value;
-            _params.BaseScale = _ourWindow.sldrShBaseScale.Value;
-
-        }
 
         #region Hooks
         ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -109,7 +86,5 @@ namespace GenerativeArt.ShapesGenerator
             _ourWindow.lblShGridCount.Content = $"Grid Count: {e.NewValue}";
         }
         #endregion
-        #endregion
-
     }
 }

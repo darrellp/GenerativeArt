@@ -18,17 +18,31 @@ namespace GenerativeArt.NoiseGenerator
     internal class NoiseGenerator : IGenerator
     {
         #region Private Variables
+        private int Octaves
+        {
+            get => (int)_ourWindow.sldrNsOctaves.Value;
+            set => _ourWindow.sldrNsOctaves.Value = value;
+        }
+        private double Frequency
+        {
+            get => _ourWindow.sldrNsFrequency.Value;
+            set => _ourWindow.sldrNsFrequency.Value = value;
+        }
+
+        private double Persistence
+        {
+            get => _ourWindow.sldrNsPersistence.Value;
+            set => _ourWindow.sldrNsPersistence.Value = value;
+        }
+
         /// <summary>   Main window. </summary>
         private readonly MainWindow _ourWindow;
 
         /// <summary>   Width of the art control. </summary>
-        private int _artWidth;
+        private int ArtWidth => _ourWindow.ArtWidth;
 
         /// <summary>   Height of the art control. </summary>
-        private int _artHeight;
-
-        /// <summary>   Values from our tab page. </summary>
-        private Parameters _params = new();
+        private int ArtHeight => _ourWindow.ArtHeight;
         #endregion
 
         #region Constructor
@@ -56,15 +70,14 @@ namespace GenerativeArt.NoiseGenerator
 
         public void Generate()
         {
-            GatherParameters();
-            var wbmp = BitmapFactory.New(_artWidth, _artHeight);
+            var wbmp = BitmapFactory.New(ArtWidth, ArtHeight);
             wbmp.Clear(Colors.Black);
             _ourWindow.Art.Source = wbmp;
             Debug.Assert(wbmp.Format == PixelFormats.Pbgra32);
             var pixels = DrawPerlin();
             var sizePixel = Marshal.SizeOf(typeof(PixelColor));
-            var stride = _artWidth * sizePixel;
-            wbmp.WritePixels(new Int32Rect(0, 0, _artWidth, _artHeight), pixels, stride, 0);
+            var stride = ArtWidth * sizePixel;
+            wbmp.WritePixels(new Int32Rect(0, 0, ArtWidth, ArtHeight), pixels, stride, 0);
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,10 +88,9 @@ namespace GenerativeArt.NoiseGenerator
 
         public void Initialize()
         {
-            _params = new();
-            _artWidth = _ourWindow.ArtWidth;
-            _artHeight = _ourWindow.ArtHeight;
-            DistributeParameters();
+            Frequency = 7;
+            Persistence = 0.5;
+            Octaves = 6;
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -106,53 +118,25 @@ namespace GenerativeArt.NoiseGenerator
         {
             var noise = new Perlin()
             {
-                Frequency = _params.Frequency,
-                Octaves = _params.Octaves,
-                Persistence = _params.Persistence,
+                Frequency = Frequency,
+                Octaves = Octaves,
+                Persistence = Persistence,
             };
 
-            var pixelData = new PixelColor[_artWidth * _artHeight];
-            for (var iX = 0; iX < _artWidth; iX++)
+            var pixelData = new PixelColor[ArtWidth * ArtHeight];
+            for (var iX = 0; iX < ArtWidth; iX++)
             {
-                var ixNorm = iX/(double)_artWidth;
-                for (var iY = 0; iY < _artHeight; iY++)
+                var ixNorm = iX/(double)ArtWidth;
+                for (var iY = 0; iY < ArtHeight; iY++)
                 {
-                    var iyNorm = iY / (double)_artHeight;
+                    var iyNorm = iY / (double)ArtHeight;
                     var val = (Byte)(noise.Value(ixNorm, iyNorm) * 255);
-                    pixelData[iY * _artWidth + iX] = new(val, val, val);
+                    pixelData[iY * ArtWidth + iX] = new(val, val, val);
                 }
             }
             return pixelData;
         }
         #endregion
-
-        #region Parameter handling
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Distribute parameters to the controls on the tabs page. </summary>
-        ///
-        /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        private void DistributeParameters()
-        {
-            _ourWindow.sldrNsOctaves.Value = _params.Octaves;
-            _ourWindow.sldrNsPersistence.Value = _params.Persistence;
-            _ourWindow.sldrNsFrequency.Value = _params.Frequency;
-        }
-
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Gather parameters from the tabs page. </summary>
-        ///
-        /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        private void GatherParameters()
-        {
-            _params.Octaves = (int)_ourWindow.sldrNsOctaves.Value;
-            _params.Persistence = _ourWindow.sldrNsPersistence.Value;
-            _params.Frequency = _ourWindow.sldrNsFrequency.Value;
-
-        }
 
         #region Hooks
         ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -209,7 +193,6 @@ namespace GenerativeArt.NoiseGenerator
         {
             _ourWindow.lblNsOctaves.Content = $"Octave: {(int)e.NewValue}";
         }
-        #endregion
         #endregion
     }
 }
