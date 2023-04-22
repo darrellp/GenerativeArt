@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GenerativeArt"
         mc:Ignorable="d"
-        Title="MainWindow" Height="800" Width="1000" ResizeMode="NoResize">
+        Title="MainWindow" Height="800" Width="1000" ResizeMode="NoResize" SizeToContent="WidthAndHeight">
 <Window.Resources>
     <ControlTemplate x:Key="NoMouseOverButtonTemplate"   
                      TargetType="Button">
@@ -34,7 +34,7 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition x:Name="ArtRow"/>
+            <RowDefinition x:Name="ArtRow" Height="800"/>
         </Grid.RowDefinitions>
         <Image x:Name="Art" Grid.Column = "0" Stretch="UniformToFill" />
         <Grid Grid.Column="1" Background="Wheat">
