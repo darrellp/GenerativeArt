@@ -18,6 +18,10 @@ namespace GenerativeArt.CrabNebula
     // Todo: Other gradient types - Horizontal, Ray, etc.
     // Todo: Alpha
     // Todo: Standard Deviation control
+    // Todo: Data Binding
+    
+    // Actually, I may never do data binding.  It works okay right now so I may just use data binding moving
+    // forward but leave crab nebula the way it is.
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>

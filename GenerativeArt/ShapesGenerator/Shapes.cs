@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -42,7 +41,7 @@ namespace GenerativeArt.ShapesGenerator
         #region Property changes
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -63,7 +62,7 @@ namespace GenerativeArt.ShapesGenerator
             using (wbmp.GetBitmapContext())
             {
                 wbmp.Clear(Colors.Black);
-                var cellSize = (double)ArtWidth / GridCount;
+                var cellSize = ArtWidth / GridCount;
                 var baseRadius = cellSize * BaseScale / 2;
                 for (var ix = 0; ix < GridCount; ix++)
                 {

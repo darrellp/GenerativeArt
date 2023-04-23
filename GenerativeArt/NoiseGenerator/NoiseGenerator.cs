@@ -20,7 +20,6 @@ namespace GenerativeArt.NoiseGenerator
 
     internal class NoiseGenerator : IGenerator, INotifyPropertyChanged
     {
-        // TODO: use XAML Binding
         #region Private Variables
         private double _octaves;
         public double Octaves
@@ -206,7 +205,7 @@ namespace GenerativeArt.NoiseGenerator
         #region INotifyPropertyChanged
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
