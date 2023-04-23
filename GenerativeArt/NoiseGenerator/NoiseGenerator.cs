@@ -1,6 +1,9 @@
 ﻿
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using GenerativeArt.Noises;
@@ -15,25 +18,29 @@ namespace GenerativeArt.NoiseGenerator
     /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    internal class NoiseGenerator : IGenerator
+    internal class NoiseGenerator : IGenerator, INotifyPropertyChanged
     {
         // TODO: use XAML Binding
         #region Private Variables
-        private int Octaves
+        private double _octaves;
+        public double Octaves
         {
-            get => (int)_ourWindow.sldrNsOctaves.Value;
-            set => _ourWindow.sldrNsOctaves.Value = value;
-        }
-        private double Frequency
-        {
-            get => _ourWindow.sldrNsFrequency.Value;
-            set => _ourWindow.sldrNsFrequency.Value = value;
+            get => _octaves;
+            set => SetField(ref _octaves, value);
         }
 
-        private double Persistence
+        private double _frequency;
+        public double Frequency
         {
-            get => _ourWindow.sldrNsPersistence.Value;
-            set => _ourWindow.sldrNsPersistence.Value = value;
+            get => _frequency;
+            set => SetField(ref _frequency, value);
+        }
+
+        private double _persistence;
+        public double Persistence
+        {
+            get => _persistence;
+            set => SetField(ref _persistence, value);
         }
 
         /// <summary>   Main window. </summary>
@@ -120,7 +127,7 @@ namespace GenerativeArt.NoiseGenerator
             var noise = new Perlin()
             {
                 Frequency = Frequency,
-                Octaves = Octaves,
+                Octaves = (int)Octaves,
                 Persistence = Persistence,
             };
 
@@ -193,6 +200,23 @@ namespace GenerativeArt.NoiseGenerator
         private void SldrNsOctaves_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             _ourWindow.lblNsOctaves.Content = $"Octave: {(int)e.NewValue}";
+        }
+        #endregion
+
+        #region INotifyPropertyChanged
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
         }
         #endregion
     }

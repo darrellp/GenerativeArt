@@ -89,14 +89,14 @@
                         <CheckBox x:Name="cbxHardEdges" Content="Hard Edged Bands" HorizontalAlignment="Center" Margin="0,15,0,0"/>
                     </StackPanel>
                 </TabItem>
-                <TabItem Header="Noise">
+                <TabItem x:Name="pgNoise" Header="Noise">
                     <StackPanel Background="White">
                         <Label x:Name="lblNsOctaves" Content ="Octaves" HorizontalAlignment="Center"/>
-                        <Slider x:Name="sldrNsOctaves" Margin="10,0,10,0" Maximum="8" Minimum="1" IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Slider x:Name="sldrNsOctaves" Maximum="8" Minimum="1" Value="{Binding Octaves, Mode=TwoWay}" Margin="10,0,10,0" IsSnapToTickEnabled="True" TickFrequency="1"/>
                         <Label x:Name="lblNsPersistence" Content ="Persistence" HorizontalAlignment="Center"/>
-                        <Slider x:Name="sldrNsPersistence" Margin="10,0,10,0" Maximum="2" Minimum="0"/>
+                        <Slider x:Name="sldrNsPersistence" Maximum="2" Minimum="0" Value="{Binding Persistence, Mode=TwoWay}" Margin="10,0,10,0" />
                         <Label x:Name="lblNsFrequency" Content ="Frequency" HorizontalAlignment="Center"/>
-                        <Slider x:Name="sldrNsFrequency" Maximum="10" Minimum="0.1" Margin="10,0,10,0"/>
+                        <Slider x:Name="sldrNsFrequency" Maximum="10" Minimum="0.1" Value="{Binding Frequency, Mode=TwoWay}" Margin="10,0,10,0"/>
                     </StackPanel>
                 </TabItem>
                 <TabItem x:Name="pgShapes" Header="Shapes">

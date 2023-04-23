@@ -88,6 +88,8 @@ namespace GenerativeArt
             _generators.ForEach(g => g.Initialize());
             OnGenerate(this, new RoutedEventArgs());
 
+            // Set up data contexts for the tab pages so that data binding works properly
+            pgNoise.DataContext = _generators[1];
             pgShapes.DataContext = _generators[2];
         }
     }

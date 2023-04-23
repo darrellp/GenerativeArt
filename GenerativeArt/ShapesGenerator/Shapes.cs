@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -16,22 +17,14 @@ namespace GenerativeArt.ShapesGenerator
         public double GridCount
         {
             get => _gridCount;
-            set
-            {
-                _gridCount = value;
-                NotifyPropertyChanged(nameof(GridCount));
-            }
+            set => SetField(ref _gridCount, value);
         }
 
         private double _baseScale;
         public double BaseScale
         {
             get => _baseScale;
-            set
-            {
-                _baseScale = value;
-                NotifyPropertyChanged(nameof(BaseScale));
-            }
+            set => SetField(ref _baseScale, value);
         }
         
         private int ArtWidth => _ourWindow.ArtWidth;
@@ -49,12 +42,17 @@ namespace GenerativeArt.ShapesGenerator
         #region Property changes
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        // This method is called by the Set accessor of each property.  
-        // The CallerMemberName attribute that is applied to the optional propertyName  
-        // parameter causes the property name of the caller to be substituted as an argument.  
-        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
         }
         #endregion
 
