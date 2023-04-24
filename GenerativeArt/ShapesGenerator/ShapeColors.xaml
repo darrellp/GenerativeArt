@@ -72,7 +72,7 @@
                         <RowDefinition Height="5*"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <Button x:Name="btnCircleColor1" Margin="5,10,5,0" Background="#FFE63939"/>
+                    <Button x:Name="btnCircleColor1" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}"/>
                     <CheckBox x:Name="chkCircleColor1" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20" IsChecked="True"/>
                 </Grid>
                 <Grid x:Name="GridCircleColor2" Grid.Column="2">
@@ -80,7 +80,7 @@
                         <RowDefinition Height="5*"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <Button x:Name="btnCircleColor2" Margin="5,10,5,0" Background="#FFE63939"/>
+                    <Button x:Name="btnCircleColor2" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}"/>
                     <CheckBox x:Name="chkColor2" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20" IsChecked="True"/>
                 </Grid>
                 <Grid x:Name="GridCircleCircleColor3" Grid.Column="3">
@@ -88,7 +88,7 @@
                         <RowDefinition Height="5*"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <Button x:Name="btnCircleColor3" Margin="5,10,5,0" Background="#FFE63939"/>
+                    <Button x:Name="btnCircleColor3" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}"/>
                     <CheckBox x:Name="chkCircleColor3" Content="" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20" IsChecked="True"/>
                 </Grid>
                 <Grid x:Name="GridCircleColor4" Grid.Column="4">
@@ -96,7 +96,7 @@
                         <RowDefinition Height="5*"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <Button x:Name="btnCircleColor4" Margin="5,10,5,0" Background="#FFE63939"/>
+                    <Button x:Name="btnCircleColor4" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}"/>
                     <CheckBox x:Name="chkCircleColor4" Content="" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20" IsChecked="True"/>
                 </Grid>
             </Grid>
@@ -140,7 +140,7 @@
                         <RowDefinition Height="5*"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <Button x:Name="btnSquareColor1" Margin="5,10,5,0" Background="#FFE63939"/>
+                    <Button x:Name="btnSquareColor1" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}"/>
                     <CheckBox x:Name="chkSquare1" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20" IsChecked="True"/>
                 </Grid>
                 <Grid x:Name="GridSquareColor2" Grid.Column="2">
@@ -148,7 +148,7 @@
                         <RowDefinition Height="5*"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <Button x:Name="btnSquareColor2" Margin="5,10,5,0" Background="#FFE63939"/>
+                    <Button x:Name="btnSquareColor2" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}"/>
                     <CheckBox x:Name="chkSquareColor2" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20" IsChecked="True"/>
                 </Grid>
                 <Grid x:Name="GridSquareColor3" Grid.Column="3">
@@ -156,7 +156,7 @@
                         <RowDefinition Height="5*"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <Button x:Name="btnSquareColor3" Margin="5,10,5,0" Background="#FFE63939"/>
+                    <Button x:Name="btnSquareColor3" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}"/>
                     <CheckBox x:Name="chkSquareColor3" Content="" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20" IsChecked="True"/>
                 </Grid>
                 <Grid x:Name="GridSquareColor4" Grid.Column="4">
@@ -164,7 +164,7 @@
                         <RowDefinition Height="5*"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <Button x:Name="btnSquareColor4" Margin="5,10,5,0" Background="#FFE63939"/>
+                    <Button x:Name="btnSquareColor4" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}"/>
                     <CheckBox x:Name="chkSquareColor4" Content="" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20" IsChecked="True"/>
                 </Grid>
             </Grid>
