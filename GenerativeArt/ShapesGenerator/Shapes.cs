@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -10,6 +11,8 @@ namespace GenerativeArt.ShapesGenerator
     public class Shapes : IGenerator, INotifyPropertyChanged
     {
         #region Private Variables
+        Random _rnd = new Random();
+
         private MainWindow _ourWindow { get; }
 
         private double _gridCount;
@@ -25,9 +28,30 @@ namespace GenerativeArt.ShapesGenerator
             get => _baseScale;
             set => SetField(ref _baseScale, value);
         }
-        
-        private int ArtWidth => _ourWindow.ArtWidth;
+
+        private double _maxScale;
+        public double MaxScale
+        {
+            get => _maxScale;
+            set => SetField(ref _maxScale, value);
+        }
+
+        private double _posOffset;
+        public double PosOffset
+        {
+            get => _posOffset;
+            set => SetField(ref _posOffset, value);
+        }
+
+        private double _pctCircles;
+        public double PctCircles
+        {
+            get => _pctCircles;
+            set => SetField(ref _pctCircles, value);
+        }
+
         private int ArtHeight => _ourWindow.ArtHeight;
+        private int ArtWidth => _ourWindow.ArtWidth;
         #endregion
 
         #region Constructor
@@ -58,19 +82,29 @@ namespace GenerativeArt.ShapesGenerator
         #region IGenerator interface
         public void Generate()
         {
+            var cellSize = ArtWidth / GridCount;
+            var baseRadius = cellSize * BaseScale / 2;
             var wbmp = BitmapFactory.New(ArtWidth, ArtHeight);
+            var circleBreakEven = PctCircles / 100.0;
             using (wbmp.GetBitmapContext())
             {
                 wbmp.Clear(Colors.Black);
-                var cellSize = ArtWidth / GridCount;
-                var baseRadius = cellSize * BaseScale / 2;
                 for (var ix = 0; ix < GridCount; ix++)
                 {
                     for (var iy = 0; iy < GridCount; iy++)
                     {
-                        var xc = (ix + 0.5) * cellSize;
-                        var yc = (iy + 0.5) * cellSize;
-                        wbmp.FillEllipseCentered((int)xc, (int)yc, (int)baseRadius, (int)baseRadius, Colors.Red);
+                        var xc = cellSize * (ix + 0.5 + (2 * _rnd.NextDouble() - 1) * PosOffset / 100);
+                        var yc = cellSize * (iy + 0.5 + (2 * _rnd.NextDouble() - 1) * PosOffset / 100);
+                        var radius = baseRadius * _rnd.Next(100, (int)MaxScale) / 100;
+                        var isCircle = _rnd.NextDouble() < circleBreakEven;
+                        if (isCircle)
+                        {
+                            wbmp.FillEllipseCentered((int)xc, (int)yc, (int)radius, (int)radius, Colors.Red);
+                        }
+                        else
+                        {
+                            wbmp.FillRectangle((int)(xc - radius), (int)(yc - radius), (int)(xc + radius), (int)(yc + radius), Colors.Blue);
+                        }
                     }
                 }
                 _ourWindow.Art.Source = wbmp;
@@ -81,6 +115,9 @@ namespace GenerativeArt.ShapesGenerator
         {
             GridCount = 20;
             BaseScale = 0.5;
+            MaxScale = 100.1;
+            PosOffset = 0.1;
+            PctCircles = 50;
         }
 
         public void Kill()
@@ -99,6 +136,19 @@ namespace GenerativeArt.ShapesGenerator
         {
             _ourWindow.sldrShGridCount.ValueChanged += sldrShGridCount_ValueChanged;
             _ourWindow.sldrShBaseScale.ValueChanged += SldrsldrShBaseScale_ValueChanged;
+            _ourWindow.sldrShMaxScale.ValueChanged += sldrShMaxScale_ValueChanged;
+            _ourWindow.sldrShPosOffset.ValueChanged +=SldrShPosOffset_ValueChanged;
+            _ourWindow.sldrShPctCircles.ValueChanged +=SldrShPctCircles_ValueChanged;
+        }
+
+        private void SldrShPctCircles_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblShPctCircles.Content = $"Pct Circles: {e.NewValue:##0}%";
+        }
+
+        private void SldrShPosOffset_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblShPosOffset.Content = $"Pos Offset: {e.NewValue:##0}%";
         }
 
         private void SldrsldrShBaseScale_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -109,6 +159,11 @@ namespace GenerativeArt.ShapesGenerator
         private void sldrShGridCount_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             _ourWindow.lblShGridCount.Content = $"Grid Count: {e.NewValue}";
+        }
+
+        private void sldrShMaxScale_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblShMaxScale.Content = $"Max Scale: {e.NewValue:##0}%";
         }
         #endregion
     }

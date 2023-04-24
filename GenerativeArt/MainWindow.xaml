@@ -107,6 +107,12 @@
                                 IsSnapToTickEnabled="True" TickFrequency="1"/>
                         <Label x:Name="lblShBaseScale" Content ="Base Scale" HorizontalAlignment="Center"/>
                         <Slider x:Name="sldrShBaseScale"  Minimum="0.1" Maximum="2" Value="{Binding BaseScale, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Label x:Name="lblShMaxScale" Content ="Max Scale" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrShMaxScale"  Minimum="100" Maximum="500" Value="{Binding MaxScale, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Label x:Name="lblShPosOffset" Content ="Max Scale" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrShPosOffset"  Minimum="0" Maximum="50" Value="{Binding PosOffset, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Label x:Name="lblShPctCircles" Content ="Max Scale" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrShPctCircles"  Minimum="0" Maximum="100" Value="{Binding PctCircles, Mode=TwoWay}" Margin="10,0,10,0"/>
                     </StackPanel>
                 </TabItem>
             </TabControl>
