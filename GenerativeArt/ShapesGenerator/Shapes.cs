@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -101,7 +102,6 @@ namespace GenerativeArt.ShapesGenerator
         {
             var cellSize = ArtWidth / GridCount;
             var baseRadius = cellSize * BaseScale / 2;
-            var wbmp = BitmapFactory.New(ArtWidth, ArtHeight);
             var circleBreakEven = PctCircles / 100.0;
             List<Color> circleColors = new();
             List<Color> squareColors = new();
@@ -130,39 +130,42 @@ namespace GenerativeArt.ShapesGenerator
             var hsbCircles = circleColors.Select(c => new HSB(c)).ToArray();
             var hsbSquares = squareColors.Select(c => new HSB(c)).ToArray();
 
-            using (wbmp.GetBitmapContext())
+
+            var rtBitmap = new RenderTargetBitmap(ArtWidth, ArtHeight, 96, 96, PixelFormats.Default);
+            DrawingVisual vis = new DrawingVisual();
+            DrawingContext dc = vis.RenderOpen();
+            dc.DrawRectangle(new SolidColorBrush(Colors.Black), null, new Rect(0, 0, ArtWidth, ArtHeight));
+            for (var ix = 0; ix < GridCount; ix++)
             {
-                wbmp.Clear(Colors.Black);
-                for (var ix = 0; ix < GridCount; ix++)
+                for (var iy = 0; iy < GridCount; iy++)
                 {
-                    for (var iy = 0; iy < GridCount; iy++)
+                    var xc = cellSize * (ix + 0.5 + (2 * _rnd.NextDouble() - 1) * PosOffset / 100);
+                    var yc = cellSize * (iy + 0.5 + (2 * _rnd.NextDouble() - 1) * PosOffset / 100);
+                    var radius = baseRadius * _rnd.Next(100, (int)MaxScale) / 100;
+                    var isCircle = _rnd.NextDouble() < circleBreakEven;
+                    if (isCircle)
                     {
-                        var xc = cellSize * (ix + 0.5 + (2 * _rnd.NextDouble() - 1) * PosOffset / 100);
-                        var yc = cellSize * (iy + 0.5 + (2 * _rnd.NextDouble() - 1) * PosOffset / 100);
-                        var radius = baseRadius * _rnd.Next(100, (int)MaxScale) / 100;
-                        var isCircle = _rnd.NextDouble() < circleBreakEven;
-                        if (isCircle)
+                        var color = SelectColor(hsbCircles, _varCircleH, _varCircleS, _varCircleB);
+                        dc.DrawEllipse(new SolidColorBrush(color), null, new Point(xc, yc), radius, radius);
+                    }
+                    else
+                    {
+                        Color color;
+                        if (_useCircleColors)
                         {
-                            var color = SelectColor(hsbCircles, _varCircleH, _varCircleS, _varCircleB);
-                            wbmp.FillEllipseCentered((int)xc, (int)yc, (int)radius, (int)radius, color);
+                            color = SelectColor(hsbCircles, _varCircleH, _varCircleS, _varCircleB);
                         }
                         else
                         {
-                            Color color;
-                            if (_useCircleColors)
-                            {
-                                color = SelectColor(hsbCircles, _varCircleH, _varCircleS, _varCircleB);
-                            }
-                            else
-                            {
-                                color = SelectColor(hsbSquares, _varSquareH, _varSquareS, _varSquareB);
-                            }
-                            wbmp.FillRectangle((int)(xc - radius), (int)(yc - radius), (int)(xc + radius), (int)(yc + radius), color);
+                            color = SelectColor(hsbSquares, _varSquareH, _varSquareS, _varSquareB);
                         }
+                        dc.DrawRectangle(new SolidColorBrush(color), null, new Rect(xc - radius, yc - radius, 2 * radius, 2 * radius));
                     }
                 }
-                _ourWindow.Art.Source = wbmp;
             }
+            dc.Close();
+            rtBitmap.Render(vis);
+            _ourWindow.Art.Source = rtBitmap;
         }
 
         Color SelectColor(HSB[] palette, double varH, double varS, double varB)
