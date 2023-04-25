@@ -36,7 +36,7 @@
         <Border BorderBrush="Black" BorderThickness="1" Margin="10,10,10,5">
             <Grid x:Name="CircleData">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width ="2*"/>
+                    <ColumnDefinition Width ="2.2*"/>
                     <ColumnDefinition Width ="1*"/>
                     <ColumnDefinition Width ="1*"/>
                     <ColumnDefinition Width ="1*"/>
@@ -59,12 +59,12 @@
                     </Label>
                     <StackPanel Grid.Column="1">
                         <Label Content="Hue Variability"></Label>
-                        <Slider/>
+                        <Slider x:Name="sldrCircleHVar" Maximum="180"/>
                         <Label Content="Saturation Variability"></Label>
-                        <Slider/>
+                        <Slider x:Name="sldrCircleSVar" Maximum="1"/>
                         <Label Content="Value Variability"></Label>
-                        <Slider/>
-                        <Button x:Name="btnRandomizeCircle" Height="30" Margin="10,4,10,0" Content="Randomize"></Button>
+                        <Slider x:Name="sldrCircleBVar" Maximum="1"/>
+                        <Button x:Name="btnRandomizeCircle" Height="20" Margin="10,4,10,0" Content="Randomize" HorizontalAlignment="Center"></Button>
                     </StackPanel>
                 </Grid>
                 <Grid x:Name="GridCircleColor1" Grid.Column="1">
@@ -72,23 +72,23 @@
                         <RowDefinition Height="5*"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <Button x:Name="btnCircleColor1" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}"/>
-                    <CheckBox x:Name="chkCircleColor1" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20" IsChecked="True"/>
+                    <Button x:Name="btnCircleColor1" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}" Click="HandleColorButton"/>
+                    <CheckBox x:Name="chkCircleColor1" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20" IsChecked="True" Click="chkCircleColor1_Click"/>
                 </Grid>
                 <Grid x:Name="GridCircleColor2" Grid.Column="2">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="5*"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <Button x:Name="btnCircleColor2" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}"/>
-                    <CheckBox x:Name="chkColor2" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20" IsChecked="True"/>
+                    <Button x:Name="btnCircleColor2" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}" Click="HandleColorButton"/>
+                    <CheckBox x:Name="chkCircleColor2" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20" IsChecked="True"/>
                 </Grid>
                 <Grid x:Name="GridCircleCircleColor3" Grid.Column="3">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="5*"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <Button x:Name="btnCircleColor3" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}"/>
+                    <Button x:Name="btnCircleColor3" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}" Click="HandleColorButton"/>
                     <CheckBox x:Name="chkCircleColor3" Content="" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20" IsChecked="True"/>
                 </Grid>
                 <Grid x:Name="GridCircleColor4" Grid.Column="4">
@@ -96,7 +96,7 @@
                         <RowDefinition Height="5*"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <Button x:Name="btnCircleColor4" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}"/>
+                    <Button x:Name="btnCircleColor4" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}" Click="HandleColorButton"/>
                     <CheckBox x:Name="chkCircleColor4" Content="" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20" IsChecked="True"/>
                 </Grid>
             </Grid>
@@ -104,7 +104,7 @@
         <Border Grid.Row="1"  BorderBrush="Black" BorderThickness="1" Margin="10,5,10,10">
             <Grid Grid.Row ="1" x:Name="SquareData">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width ="2*"/>
+                    <ColumnDefinition Width ="2.2*"/>
                     <ColumnDefinition Width ="1*"/>
                     <ColumnDefinition Width ="1*"/>
                     <ColumnDefinition Width ="1*"/>
@@ -127,12 +127,15 @@
                     </Label>
                     <StackPanel Grid.Column="1">
                         <Label Content="Hue Variability"></Label>
-                        <Slider/>
+                        <Slider x:Name="sldrSquareHVar" Maximum="180"/>
                         <Label Content="Saturation Variability"></Label>
-                        <Slider/>
+                        <Slider x:Name="sldrSquareSVar" Maximum="1"/>
                         <Label Content="Value Variability"></Label>
-                        <Slider/>
-                        <Button x:Name="btnRandomizeSquare" Height="30" Margin="10,4,10,0" Content="Randomize"></Button>
+                        <Slider x:Name="sldrSquareBVar" Maximum="1"/>
+                        <Grid>
+                            <Button x:Name="btnRandomizeSquare" Height="20" Margin="10,4,10,0" Content="Randomize" HorizontalAlignment="Center"></Button>
+                            <CheckBox x:Name="chkUseCircles" Content ="Use Circles" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </Grid>
                     </StackPanel>
                 </Grid>
                 <Grid x:Name="GridSquareColor1" Grid.Column="1">
@@ -140,15 +143,15 @@
                         <RowDefinition Height="5*"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <Button x:Name="btnSquareColor1" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}"/>
-                    <CheckBox x:Name="chkSquare1" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20" IsChecked="True"/>
+                    <Button x:Name="btnSquareColor1" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}" Click="HandleColorButton"/>
+                    <CheckBox x:Name="chkSquareColor1" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20" IsChecked="True"/>
                 </Grid>
                 <Grid x:Name="GridSquareColor2" Grid.Column="2">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="5*"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <Button x:Name="btnSquareColor2" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}"/>
+                    <Button x:Name="btnSquareColor2" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}" Click="HandleColorButton"/>
                     <CheckBox x:Name="chkSquareColor2" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20" IsChecked="True"/>
                 </Grid>
                 <Grid x:Name="GridSquareColor3" Grid.Column="3">
@@ -156,7 +159,7 @@
                         <RowDefinition Height="5*"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <Button x:Name="btnSquareColor3" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}"/>
+                    <Button x:Name="btnSquareColor3" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}" Click="HandleColorButton"/>
                     <CheckBox x:Name="chkSquareColor3" Content="" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20" IsChecked="True"/>
                 </Grid>
                 <Grid x:Name="GridSquareColor4" Grid.Column="4">
@@ -164,13 +167,13 @@
                         <RowDefinition Height="5*"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <Button x:Name="btnSquareColor4" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}"/>
+                    <Button x:Name="btnSquareColor4" Margin="5,10,5,0" Background="#FFE63939" Template="{StaticResource NoMouseOverButtonTemplate}" Click="HandleColorButton"/>
                     <CheckBox x:Name="chkSquareColor4" Content="" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20" IsChecked="True"/>
                 </Grid>
             </Grid>
         </Border>
         <StackPanel Grid.Row="2" Orientation="Horizontal">
-            <Button x:Name="Okay" Width="73" IsDefault="True" Margin="20,10,0,10" Content="Okay"></Button>
+            <Button x:Name="Okay" Width="73" IsDefault="True" Margin="20,10,0,10" Content="Okay" Click="Okay_Click"></Button>
             <Button x:Name="Cancel" Width="73" IsCancel="True" Margin="20,10,0,10" Content="Cancel"></Button>
         </StackPanel>
     </Grid>
