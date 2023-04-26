@@ -113,7 +113,9 @@
                         <Slider x:Name="sldrShPosOffset"  Minimum="0" Maximum="50" Value="{Binding PosOffset, Mode=TwoWay}" Margin="10,0,10,0"/>
                         <Label x:Name="lblShPctCircles" Content ="Max Scale" HorizontalAlignment="Center"/>
                         <Slider x:Name="sldrShPctCircles"  Minimum="0" Maximum="100" Value="{Binding PctCircles, Mode=TwoWay}" Margin="10,0,10,0"/>
-                        <Button x:Name="btnShColors" Height="29" Margin="10,5,10,0" Content="Colors..."/>
+                        <!-- <Button x:Name="btnShColors" Height="30" Margin="10,5,10,0" Content="Colors..."/>-->
+                        <Button x:Name="btnShCircleColors" Height="30" Margin="10,5,10,0" Content="Circle Colors..."/>
+                        <Button x:Name="btnShSquareColors" Height="30" Margin="10,5,10,0" Content="Square Colors..."/>
                     </StackPanel>
                 </TabItem>
             </TabControl>

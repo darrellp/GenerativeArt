@@ -66,6 +66,8 @@ namespace GenerativeArt.ShapesGenerator
         private double _varSquareH;
         private double _varSquareS;
         private double _varSquareB;
+        private Palette _circlePalette;
+        private Palette _squarePalette;
         #endregion
 
         private int ArtHeight => _ourWindow.ArtHeight;
@@ -145,20 +147,12 @@ namespace GenerativeArt.ShapesGenerator
                     var isCircle = _rnd.NextDouble() < circleBreakEven;
                     if (isCircle)
                     {
-                        var color = SelectColor(hsbCircles, _varCircleH, _varCircleS, _varCircleB);
+                        var color = _circlePalette.SelectColor(_rnd);
                         dc.DrawEllipse(new SolidColorBrush(color), null, new Point(xc, yc), radius, radius);
                     }
                     else
                     {
-                        Color color;
-                        if (_useCircleColors)
-                        {
-                            color = SelectColor(hsbCircles, _varCircleH, _varCircleS, _varCircleB);
-                        }
-                        else
-                        {
-                            color = SelectColor(hsbSquares, _varSquareH, _varSquareS, _varSquareB);
-                        }
+                        var color = _useCircleColors ? _circlePalette.SelectColor(_rnd) : _squarePalette.SelectColor(_rnd);
                         dc.DrawRectangle(new SolidColorBrush(color), null, new Rect(xc - radius, yc - radius, 2 * radius, 2 * radius));
                     }
                 }
@@ -183,6 +177,21 @@ namespace GenerativeArt.ShapesGenerator
             return HSB.ColorFromHSB(h, s, b);
         }
 
+        static readonly Palette DefaultPalette = new Palette()
+        {
+            Color1 = Colors.Red,
+            Color2 = Colors.Black,
+            Color3 = Colors.Black,
+            Color4 = Colors.Black,
+            Enabled1 = true,
+            Enabled2 = false,
+            Enabled3 = false,
+            Enabled4 = false,
+            VarH = 0,
+            VarS = 0,
+            VarB = 0,
+        };
+
         public void Initialize()
         {
             GridCount = 20;
@@ -195,11 +204,13 @@ namespace GenerativeArt.ShapesGenerator
             _squareColors = new Color[4] { Colors.Blue, Colors.Black, Colors.Black, Colors.Black };
             _circleColorEnabled = new bool[4] { true, false, false, false };
             _squareColorEnabled = new bool[4] { true, false, false, false };
-            _varCircleH = _varCircleS = _varCircleB 
-                = _varSquareH = _varSquareS = _varSquareB = 0;
-    }
+            _varCircleH = _varCircleS = _varCircleB = _varSquareH = _varSquareS = _varSquareB = 0;
+            _circlePalette = new Palette(DefaultPalette);
+            _squarePalette = new Palette(DefaultPalette);
+            _squarePalette.Color1 = Colors.Blue;
+        }
 
-    public void Kill()
+        public void Kill()
         {
         }
         #endregion
@@ -218,7 +229,18 @@ namespace GenerativeArt.ShapesGenerator
             _ourWindow.sldrShMaxScale.ValueChanged += sldrShMaxScale_ValueChanged;
             _ourWindow.sldrShPosOffset.ValueChanged +=SldrShPosOffset_ValueChanged;
             _ourWindow.sldrShPctCircles.ValueChanged +=SldrShPctCircles_ValueChanged;
-            _ourWindow.btnShColors.Click += BtnShColors_Click;
+            _ourWindow.btnShCircleColors.Click +=BtnShCircleColors_Click;
+            _ourWindow.btnShSquareColors.Click +=BtnShSquareColors_Click;
+        }
+
+        private void BtnShSquareColors_Click(object sender, RoutedEventArgs e)
+        {
+            _squarePalette = _squarePalette.GetUserPalette();
+        }
+
+        private void BtnShCircleColors_Click(object sender, RoutedEventArgs e)
+        {
+            _circlePalette = _circlePalette.GetUserPalette();
         }
 
         private void BtnShColors_Click(object sender, RoutedEventArgs e)
