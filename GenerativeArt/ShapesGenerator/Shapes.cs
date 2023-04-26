@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -52,6 +48,13 @@ namespace GenerativeArt.ShapesGenerator
         {
             get => _pctCircles;
             set => SetField(ref _pctCircles, value);
+        }
+
+        private double _angleVariance;
+        public double AngleVariance
+        {
+            get => _angleVariance;
+            set => SetField(ref _angleVariance, value);
         }
 
         #region Colors
@@ -116,7 +119,9 @@ namespace GenerativeArt.ShapesGenerator
                     else
                     {
                         var color = _useCircleColors ? _circlePalette.SelectColor(_rnd) : _squarePalette.SelectColor(_rnd);
-                        dc.DrawRectangle(new SolidColorBrush(color), null, new Rect(xc - radius, yc - radius, 2 * radius, 2 * radius));
+                        var angle = 2 * (_rnd.NextDouble() - 0.5) * AngleVariance;
+                        var rect = new Rect(xc - radius, yc - radius, 2 * radius, 2 * radius);
+                        DrawRotRect(dc, color, null, angle, rect);
                     }
                 }
             }
@@ -125,19 +130,13 @@ namespace GenerativeArt.ShapesGenerator
             _ourWindow.Art.Source = rtBitmap;
         }
 
-        Color SelectColor(HSB[] palette, double varH, double varS, double varB)
+        internal void DrawRotRect(DrawingContext dc, Color color, Pen? pen, double angle, Rect rect)
         {
-            var hsbSelected = palette[_rnd.Next(palette.Length)];
-            var h = hsbSelected.H + 2*(_rnd.NextDouble() - 0.5) * varH;
-            if (h < 0) h += 360;
-            else if (h > 360) h -= 360;
-            var s = hsbSelected.S  + 2*(_rnd.NextDouble() - 0.5) * varS;
-            if (s < 0) s = 0;
-            if (s > 1) s = 1;
-            var b = hsbSelected.B  + 2*(_rnd.NextDouble() - 0.5) * varB;
-            if (b < 0) b = 0;
-            if (b > 1) b = 1;
-            return HSB.ColorFromHSB(h, s, b);
+            var ctr = new Point(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
+            var xfmRotate = new RotateTransform(angle, ctr.X, ctr.Y);
+            dc.PushTransform(xfmRotate);
+            dc.DrawRectangle(new SolidColorBrush(color), pen, rect);
+            dc.Pop();
         }
 
         static readonly Palette DefaultPalette = new Palette()
@@ -162,6 +161,7 @@ namespace GenerativeArt.ShapesGenerator
             MaxScale = 100.1;
             PosOffset = 0.1;
             PctCircles = 50;
+            AngleVariance = 0;
             _useCircleColors = false;
             _circlePalette = new Palette(DefaultPalette);
             _squarePalette = new Palette(DefaultPalette);
@@ -188,6 +188,7 @@ namespace GenerativeArt.ShapesGenerator
             _ourWindow.sldrShMaxScale.ValueChanged += sldrShMaxScale_ValueChanged;
             _ourWindow.sldrShPosOffset.ValueChanged +=SldrShPosOffset_ValueChanged;
             _ourWindow.sldrShPctCircles.ValueChanged +=SldrShPctCircles_ValueChanged;
+            _ourWindow.sldrShAngleVariance.ValueChanged +=SldrShAngleVariance_ValueChanged;
             _ourWindow.btnShCircleColors.Click +=BtnShCircleColors_Click;
             _ourWindow.btnShSquareColors.Click +=BtnShSquareColors_Click;
         }
@@ -201,6 +202,12 @@ namespace GenerativeArt.ShapesGenerator
         {
             _circlePalette = _circlePalette.GetUserPalette();
         }
+
+        private void SldrShAngleVariance_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblShAngleVariance.Content = $"Angle Variance: {e.NewValue:##0}°";
+        }
+
         private void SldrShPctCircles_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             _ourWindow.lblShPctCircles.Content = $"Pct Circles: {e.NewValue:##0}%";
