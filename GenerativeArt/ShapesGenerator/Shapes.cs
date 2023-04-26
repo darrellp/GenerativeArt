@@ -161,7 +161,7 @@ namespace GenerativeArt.ShapesGenerator
             MaxScale = 100.1;
             PosOffset = 0.1;
             PctCircles = 50;
-            AngleVariance = 0;
+            AngleVariance = 0.01;
             _useCircleColors = false;
             _circlePalette = new Palette(DefaultPalette);
             _squarePalette = new Palette(DefaultPalette);
