@@ -55,17 +55,7 @@ namespace GenerativeArt.ShapesGenerator
         }
 
         #region Colors
-        private Color[] _circleColors = new Color[4];
-        private bool[] _circleColorEnabled = new bool[4];
-        private Color[] _squareColors = new Color[4];
-        private bool[] _squareColorEnabled = new bool[4];
         private bool _useCircleColors;
-        private double _varCircleH;
-        private double _varCircleS;
-        private double _varCircleB;
-        private double _varSquareH;
-        private double _varSquareS;
-        private double _varSquareB;
         private Palette _circlePalette;
         private Palette _squarePalette;
         #endregion
@@ -105,33 +95,6 @@ namespace GenerativeArt.ShapesGenerator
             var cellSize = ArtWidth / GridCount;
             var baseRadius = cellSize * BaseScale / 2;
             var circleBreakEven = PctCircles / 100.0;
-            List<Color> circleColors = new();
-            List<Color> squareColors = new();
-            for (int iColor = 0; iColor < 4; iColor++)
-            {
-                if (_circleColorEnabled[iColor])
-                {
-                    circleColors.Add(_circleColors[iColor]);
-                }
-                if (_squareColorEnabled[iColor])
-                {
-                    squareColors.Add(_squareColors[iColor]);
-                }
-            }
-
-            if (circleColors.Count == 0)
-            {
-                circleColors.Add(Colors.Red);
-            }
-
-            if (squareColors.Count == 0)
-            {
-                squareColors.Add(Colors.Blue);
-            }
-
-            var hsbCircles = circleColors.Select(c => new HSB(c)).ToArray();
-            var hsbSquares = squareColors.Select(c => new HSB(c)).ToArray();
-
 
             var rtBitmap = new RenderTargetBitmap(ArtWidth, ArtHeight, 96, 96, PixelFormats.Default);
             DrawingVisual vis = new DrawingVisual();
@@ -200,14 +163,10 @@ namespace GenerativeArt.ShapesGenerator
             PosOffset = 0.1;
             PctCircles = 50;
             _useCircleColors = false;
-            _circleColors = new Color[4] {Colors.Red, Colors.Black, Colors.Black, Colors.Black};
-            _squareColors = new Color[4] { Colors.Blue, Colors.Black, Colors.Black, Colors.Black };
-            _circleColorEnabled = new bool[4] { true, false, false, false };
-            _squareColorEnabled = new bool[4] { true, false, false, false };
-            _varCircleH = _varCircleS = _varCircleB = _varSquareH = _varSquareS = _varSquareB = 0;
             _circlePalette = new Palette(DefaultPalette);
             _squarePalette = new Palette(DefaultPalette);
             _squarePalette.Color1 = Colors.Blue;
+            _squarePalette.PaletteRGBToHSB();
         }
 
         public void Kill()
@@ -241,91 +200,6 @@ namespace GenerativeArt.ShapesGenerator
         private void BtnShCircleColors_Click(object sender, RoutedEventArgs e)
         {
             _circlePalette = _circlePalette.GetUserPalette();
-        }
-
-        private void BtnShColors_Click(object sender, RoutedEventArgs e)
-        {
-            var dlg = new ShapeColors();
-            XferToDlg(dlg);
-            if (dlg.ShowDialog() == true)
-            {
-                XferFromDlg(dlg);
-            }
-        }
-
-        private void XferToDlg(ShapeColors dlg)
-        {
-            dlg.chkUseCircles.IsChecked = _useCircleColors;
-            for (var i = 1; i <= 4; i++)
-            {
-                XferColorToDlg(dlg, i, _circleColors, "Circle");
-                XferColorToDlg(dlg, i, _squareColors, "Square");
-                XferEnablesToDlg(dlg, i, _circleColorEnabled, "Circle");
-                XferEnablesToDlg(dlg, i, _squareColorEnabled, "Square");
-            }
-
-            dlg.sldrSquareHVar.Value = _varSquareH;
-            dlg.sldrSquareSVar.Value = _varSquareS;
-            dlg.sldrSquareBVar.Value = _varSquareB;
-            dlg.sldrCircleHVar.Value = _varCircleH;
-            dlg.sldrCircleSVar.Value = _varCircleS;
-            dlg.sldrCircleBVar.Value = _varCircleB;
-        }
-
-        private void XferFromDlg(ShapeColors dlg)
-        {
-            _useCircleColors = dlg.chkUseCircles.IsChecked??false;
-            for (var i = 1; i <= 4; i++)
-            {
-                XferColorFromDlg(dlg, i, _circleColors, "Circle");
-                XferColorFromDlg(dlg, i, _squareColors, "Square");
-                XferEnablesFromDlg(dlg, i, _circleColorEnabled, "Circle");
-                XferEnablesFromDlg(dlg, i, _squareColorEnabled, "Square");
-            }
-
-            _varSquareH = dlg.sldrSquareHVar.Value;
-            _varSquareS = dlg.sldrSquareSVar.Value;
-            _varSquareB = dlg.sldrSquareBVar.Value;
-            _varCircleH = dlg.sldrCircleHVar.Value;
-            _varCircleS = dlg.sldrCircleSVar.Value;
-            _varCircleB = dlg.sldrCircleBVar.Value;
-
-        }
-
-        private void XferColorFromDlg(ShapeColors dlg, int index, Color[] array, string shapeName)
-        {
-            var nameColor = $"btn{shapeName}Color{index:0}";
-            var btnColor = dlg.FindName(nameColor) as Button;
-            Debug.Assert(btnColor != null);
-            var brush = btnColor.Background as SolidColorBrush;
-            Debug.Assert(brush != null);
-           array[index - 1] = brush.Color;
-        }
-
-        private void XferEnablesFromDlg(ShapeColors dlg, int index, bool[] array, string shapeName)
-        {
-            var nameColor = $"chk{shapeName}Color{index:0}";
-            var checkbox = dlg.FindName(nameColor) as CheckBox;
-            Debug.Assert(checkbox != null);
-            array[index - 1] = checkbox.IsChecked == true;
-        }
-
-        private void XferColorToDlg(ShapeColors dlg, int index, Color[] array, string shapeName)
-        {
-            var nameColor = $"btn{shapeName}Color{index:0}";
-            var btnColor = dlg.FindName(nameColor) as Button;
-            Debug.Assert(btnColor != null);
-            var brush = new SolidColorBrush(array[index - 1]);
-            Debug.Assert(brush != null);
-            btnColor.Background = brush;
-        }
-
-        private void XferEnablesToDlg(ShapeColors dlg, int index, bool[] array, string shapeName)
-        {
-            var nameColor = $"chk{shapeName}Color{index:0}";
-            var checkbox = dlg.FindName(nameColor) as CheckBox;
-            Debug.Assert(checkbox != null);
-            checkbox.IsChecked = array[index - 1];
         }
         private void SldrShPctCircles_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {

@@ -42,12 +42,7 @@ namespace GenerativeArt
 
         #region Colors
         public HSB[] ColorsHSB = new HSB[4];
-        private Color _color1;
-        public Color Color1
-        {
-            get => _color1;
-            set => SetField(ref _color1, value);
-        }
+        public Color Color1 { get; set; }
         private Color _color2;
         public Color Color2
         {
@@ -112,7 +107,7 @@ namespace GenerativeArt
 
         internal Palette() {}
 
-        private void PaletteRGBToHSB()
+        internal void PaletteRGBToHSB()
         {
             var arrColor = new[] { Color1, Color2, Color3, Color4 };
             ColorsHSB = arrColor.Select(c => new HSB(c)).ToArray();
