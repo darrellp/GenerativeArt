@@ -14,8 +14,8 @@ namespace GenerativeArt.FlowGenerator
         Color longColor = Colors.Yellow;
         const int cShort = 20;
         const int cLong = 100;
-        private double maxThickness = 3;
-        private double getThick = 0.2;
+        private double maxThickness = 7;
+        private double getThick = 0.3;
 
         internal int FwdCount => _fwd.Count;
         internal int BwdCount => _bwd.Count;
@@ -55,9 +55,11 @@ namespace GenerativeArt.FlowGenerator
                 }
 
                 var color = Utilities.LerpColor(shortColor, longColor, t);
-                color.A = (byte)alpha;
+                //color.A = (byte)alpha;
                 var brush = new SolidColorBrush(color);
                 var flow = new Pen(brush, thickness);
+                flow.EndLineCap = PenLineCap.Round;
+                ;
                 dc.DrawLine(flow, this[ivtx], this[ivtx + 1]);
             }
         }
