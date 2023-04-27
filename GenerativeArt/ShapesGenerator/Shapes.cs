@@ -68,9 +68,26 @@ namespace GenerativeArt.ShapesGenerator
         #endregion
 
         #region Constructor
+        static readonly Palette DefaultPalette = new Palette()
+        {
+            Color1 = Colors.Red,
+            Color2 = Colors.Black,
+            Color3 = Colors.Black,
+            Color4 = Colors.Black,
+            Enabled1 = true,
+            Enabled2 = false,
+            Enabled3 = false,
+            Enabled4 = false,
+            VarH = 0,
+            VarS = 0,
+            VarB = 0,
+        };
+
         internal Shapes(MainWindow ourWindow)
         {
             _ourWindow = ourWindow;
+            _circlePalette = new Palette(DefaultPalette);
+            _squarePalette = new Palette(DefaultPalette);
             HookParameterControls();
         }
         #endregion
@@ -138,21 +155,6 @@ namespace GenerativeArt.ShapesGenerator
             dc.DrawRectangle(new SolidColorBrush(color), pen, rect);
             dc.Pop();
         }
-
-        static readonly Palette DefaultPalette = new Palette()
-        {
-            Color1 = Colors.Red,
-            Color2 = Colors.Black,
-            Color3 = Colors.Black,
-            Color4 = Colors.Black,
-            Enabled1 = true,
-            Enabled2 = false,
-            Enabled3 = false,
-            Enabled4 = false,
-            VarH = 0,
-            VarS = 0,
-            VarB = 0,
-        };
 
         public void Initialize()
         {

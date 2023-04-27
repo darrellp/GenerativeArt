@@ -84,6 +84,7 @@ namespace GenerativeArt
                 new CrabNebula.CrabNebula(this),
                 new NoiseGenerator.NoiseGenerator(this),
                 new ShapesGenerator.Shapes(this),
+                new FlowGenerator.FlowGenerator(this),
             };
             _generators.ForEach(g => g.Initialize());
             OnGenerate(this, new RoutedEventArgs());

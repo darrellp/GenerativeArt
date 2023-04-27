@@ -151,14 +151,7 @@ namespace GenerativeArt.CrabNebula
             int maxHits;
             ushort[,] hits;
             int[,] R, G, B;
-            try
-            {
-                (maxHits, hits, R, G, B) = await _taskAmass;
-            }
-            catch (Exception e)
-            {
-                return;
-            }
+            (maxHits, hits, R, G, B) = await _taskAmass;
             _taskAmass = null;
             _cts = null;
 
@@ -167,14 +160,7 @@ namespace GenerativeArt.CrabNebula
             _taskDraw = new(() => Draw(maxHits, hits, R, G, B, _cts.Token));
             _taskDraw.Start();
             PixelColor[] pixels;
-            try
-            {
-                pixels = await _taskDraw;
-            }
-            catch (OperationCanceledException e)
-            {
-                return;
-            }
+            pixels = await _taskDraw;
             _taskDraw = null;
             _cts = null;
 

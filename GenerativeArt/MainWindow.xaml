@@ -119,6 +119,9 @@
                         <Button x:Name="btnShSquareColors" Height="30" Margin="10,5,10,0" Content="Square Colors..."/>
                     </StackPanel>
                 </TabItem>
+                <TabItem x:Name="pgFlow" Header="Flow">
+                    
+                </TabItem>
             </TabControl>
         </Grid>
 </Grid>
