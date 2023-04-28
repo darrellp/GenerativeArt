@@ -29,6 +29,8 @@ namespace GenerativeArt.FlowGenerator
         private int ArtHeight => _ourWindow.ArtHeight;
         private int ArtWidth => _ourWindow.ArtWidth;
 
+        private int lineCount = 800;
+        private bool evenLineSelection = true;
         #endregion
 
         #region Constructor
@@ -41,23 +43,59 @@ namespace GenerativeArt.FlowGenerator
         #region IGenerator Interface
         public void Generate()
         {
-            var perlin = new Perlin() { Octaves = 3, };
-            var dist = 6;
-            var interlineDistance = 7;
+            var perlin = new Perlin() { Octaves = 2, };
+            var dist = 4;
+            var interlineDistance = 5;
             var map = new PointMap(interlineDistance, ArtWidth, ArtHeight);
 
             var xCount = (ArtWidth + interlineDistance - 1) / interlineDistance;
             var yCount = (ArtHeight + interlineDistance - 1) / interlineDistance;
+            var searchLineQueue = new Queue<Streamline>();
             var lines = new List<Streamline>();
 
             // Calculate all our flow lines
-            for (var i = 0; i < 400; i++)
+            int iLines = 0;
+            while (true)
             {
-                var startPt = new Point(ArtWidth * _rnd.NextDouble(), ArtHeight * _rnd.NextDouble());
+                Point startPt;
+                if (!evenLineSelection || searchLineQueue.Count == 0)
+                {
+                    startPt = new Point(ArtWidth * _rnd.NextDouble(), ArtHeight * _rnd.NextDouble());
+                    if (iLines++ ==  lineCount)
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    var fFound = false;
+                    while (true)
+                    {
+                        var searchLine = searchLineQueue.Peek();
+                        (fFound, startPt) = searchLine.SearchStart(map);
+                        if (!fFound)
+                        {
+                            searchLineQueue.Dequeue();
+                            if (searchLineQueue.Count == 0)
+                            {
+                                break;
+                            }
+                            continue;
+                        }
+                        break;
+                    }
+                    if (!fFound)
+                    {
+                        // Tried all the available lines and we couldn't find anything -
+                        // that's a wrap!
+                        break;
+                    }
+                }
                 var line = ProduceLine(startPt, dist, perlin, map);
                 if (line != null)
                 {
                     lines.Add(line);
+                    searchLineQueue.Enqueue(line);
                 }
             }
 
@@ -121,7 +159,7 @@ namespace GenerativeArt.FlowGenerator
             return line;
         }
 
-        private bool OnBoard(Point pt)
+        internal bool OnBoard(Point pt)
         {
             return pt.X >= 0 && pt.Y >= 0 && pt.X < ArtWidth && pt.Y < ArtHeight;
         }
@@ -129,7 +167,7 @@ namespace GenerativeArt.FlowGenerator
         Point NextPoint( Point pt, double dist, Perlin perlin)
         {
             // Higher multipliers result in more chaos
-            var angle = perlin.Value(pt.X / ArtWidth, pt.Y / ArtHeight) * 20;
+            var angle = perlin.Value(pt.X / ArtWidth, pt.Y / ArtHeight) * 30;
             return new Point(Math.Cos(angle) * dist + pt.X, Math.Sin(angle) * dist + pt.Y);
         }
 
@@ -141,9 +179,9 @@ namespace GenerativeArt.FlowGenerator
         {
             throw new NotImplementedException();
         }
-        #endregion
+#endregion
 
-        #region Property changes
+#region Property changes
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
@@ -158,7 +196,7 @@ namespace GenerativeArt.FlowGenerator
             OnPropertyChanged(propertyName);
             return true;
         }
-        #endregion
+#endregion
     }
 }
 

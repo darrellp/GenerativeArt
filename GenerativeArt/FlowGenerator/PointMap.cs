@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Shapes;
 
 namespace GenerativeArt.FlowGenerator
 {
@@ -9,6 +10,7 @@ namespace GenerativeArt.FlowGenerator
         private readonly int _artWidth;
         private readonly int _artHeight;
         private readonly double _sep;
+        internal double Sep => _sep;
         private readonly int _mapWidth;
         private readonly int _mapHeight;
 
@@ -30,11 +32,32 @@ namespace GenerativeArt.FlowGenerator
             }
         }
 
+        internal bool Onboard(Point pt) => pt.X >= 0 && pt.Y >= 0 && pt.X < _artWidth && pt.Y < _artHeight;
+
         internal bool Register(Streamline line, Point pt, bool fForward)
         {
             if (pt.X < 0 || pt.X >= _artWidth || pt.Y < 0 || pt.Y >= _artHeight)
             {
                 line.Add(pt, fForward);
+                return true;
+            }
+
+            if (!IsValid(line, pt))
+            {
+                return false;
+            }
+            var xIndex = (int)(pt.X / _sep);
+            var yIndex = (int)(pt.Y / _sep);
+
+            var index = line.Add(pt, fForward);
+            _cells[xIndex, yIndex].Add(line, index);
+            return true;
+        }
+
+        internal bool IsValid(Streamline line, Point pt)
+        {
+            if (pt.X < 0 || pt.X >= _artWidth || pt.Y < 0 || pt.Y >= _artHeight)
+            {
                 return true;
             }
 
@@ -61,9 +84,6 @@ namespace GenerativeArt.FlowGenerator
                     }
                 }
             }
-
-            var index = line.Add(pt, fForward);
-            _cells[xIndex, yIndex].Add(line, index);
             return true;
         }
     }

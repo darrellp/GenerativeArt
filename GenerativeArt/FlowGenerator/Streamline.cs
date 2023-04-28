@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media;
 
@@ -15,7 +14,11 @@ namespace GenerativeArt.FlowGenerator
         const int cShort = 20;
         const int cLong = 100;
         private double maxThickness = 7;
-        private double getThick = 0.3;
+        private double getThick = 0.5;
+        private bool fSearching = false;
+        private int searchPos = 0;
+        private int sampleInterval = 7;
+        private bool fFirstSide = true;
 
         internal int FwdCount => _fwd.Count;
         internal int BwdCount => _bwd.Count;
@@ -62,6 +65,57 @@ namespace GenerativeArt.FlowGenerator
                 ;
                 dc.DrawLine(flow, this[ivtx], this[ivtx + 1]);
             }
+        }
+
+        internal (bool fFound, Point pt) SearchStart(PointMap map)
+        {
+            if (!fSearching)
+            {
+                fSearching = true;
+                // We start one before the end so that we're guaranteed points on each
+                // side of us which is what we'll use to generate our perpindicular for
+                // our test point.
+                searchPos = -BwdCount + 1;
+            }
+
+            var ptRet = new Point();
+
+            while (searchPos < FwdCount - 1)
+            {
+                (var fFound, ptRet) = CheckSample(map);
+                if (fFound)
+                {
+                    return (true, ptRet);
+                }
+            }
+
+            // Couldn't find anything
+            return (false, ptRet);
+        }
+
+        private (bool, Point) CheckSample(PointMap map)
+        {
+            var ptAhead = this[searchPos + 1];
+            var ptBehind = this[searchPos - 1];
+            var diffX = ptAhead.X - ptBehind.X;
+            var diffY = ptAhead.Y - ptBehind.Y;
+            var vecPerp = new Point(diffY, -diffX);
+            var norm = 1.5 * map.Sep / Math.Sqrt(Utilities.Norm(vecPerp));
+            vecPerp = new Point(vecPerp.X * norm, vecPerp.Y * norm);
+            var midPt = new Point((ptAhead.X + ptBehind.X)/2, (ptBehind.Y + ptAhead.Y)/2);
+            Point ptTest;
+            if (fFirstSide)
+            {
+                ptTest = new Point(midPt.X + vecPerp.X, midPt.Y + vecPerp.Y);
+            }
+            else
+            {
+                ptTest = new Point(midPt.X - vecPerp.X, midPt.Y - vecPerp.Y);
+                searchPos += sampleInterval;
+            }
+
+            fFirstSide = !fFirstSide;
+            return  (map.Onboard(ptTest) && map.IsValid(this, ptTest), ptTest);
         }
 
         public Point this[int i] => i < 0 ? _bwd[-1 - i] : _fwd[i];

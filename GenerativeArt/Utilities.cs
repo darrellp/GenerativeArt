@@ -56,5 +56,7 @@ namespace GenerativeArt
             var dy = pt1.Y - pt2.Y;
             return dx * dx + dy * dy;
         }
+
+        internal static double Norm(Point pt) => pt.X * pt.X + pt.Y * pt.Y;
     }
 }
