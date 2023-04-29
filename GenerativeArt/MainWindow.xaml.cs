@@ -92,6 +92,7 @@ namespace GenerativeArt
             // Set up data contexts for the tab pages so that data binding works properly
             pgNoise.DataContext = _generators[1];
             pgShapes.DataContext = _generators[2];
+            pgFlow.DataContext = _generators[3];
         }
     }
 }

@@ -120,7 +120,35 @@
                     </StackPanel>
                 </TabItem>
                 <TabItem x:Name="pgFlow" Header="Flow">
-                    
+                    <StackPanel Background="White">
+                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                            <CheckBox Content="Even Lines" IsChecked="{Binding EvenLineSelection, Mode=TwoWay}" Margin="6,0,0,0"></CheckBox>
+                            <CheckBox Content="Alpha" HorizontalAlignment="Left" IsChecked="{Binding UseAlpha, Mode=TwoWay}" Margin="32,0,0,0"></CheckBox>
+                        </StackPanel>
+                        <Label x:Name="lblFlOctaves" Content ="Octaves" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlOctaves" Minimum="1" Maximum="6" Value="{Binding Octaves, Mode=TwoWay}" Margin="10,0,10,0" 
+                                IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Label x:Name="lblFlInterlineDistance" Content ="Line Separation" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlInterlineDistance"  Minimum="4" Maximum="30" Value="{Binding InterlineDistance, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Label x:Name="lblFlLineThickness" Content ="Line Separation" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlLineThickness"  Minimum="1" Maximum="30" Value="{Binding MaxThickness, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Label x:Name="lblFlAngleMultiplier" Content ="Angle Multiplier" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlAngleMultiplier"  Minimum="0" Maximum="150" Value="{Binding AngleMultiplier, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Label x:Name="lblFlShortCount" Content ="Short Color Thresh" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlShortCount" Minimum="0" Maximum="200" Value="{Binding ShortCount, Mode=TwoWay}" Margin="10,0,10,0" 
+                                IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Label x:Name="lblFlLongCount" Content ="Short Color Thresh" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlLongCount" Minimum="0" Maximum="200" Value="{Binding LongCount, Mode=TwoWay}" Margin="10,0,10,0" 
+                                IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Label x:Name="lblFlSampleInterval" Content ="SampleInterval" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlSampleInterval" Minimum="2" Maximum="20" Value="{Binding SampleInterval, Mode=TwoWay}" Margin="10,0,10,0" 
+                                IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Label x:Name="lblFlThickRatio" Content ="Thickness Ratio" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlThickRatio"  Minimum="0" Maximum="0.5" Value="{Binding GetThick, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Label x:Name="lblFlStartPtMult" Content ="Start Pt Multiplier" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlStartPtMult"  Minimum="1" Maximum="4" Value="{Binding StartPtMult, Mode=TwoWay}" Margin="10,0,10,0"/>
+
+                    </StackPanel>
                 </TabItem>
             </TabControl>
         </Grid>

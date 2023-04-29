@@ -20,36 +20,139 @@ namespace GenerativeArt.FlowGenerator
     ///             Darrell Plank, 4/27/2023. </remarks>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    internal class FlowGenerator : IGenerator
+    internal class FlowGenerator : IGenerator, INotifyPropertyChanged
     {
         #region Private Variables
         Random _rnd = new Random();
 
         private MainWindow _ourWindow;
-        private int ArtHeight => _ourWindow.ArtHeight;
-        private int ArtWidth => _ourWindow.ArtWidth;
+        internal int ArtHeight => _ourWindow.ArtHeight;
+        internal int ArtWidth => _ourWindow.ArtWidth;
 
-        private int lineCount = 800;
-        private bool evenLineSelection = true;
+        private bool _evenLineSelection;
+        public bool EvenLineSelection
+        {
+            get => _evenLineSelection;
+            set => SetField(ref _evenLineSelection, value);
+        }
+
+        private bool _useAlpha;
+        public bool UseAlpha
+        {
+            get => _useAlpha;
+            set => SetField(ref _useAlpha, value);
+        }
+
+        private double _lineCount;
+        public double LineCount
+        {
+            get => _lineCount;
+            set => SetField(ref _lineCount, value);
+        }
+
+        private double _angleMultiplier;
+        public double AngleMultiplier
+        {
+            get => _angleMultiplier;
+            set => SetField(ref _angleMultiplier, value);
+        }
+
+        private Color _shortColor;
+        public Color ShortColor
+        {
+            get => _shortColor;
+            set => SetField(ref _shortColor, value);
+        }
+
+        private Color _longColor;
+        public Color LongColor
+        {
+            get => _longColor;
+            set => SetField(ref _longColor, value);
+        }
+
+        private int _shortCount;
+        public int ShortCount
+        {
+            get => _shortCount;
+            set
+            {
+                var valMod = Math.Min(value, _longCount); 
+                SetField(ref _shortCount, valMod);
+            }
+        }
+
+        private int _longCount;
+        public int LongCount
+        {
+            get => _longCount;
+            set
+            {
+                var valMod = Math.Max(value, _shortCount);
+                SetField(ref _longCount, valMod);
+            }
+        }
+
+        private int _sampleInterval;
+        public int SampleInterval
+        {
+            get => _sampleInterval;
+            set => SetField(ref _sampleInterval, value);
+        }
+
+        private int _octaves;
+        public int Octaves
+        {
+            get => _octaves;
+            set => SetField(ref _octaves, value);
+        }
+
+        private double _maxThickness;
+        public double MaxThickness
+        {
+            get => _maxThickness;
+            set => SetField(ref _maxThickness, value);
+        }
+
+        private double _getThick;
+        public double GetThick
+        {
+            get => _getThick;
+            set => SetField(ref _getThick, value);
+        }
+
+        private double _interlineDistance;
+        public double InterlineDistance
+        {
+            get => _interlineDistance;
+            set => SetField(ref _interlineDistance, value);
+        }
+
+        public double _startPtMult;
+        public double StartPtMult
+        {
+            get => _startPtMult;
+            set => SetField(ref _startPtMult, value);
+        }
         #endregion
 
         #region Constructor
         public FlowGenerator(MainWindow main)
         {
             _ourWindow = main;
+            HookParameterControls();
         }
         #endregion
 
         #region IGenerator Interface
         public void Generate()
         {
-            var perlin = new Perlin() { Octaves = 2, };
-            var dist = 4;
-            var interlineDistance = 5;
-            var map = new PointMap(interlineDistance, ArtWidth, ArtHeight);
+            var perlin = new Perlin() { Octaves = Octaves, };
+            var stepDistance = 4;
+            var map = new PointMap(this);//InterlineDistance, ArtWidth, ArtHeight);
 
-            var xCount = (ArtWidth + interlineDistance - 1) / interlineDistance;
-            var yCount = (ArtHeight + interlineDistance - 1) / interlineDistance;
+            var xCount = (ArtWidth + InterlineDistance - 1) / InterlineDistance;
+            var yCount = (ArtHeight + InterlineDistance - 1) / InterlineDistance;
             var searchLineQueue = new Queue<Streamline>();
             var lines = new List<Streamline>();
 
@@ -58,10 +161,10 @@ namespace GenerativeArt.FlowGenerator
             while (true)
             {
                 Point startPt;
-                if (!evenLineSelection || searchLineQueue.Count == 0)
+                if (!EvenLineSelection || searchLineQueue.Count == 0)
                 {
                     startPt = new Point(ArtWidth * _rnd.NextDouble(), ArtHeight * _rnd.NextDouble());
-                    if (iLines++ ==  lineCount)
+                    if (iLines++ ==  LineCount)
                     {
                         break;
                     }
@@ -91,7 +194,7 @@ namespace GenerativeArt.FlowGenerator
                         break;
                     }
                 }
-                var line = ProduceLine(startPt, dist, perlin, map);
+                var line = ProduceLine(startPt, stepDistance, perlin, map);
                 if (line != null)
                 {
                     lines.Add(line);
@@ -121,7 +224,7 @@ namespace GenerativeArt.FlowGenerator
         private Streamline? ProduceLine(Point ptStart, double dist, Perlin perlin, PointMap map)
         {
             var ptCur = ptStart;
-            var line = new Streamline();
+            var line = new Streamline(this);
 
             if (!map.Register(line, ptStart, true))
             {
@@ -167,12 +270,26 @@ namespace GenerativeArt.FlowGenerator
         Point NextPoint( Point pt, double dist, Perlin perlin)
         {
             // Higher multipliers result in more chaos
-            var angle = perlin.Value(pt.X / ArtWidth, pt.Y / ArtHeight) * 30;
+            var angle = perlin.Value(pt.X / ArtWidth, pt.Y / ArtHeight) * AngleMultiplier;
             return new Point(Math.Cos(angle) * dist + pt.X, Math.Sin(angle) * dist + pt.Y);
         }
 
         public void Initialize()
         {
+            LineCount = 800;
+            EvenLineSelection = true;
+            AngleMultiplier = 35;
+            ShortCount = 20;
+            LongCount = 100;
+            ShortColor = Colors.Green;
+            LongColor = Colors.Yellow;
+            SampleInterval = 7;
+            MaxThickness = 7;
+            GetThick = 0.5;
+            InterlineDistance = 5;
+            Octaves = 2;
+            StartPtMult = 1.5;
+            UseAlpha = false;
         }
 
         public void Kill()
@@ -181,7 +298,7 @@ namespace GenerativeArt.FlowGenerator
         }
 #endregion
 
-#region Property changes
+        #region Property changes
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
@@ -196,7 +313,67 @@ namespace GenerativeArt.FlowGenerator
             OnPropertyChanged(propertyName);
             return true;
         }
-#endregion
+        #endregion
+
+        #region Event Handling
+        private void HookParameterControls()
+        {
+            _ourWindow.sldrFlOctaves.ValueChanged +=SldrFlOctaves_ValueChanged;
+            _ourWindow.sldrFlInterlineDistance.ValueChanged +=SldrFlInterlineDistance_ValueChanged;
+            _ourWindow.sldrFlLineThickness.ValueChanged +=SldrFlLineThickness_ValueChanged;
+            _ourWindow.sldrFlAngleMultiplier.ValueChanged +=SldrFlAngleMultiplier_ValueChanged;
+            _ourWindow.sldrFlShortCount.ValueChanged +=SldrFlShortCount_ValueChanged;
+            _ourWindow.sldrFlLongCount.ValueChanged +=SldrFlLongCount_ValueChanged;
+            _ourWindow.sldrFlSampleInterval.ValueChanged +=SldrFlSampleInterval_ValueChanged;
+            _ourWindow.sldrFlThickRatio.ValueChanged +=SldrFlThickRatio_ValueChanged;
+            _ourWindow.sldrFlStartPtMult.ValueChanged +=SldrFlStartPtMult_ValueChanged;
+        }
+
+        private void SldrFlStartPtMult_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblFlStartPtMult.Content = $"Start Pt Multiplier: {e.NewValue:0.##}";
+        }
+
+        private void SldrFlThickRatio_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblFlThickRatio.Content = $"Thick ratio to end: {e.NewValue:0.##}";
+        }
+
+        private void SldrFlSampleInterval_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblFlSampleInterval.Content = $"Sample Interval: {e.NewValue:##}";
+        }
+
+        private void SldrFlLongCount_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblFlLongCount.Content = $"Long Color Thresh: {e.NewValue:##0}";
+        }
+
+        private void SldrFlShortCount_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblFlShortCount.Content = $"Short Color Thresh: {e.NewValue:##0}";
+        }
+
+        private void SldrFlAngleMultiplier_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblFlAngleMultiplier.Content = $"Angle Multiplier: {e.NewValue:##0.#}";
+        }
+
+        private void SldrFlOctaves_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblFlOctaves.Content = $"Octaves: {e.NewValue:##0.#}";
+        }
+
+        private void SldrFlLineThickness_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+           _ourWindow.lblFlLineThickness.Content = $"Line Thickness: {e.NewValue:#0.#} pixels";
+        }
+
+        private void SldrFlInterlineDistance_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblFlInterlineDistance.Content = $"Line Separation: {e.NewValue:#0.#} pixels";
+        }
+        #endregion
     }
 }
 

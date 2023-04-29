@@ -6,8 +6,8 @@ namespace GenerativeArt.FlowGenerator
 {
     internal class Cell
     {
-        private Dictionary<Streamline, List<int>> _ptDict = new();
-        private double _sepSq;
+        private readonly Dictionary<Streamline, List<int>> _ptDict = new();
+        private readonly double _sepSq;
 
         internal Cell(double sep)
         {

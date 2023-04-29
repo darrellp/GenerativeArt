@@ -6,37 +6,32 @@ namespace GenerativeArt.FlowGenerator
 
     internal class PointMap
     {
+        private readonly FlowGenerator _flow;
         private readonly Cell[,] _cells;
-        private readonly int _artWidth;
-        private readonly int _artHeight;
-        private readonly double _sep;
-        internal double Sep => _sep;
         private readonly int _mapWidth;
         private readonly int _mapHeight;
 
-        internal PointMap(double sep, int artWidth, int artHeight)
+        internal PointMap(FlowGenerator flow)
         {
-            _mapWidth = (int)(artWidth / sep) + 1;
-            _mapHeight = (int)(artHeight / sep) + 1;
+            _flow = flow;
+            _mapWidth = (int)(_flow.ArtWidth / _flow.InterlineDistance) + 1;
+            _mapHeight = (int)(_flow.ArtHeight / _flow.InterlineDistance) + 1;
             _cells = new Cell[_mapWidth, _mapHeight];
-            _artWidth = artWidth;
-            _artHeight = artHeight;
-            _sep = sep;
 
             for (var ix = 0; ix < _mapWidth; ix++)
             {
                 for (var iy = 0; iy < _mapHeight; iy++)
                 {
-                    _cells[ix, iy] = new Cell(_sep);
+                    _cells[ix, iy] = new Cell(_flow.InterlineDistance);
                 }
             }
         }
 
-        internal bool Onboard(Point pt) => pt.X >= 0 && pt.Y >= 0 && pt.X < _artWidth && pt.Y < _artHeight;
+        internal bool Onboard(Point pt) => pt.X >= 0 && pt.Y >= 0 && pt.X < _flow.ArtWidth && pt.Y < _flow.ArtHeight;
 
         internal bool Register(Streamline line, Point pt, bool fForward)
         {
-            if (pt.X < 0 || pt.X >= _artWidth || pt.Y < 0 || pt.Y >= _artHeight)
+            if (pt.X < 0 || pt.X >= _flow.ArtWidth || pt.Y < 0 || pt.Y >= _flow.ArtHeight)
             {
                 line.Add(pt, fForward);
                 return true;
@@ -46,8 +41,8 @@ namespace GenerativeArt.FlowGenerator
             {
                 return false;
             }
-            var xIndex = (int)(pt.X / _sep);
-            var yIndex = (int)(pt.Y / _sep);
+            var xIndex = (int)(pt.X / _flow.InterlineDistance);
+            var yIndex = (int)(pt.Y / _flow.InterlineDistance);
 
             var index = line.Add(pt, fForward);
             _cells[xIndex, yIndex].Add(line, index);
@@ -56,13 +51,13 @@ namespace GenerativeArt.FlowGenerator
 
         internal bool IsValid(Streamline line, Point pt)
         {
-            if (pt.X < 0 || pt.X >= _artWidth || pt.Y < 0 || pt.Y >= _artHeight)
+            if (pt.X < 0 || pt.X >= _flow.ArtWidth || pt.Y < 0 || pt.Y >= _flow.ArtHeight)
             {
                 return true;
             }
 
-            var xIndex = (int)(pt.X / _sep);
-            var yIndex = (int)(pt.Y / _sep);
+            var xIndex = (int)(pt.X / _flow.InterlineDistance);
+            var yIndex = (int)(pt.Y / _flow.InterlineDistance);
 
             for (var ix = xIndex - 1; ix <= xIndex + 1; ix++)
             {

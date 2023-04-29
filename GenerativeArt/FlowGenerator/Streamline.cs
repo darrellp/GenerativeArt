@@ -7,22 +7,21 @@ namespace GenerativeArt.FlowGenerator
 {
     internal class Streamline
     {
+        private FlowGenerator _flowgen;
         private List<Point> _fwd = new();
         private List<Point> _bwd = new();
-        Color shortColor = Colors.Green;
-        Color longColor = Colors.Yellow;
-        const int cShort = 20;
-        const int cLong = 100;
-        private double maxThickness = 7;
-        private double getThick = 0.5;
         private bool fSearching = false;
         private int searchPos = 0;
-        private int sampleInterval = 7;
         private bool fFirstSide = true;
 
         internal int FwdCount => _fwd.Count;
         internal int BwdCount => _bwd.Count;
         internal int Count => _fwd.Count + _bwd.Count;
+
+        internal Streamline(FlowGenerator flowgen)
+        {
+            _flowgen = flowgen;
+        }
 
         internal int Add(Point pt, bool fForward)
         {
@@ -34,20 +33,29 @@ namespace GenerativeArt.FlowGenerator
 
         internal void Draw(DrawingContext dc)
         {
-            var t = Count switch
+            double t;
+
+            if (Count < _flowgen.ShortCount)
             {
-                < cShort => 0.0,
-                > cLong => 1.0,
-                _ => (double)(Count - cShort)/(cLong - cShort),
-            };
-            var thickThresh = Count * getThick;
+                t = 0.0;
+            }
+            else if (Count > _flowgen.LongCount)
+            {
+                t = 1.0;
+            }
+            else
+            {
+                t = (double)(Count - _flowgen.ShortCount) / (_flowgen.LongCount - _flowgen.ShortCount);
+            }
+
+            var thickThresh = Count * _flowgen.GetThick;
 
             for (var ivtx = -BwdCount; ivtx < FwdCount - 1; ivtx++)
             {
                 var distFromBack = BwdCount + ivtx;
                 var distFromFront = FwdCount - ivtx;
                 var dist = Math.Min(distFromBack, distFromFront);
-                var thickness = maxThickness;
+                var thickness = _flowgen.MaxThickness;
                 var alpha = 255.0;
 
                 if (dist < thickThresh)
@@ -57,11 +65,16 @@ namespace GenerativeArt.FlowGenerator
                     alpha *= ratio;
                 }
 
-                var color = Utilities.LerpColor(shortColor, longColor, t);
-                //color.A = (byte)alpha;
+                var color = Utilities.LerpColor(_flowgen.ShortColor, _flowgen.LongColor, t);
+                if (_flowgen.UseAlpha)
+                {
+                    color.A = (byte)alpha;
+                }
                 var brush = new SolidColorBrush(color);
-                var flow = new Pen(brush, thickness);
-                flow.EndLineCap = PenLineCap.Round;
+                var flow = new Pen(brush, thickness)
+                {
+                    EndLineCap = PenLineCap.Round
+                };
                 ;
                 dc.DrawLine(flow, this[ivtx], this[ivtx + 1]);
             }
@@ -100,7 +113,7 @@ namespace GenerativeArt.FlowGenerator
             var diffX = ptAhead.X - ptBehind.X;
             var diffY = ptAhead.Y - ptBehind.Y;
             var vecPerp = new Point(diffY, -diffX);
-            var norm = 1.5 * map.Sep / Math.Sqrt(Utilities.Norm(vecPerp));
+            var norm = _flowgen.StartPtMult * _flowgen.InterlineDistance / Math.Sqrt(Utilities.Norm(vecPerp));
             vecPerp = new Point(vecPerp.X * norm, vecPerp.Y * norm);
             var midPt = new Point((ptAhead.X + ptBehind.X)/2, (ptBehind.Y + ptAhead.Y)/2);
             Point ptTest;
@@ -111,7 +124,7 @@ namespace GenerativeArt.FlowGenerator
             else
             {
                 ptTest = new Point(midPt.X - vecPerp.X, midPt.Y - vecPerp.Y);
-                searchPos += sampleInterval;
+                searchPos += _flowgen.SampleInterval;
             }
 
             fFirstSide = !fFirstSide;
