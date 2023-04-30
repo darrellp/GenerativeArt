@@ -2,13 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+
 
 namespace GenerativeArt.FlowGenerator
 {
@@ -290,6 +289,8 @@ namespace GenerativeArt.FlowGenerator
             Octaves = 2;
             StartPtMult = 1.5;
             UseAlpha = false;
+            _ourWindow.btnFlLongColor.Background = new SolidColorBrush(LongColor);
+            _ourWindow.btnFlShortColor.Background = new SolidColorBrush(ShortColor);
         }
 
         public void Kill()
@@ -327,6 +328,32 @@ namespace GenerativeArt.FlowGenerator
             _ourWindow.sldrFlSampleInterval.ValueChanged +=SldrFlSampleInterval_ValueChanged;
             _ourWindow.sldrFlThickRatio.ValueChanged +=SldrFlThickRatio_ValueChanged;
             _ourWindow.sldrFlStartPtMult.ValueChanged +=SldrFlStartPtMult_ValueChanged;
+            _ourWindow.btnFlShortColor.Click += BtnFlShortColor_Click;
+            _ourWindow.btnFlLongColor.Click +=BtnFlLongColor_Click;
+        }
+
+        private void BtnFlLongColor_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = _ourWindow.btnFlLongColor;
+            var brush = (SolidColorBrush)btn.Background;
+            var (isAccepted, color) = ColorPickerDlg.GetUserColor(brush.Color);
+            if (isAccepted == true)
+            {
+                btn.Background = new SolidColorBrush(color);
+                LongColor = color;
+            }
+        }
+
+        private void BtnFlShortColor_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = _ourWindow.btnFlShortColor;
+            var brush = (SolidColorBrush)btn.Background;
+            var (isAccepted, color) = ColorPickerDlg.GetUserColor(brush.Color);
+            if (isAccepted == true)
+            {
+                btn.Background = new SolidColorBrush(color);
+                ShortColor = color;
+            }
         }
 
         private void SldrFlStartPtMult_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)

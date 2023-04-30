@@ -147,6 +147,14 @@
                         <Slider x:Name="sldrFlThickRatio"  Minimum="0" Maximum="0.5" Value="{Binding GetThick, Mode=TwoWay}" Margin="10,0,10,0"/>
                         <Label x:Name="lblFlStartPtMult" Content ="Start Pt Multiplier" HorizontalAlignment="Center"/>
                         <Slider x:Name="sldrFlStartPtMult"  Minimum="1" Maximum="4" Value="{Binding StartPtMult, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="btnFlShortColor" Grid.Column="0" MinHeight="20" Margin="10,5,5,0" Background="Green"  Template="{StaticResource NoMouseOverButtonTemplate}"/>
+                            <Button x:Name="btnFlLongColor" Grid.Column="1" Margin="10,5,5,0" Background="Yellow" Template="{StaticResource NoMouseOverButtonTemplate}"/>
+                        </Grid>
 
                     </StackPanel>
                 </TabItem>
