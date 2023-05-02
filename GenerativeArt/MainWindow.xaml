@@ -122,8 +122,9 @@
                 <TabItem x:Name="pgFlow" Header="Flow">
                     <StackPanel Background="White">
                         <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
-                            <CheckBox Content="Even Lines" IsChecked="{Binding EvenLineSelection, Mode=TwoWay}" Margin="6,0,0,0"></CheckBox>
-                            <CheckBox Content="Alpha" HorizontalAlignment="Left" IsChecked="{Binding UseAlpha, Mode=TwoWay}" Margin="32,0,0,0"></CheckBox>
+                            <CheckBox Content="Even" IsChecked="{Binding EvenLineSelection, Mode=TwoWay}" Margin="0,0,6,0"></CheckBox>
+                            <CheckBox Content="Alpha" HorizontalAlignment="Left" IsChecked="{Binding UseAlpha, Mode=TwoWay}" Margin="0,0,10,0"></CheckBox>
+                            <CheckBox Content="Dots" HorizontalAlignment="Left" IsChecked="{Binding Dotted, Mode=TwoWay}"></CheckBox>
                         </StackPanel>
                         <Label x:Name="lblFlOctaves" Content ="Octaves" HorizontalAlignment="Center"/>
                         <Slider x:Name="sldrFlOctaves" Minimum="1" Maximum="6" Value="{Binding Octaves, Mode=TwoWay}" Margin="10,0,10,0" 
@@ -139,6 +140,9 @@
                                 IsSnapToTickEnabled="True" TickFrequency="1"/>
                         <Label x:Name="lblFlLongCount" Content ="Short Color Thresh" HorizontalAlignment="Center"/>
                         <Slider x:Name="sldrFlLongCount" Minimum="0" Maximum="200" Value="{Binding LongCount, Mode=TwoWay}" Margin="10,0,10,0" 
+                                IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Label x:Name="lblFlDropBelow" Content ="Drop Below Length" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlDropBelow" Minimum="1" Maximum="250" Value="{Binding DropBelow, Mode=TwoWay}" Margin="10,0,10,0" 
                                 IsSnapToTickEnabled="True" TickFrequency="1"/>
                         <Label x:Name="lblFlSampleInterval" Content ="SampleInterval" HorizontalAlignment="Center"/>
                         <Slider x:Name="sldrFlSampleInterval" Minimum="2" Maximum="20" Value="{Binding SampleInterval, Mode=TwoWay}" Margin="10,0,10,0" 

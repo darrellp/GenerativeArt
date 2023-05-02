@@ -7,6 +7,7 @@ namespace GenerativeArt.FlowGenerator
 {
     internal class Streamline
     {
+        private const int MinDotSize = 2;
         private FlowGenerator _flowgen;
         private List<Point> _fwd = new();
         private List<Point> _bwd = new();
@@ -34,6 +35,8 @@ namespace GenerativeArt.FlowGenerator
         internal void Draw(DrawingContext dc)
         {
             double t;
+            double length = 0;
+            double lengthLastDot = Double.MinValue;
 
             if (Count < _flowgen.ShortCount)
             {
@@ -65,17 +68,44 @@ namespace GenerativeArt.FlowGenerator
                     alpha *= ratio;
                 }
 
-                var color = Utilities.LerpColor(_flowgen.ShortColor, _flowgen.LongColor, t);
+                var color = Utilities.Lerp(_flowgen.ShortColor, _flowgen.LongColor, t);
                 if (_flowgen.UseAlpha)
                 {
                     color.A = (byte)alpha;
                 }
                 var brush = new SolidColorBrush(color);
+                if (_flowgen.Dotted)
+                {
+                    // How far we will have reached after this step.
+                    length += FlowGenerator.StepDistance;
+
+                    // If we're not big enough to get started or our span doesn't cover the next
+                    // dot's radius, then just move to the next iteration
+                    if (thickness < MinDotSize || length < lengthLastDot + thickness)
+                    {
+                        continue;
+                    }
+
+                    if (lengthLastDot <= double.MinValue)
+                    {
+                        lengthLastDot = length - FlowGenerator.StepDistance - thickness;
+                    }
+
+                    var lengthNextDot = lengthLastDot + thickness;
+                    while (lengthNextDot < length)
+                    {
+                        var tNextDot = (lengthNextDot - (length - FlowGenerator.StepDistance)) / FlowGenerator.StepDistance;
+                        var ctrNextDot = Utilities.Lerp(this[ivtx], this[ivtx + 1], tNextDot);
+                        dc.DrawEllipse(brush, null, ctrNextDot, thickness / 2, thickness / 2);
+                        lengthLastDot = lengthNextDot;
+                        lengthNextDot += thickness;
+                    }
+                    continue;
+                }
                 var flow = new Pen(brush, thickness)
                 {
                     EndLineCap = PenLineCap.Round
                 };
-                ;
                 dc.DrawLine(flow, this[ivtx], this[ivtx + 1]);
             }
         }

@@ -331,7 +331,7 @@ namespace GenerativeArt.CrabNebula
                 (color1, color2) = (color2, color1);
             }
 
-            return LerpColor(color1, color2, tBand);
+            return Lerp(color1, color2, tBand);
         }
 #endregion
     }

@@ -15,7 +15,12 @@ namespace GenerativeArt
             return val1 + (val2 - val1) * t;
         }
 
-        internal static Color LerpColor(Color color1, Color color2, double t)
+        internal static Point Lerp(Point p1, Point p2, double t)
+        {
+            return p1 + (p2 - p1) * t;
+        }
+
+        internal static Color Lerp(Color color1, Color color2, double t)
         {
             var r = Lerp(color1.R, color2.R, t);
             var g = Lerp(color1.G, color2.G, t);

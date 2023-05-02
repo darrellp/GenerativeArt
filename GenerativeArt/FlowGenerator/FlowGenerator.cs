@@ -23,6 +23,7 @@ namespace GenerativeArt.FlowGenerator
     {
         #region Private Variables
         Random _rnd = new Random();
+        public const int StepDistance = 4;
 
         private MainWindow _ourWindow;
         internal int ArtHeight => _ourWindow.ArtHeight;
@@ -35,11 +36,25 @@ namespace GenerativeArt.FlowGenerator
             set => SetField(ref _evenLineSelection, value);
         }
 
+        private int _dropBelow;
+        public int DropBelow
+        {
+            get => _dropBelow;
+            set => SetField(ref _dropBelow, value);
+        }
+
         private bool _useAlpha;
         public bool UseAlpha
         {
             get => _useAlpha;
             set => SetField(ref _useAlpha, value);
+        }
+
+        private bool _dotted;
+        public bool Dotted
+        {
+            get => _dotted;
+            set => SetField(ref _dotted, value);
         }
 
         private double _lineCount;
@@ -147,7 +162,6 @@ namespace GenerativeArt.FlowGenerator
         public void Generate()
         {
             var perlin = new Perlin() { Octaves = Octaves, };
-            var stepDistance = 4;
             var map = new PointMap(this);//InterlineDistance, ArtWidth, ArtHeight);
 
             var xCount = (ArtWidth + InterlineDistance - 1) / InterlineDistance;
@@ -193,7 +207,7 @@ namespace GenerativeArt.FlowGenerator
                         break;
                     }
                 }
-                var line = ProduceLine(startPt, stepDistance, perlin, map);
+                var line = ProduceLine(startPt, perlin, map);
                 if (line != null)
                 {
                     lines.Add(line);
@@ -209,7 +223,7 @@ namespace GenerativeArt.FlowGenerator
             // Clear the window
             dc.DrawRectangle(Brushes.Black, null, new Rect(0, 0, ArtWidth, ArtHeight));
 
-            foreach (var streamline in lines.Where(streamline => streamline.Count >= 10))
+            foreach (var streamline in lines.Where(streamline => streamline.Count >= DropBelow))
             {
                 streamline.Draw(dc);
             }
@@ -220,7 +234,7 @@ namespace GenerativeArt.FlowGenerator
             _ourWindow.Art.Source = rtBitmap;
         }
 
-        private Streamline? ProduceLine(Point ptStart, double dist, Perlin perlin, PointMap map)
+        private Streamline? ProduceLine(Point ptStart, Perlin perlin, PointMap map)
         {
             var ptCur = ptStart;
             var line = new Streamline(this);
@@ -230,18 +244,19 @@ namespace GenerativeArt.FlowGenerator
                 return null;
             }
 
+            int iLoops = 0;
             while (OnBoard(ptCur))
             {
                 var oldPt = ptCur;
-                ptCur = NextPoint(ptCur, dist, perlin);
-                // if we're too close to something else, hop out
-                if (!map.Register(line, ptCur, true))
+                ptCur = NextPoint(ptCur, StepDistance, perlin);
+                // if we're too close to something else, hop out - also no infinite loops
+                if (!map.Register(line, ptCur, true) || ++iLoops > 500)
                 {
                     break;
                 }
             }
 
-            ptCur = NextPoint(ptStart, -dist, perlin);
+            ptCur = NextPoint(ptStart, -StepDistance, perlin);
             if (!map.Register(line, ptCur, false))
             {
                 return line;
@@ -250,7 +265,7 @@ namespace GenerativeArt.FlowGenerator
             while (OnBoard(ptCur))
             {
                 var oldPt = ptCur;
-                ptCur = NextPoint(ptCur, -dist, perlin);
+                ptCur = NextPoint(ptCur, -StepDistance, perlin);
                 // if we're too close to something else, hop out
                 if (!map.Register(line, ptCur, false))
                 {
@@ -275,6 +290,7 @@ namespace GenerativeArt.FlowGenerator
 
         public void Initialize()
         {
+            Dotted = false;
             LineCount = 800;
             EvenLineSelection = true;
             AngleMultiplier = 35;
@@ -289,6 +305,7 @@ namespace GenerativeArt.FlowGenerator
             Octaves = 2;
             StartPtMult = 1.5;
             UseAlpha = false;
+            DropBelow = 10;
             _ourWindow.btnFlLongColor.Background = new SolidColorBrush(LongColor);
             _ourWindow.btnFlShortColor.Background = new SolidColorBrush(ShortColor);
         }
@@ -328,6 +345,7 @@ namespace GenerativeArt.FlowGenerator
             _ourWindow.sldrFlSampleInterval.ValueChanged +=SldrFlSampleInterval_ValueChanged;
             _ourWindow.sldrFlThickRatio.ValueChanged +=SldrFlThickRatio_ValueChanged;
             _ourWindow.sldrFlStartPtMult.ValueChanged +=SldrFlStartPtMult_ValueChanged;
+            _ourWindow.sldrFlDropBelow.ValueChanged +=SldrFlDropBelow_ValueChanged;
             _ourWindow.btnFlShortColor.Click += BtnFlShortColor_Click;
             _ourWindow.btnFlLongColor.Click +=BtnFlLongColor_Click;
         }
@@ -354,6 +372,11 @@ namespace GenerativeArt.FlowGenerator
                 btn.Background = new SolidColorBrush(color);
                 ShortColor = color;
             }
+        }
+
+        private void SldrFlDropBelow_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblFlDropBelow.Content = $"Drop all below length: {e.NewValue:##0}";
         }
 
         private void SldrFlStartPtMult_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
