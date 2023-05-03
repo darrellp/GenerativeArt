@@ -63,20 +63,20 @@
                         <Setter Property="Padding" Value="3" />
                     </Style>
                 </TabControl.Resources>
-                <TabItem Header="Crab Nebula">
+                <TabItem x:Name="pgNebula" Header="Crab Nebula">
                     <StackPanel Background="White">
                         <Label x:Name="lblCnCPoints" Content ="Point Count" HorizontalAlignment="Center"/>
-                        <Slider x:Name="sldrCnCPoints" Margin="10,0,10,0" Maximum="24000000" Minimum="1000000" IsSnapToTickEnabled="True" TickFrequency="1000000"/>
+                        <Slider x:Name="sldrCnCPoints" Value="{Binding CPoints, Mode=TwoWay}" Margin="10,0,10,0" Maximum="24000000" Minimum="1000000" IsSnapToTickEnabled="True" TickFrequency="1000000"/>
                         <Label x:Name="lblCnOctaves" Content ="Octaves" HorizontalAlignment="Center"/>
-                        <Slider x:Name="sldrCnOctaves" Margin="10,0,10,0" Maximum="4" Minimum="1" IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Slider x:Name="sldrCnOctaves" Value="{Binding Octaves, Mode=TwoWay}" Margin="10,0,10,0" Maximum="4" Minimum="1" IsSnapToTickEnabled="True" TickFrequency="1"/>
                         <Label x:Name="lblCnPersistence" Content ="Persistence" HorizontalAlignment="Center"/>
-                        <Slider x:Name="sldrCnPersistence" Margin="10,0,10,0" Maximum="10" Minimum="0"/>
+                        <Slider x:Name="sldrCnPersistence" Value="{Binding Persistence, Mode=TwoWay}" Margin="10,0,10,0" Maximum="10" Minimum="0"/>
                         <Label x:Name="lblNoiseScale" Content ="Noise Scale" HorizontalAlignment="Center"/>
-                        <Slider x:Name="sldrNoiseScale" Maximum="2000" Minimum="0" Margin="10,0,10,0"/>
+                        <Slider x:Name="sldrNoiseScale" Value="{Binding NoiseScale, Mode=TwoWay}" Maximum="2000" Minimum="0" Margin="10,0,10,0"/>
                         <Label x:Name="lblCnFrequency" Content ="Frequency" HorizontalAlignment="Center"/>
-                        <Slider x:Name="sldrCnFrequency" Maximum="4" Minimum="0.1" Margin="10,0,10,0"/>
+                        <Slider x:Name="sldrCnFrequency" Value="{Binding Frequency, Mode=TwoWay}" Maximum="4" Minimum="0.1" Margin="10,0,10,0"/>
                         <Label x:Name="lblCBands" Content ="Frequency" HorizontalAlignment="Center"/>
-                        <Slider x:Name="sldrCBands" Maximum="300" Minimum="1" Margin="10,0,10,0" IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Slider x:Name="sldrCBands" Value="{Binding CBands, Mode=TwoWay}" Maximum="300" Minimum="1" Margin="10,0,10,0" IsSnapToTickEnabled="True" TickFrequency="1"/>
                         <Label Content ="Blend Colors" HorizontalAlignment="Center"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -86,7 +86,7 @@
                             <Button x:Name="btnBlend1" Grid.Column="0" MinHeight="20" Margin="10,5,5,0" Background="Yellow"  Template="{StaticResource NoMouseOverButtonTemplate}"/>
                             <Button x:Name="btnBlend2" Grid.Column="1" Margin="10,5,5,0" Background="Red" Template="{StaticResource NoMouseOverButtonTemplate}"/>
                         </Grid>
-                        <CheckBox x:Name="cbxHardEdges" Content="Hard Edged Bands" HorizontalAlignment="Center" Margin="0,15,0,0"/>
+                        <CheckBox x:Name="cbxHardEdges" IsChecked="{Binding FHardEdged, Mode=TwoWay}" Content="Hard Edged Bands" HorizontalAlignment="Center" Margin="0,15,0,0"/>
                     </StackPanel>
                 </TabItem>
                 <TabItem x:Name="pgNoise" Header="Noise">

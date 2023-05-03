@@ -90,6 +90,7 @@ namespace GenerativeArt
             OnGenerate(this, new RoutedEventArgs());
 
             // Set up data contexts for the tab pages so that data binding works properly
+            pgNebula.DataContext = _generators[0];
             pgNoise.DataContext = _generators[1];
             pgShapes.DataContext = _generators[2];
             pgFlow.DataContext = _generators[3];

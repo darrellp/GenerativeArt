@@ -24,50 +24,41 @@ namespace GenerativeArt.CrabNebula
     internal class Thread
     {
         #region Private Variables
+        private readonly CrabNebula _nebula;
+
         /// <summary>   (Immutable) the sqrt two. </summary>
         private const double SqrtTwo = 1.41421356237;
 
         /// <summary>   The noise scale. </summary>
-        private static double _noiseScale;
+        private double NoiseScale => _nebula.NoiseScale;
 
         /// <summary>   (Immutable) the standard development. </summary>
-        private const double StdDev = 0.15;
+        private double StdDev => _nebula.StdDev;
 
         /// <summary>   (Immutable) the mean. </summary>
         private const double Mean = 0.5;
 
         /// <summary>   The bands. </summary>
-        private static int _cBands;
-
-        /// <summary>   The frequency. </summary>
-        private static double _frequency;
-
-        /// <summary>   The persistence. </summary>
-        private static double _persistence;
-
-        /// <summary>   The octaves. </summary>
-        private static int _octaves;
-
-        /// <summary>   The points. </summary>
-        private static int _cPoints;
+        private int CBands => _nebula.CBands;
 
         /// <summary>   The first blend. </summary>
-        private static Color _blend1;
+        private Color Blend1 => _nebula.Blend1;
 
         /// <summary>   The second blend. </summary>
-        private static Color _blend2;
+        private Color Blend2 => _nebula.Blend2;
 
         /// <summary>   True if hard edged. </summary>
-        private static bool _fHardEdged;
+        private bool FHardEdged => _nebula.FHardEdged;
 
         /// <summary>   (Immutable) the points thread. </summary>
         private readonly int _cPointsThread;
 
+
         /// <summary>   (Immutable) the width. </summary>
-        private readonly int _width;
+        private int Width => _nebula.ArtWidth;
 
         /// <summary>   (Immutable) the height. </summary>
-        private readonly int _height;
+        private int Height => _nebula.ArtHeight;
 
         /// <summary>   (Immutable) the noise. </summary>
         private readonly Perlin _noise;
@@ -93,29 +84,6 @@ namespace GenerativeArt.CrabNebula
         // ReSharper restore InconsistentNaming
         #endregion
 
-        #region Parameter Setting
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Sets the parameters on our tab page from the Parameters object. </summary>
-        ///
-        /// <remarks>   Darrell Plank, 4/19/2023. </remarks>
-        ///
-        /// <param name="parameters">   Parameters for our tab page. </param>
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        internal static void SetParameters(Parameters parameters)
-        {
-            _octaves = parameters.Octaves;
-            _persistence = parameters.Persistence;
-            _noiseScale = parameters.NoiseScale;
-            _frequency = parameters.Frequency;
-            _cPoints = parameters.CPoints;
-            _cBands = parameters.CBands;
-            _blend1 = parameters.Blend1;
-            _blend2 = parameters.Blend2;
-            _fHardEdged = parameters.FHardEdged;
-        }
-        #endregion
-
         #region Constructor
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Constructor. </summary>
@@ -128,17 +96,16 @@ namespace GenerativeArt.CrabNebula
         /// <param name="noise">            The Perlin noise generator. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private Thread(int cPointsThread, int width, int height, Perlin noise)
+        private Thread(CrabNebula nebula, int cPointsThread, Perlin noise)
         {
+            _nebula = nebula;
             _cPointsThread = cPointsThread;
-            _width = width;
-            _height = height;
             _noise = noise;
             _distNormal = new Normal(Mean, StdDev);
-            _hits = new ushort[_width, _height];
-            _r = new int[_width, _height];
-            _g = new int[_width, _height];
-            _b = new int[_width, _height];
+            _hits = new ushort[Width, Height];
+            _r = new int[Width, Height];
+            _g = new int[Width, Height];
+            _b = new int[Width, Height];
         }
         #endregion
 
@@ -160,19 +127,19 @@ namespace GenerativeArt.CrabNebula
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         internal static async Task<(int maxhits, ushort[,] hits, int[,] r, int[,] g, int[,] b)> 
-            AmassAcrossThreads(int width, int height, CancellationTokenSource cts)
+            AmassAcrossThreads(CrabNebula nebula, int width, int height, CancellationTokenSource cts)
         {
             Perlin noise = new()
             {
-                Frequency = _frequency,
-                Persistence = _persistence,
-                Octaves = _octaves,
+                Frequency = nebula.Frequency,
+                Persistence = nebula.Persistence,
+                Octaves = nebula.Octaves,
             };
 
             var cThreads = Environment.ProcessorCount;
             var threads = Enumerable.
                 Range(0, cThreads).
-                Select(_ => new Thread(_cPoints / cThreads, width, height, noise)).
+                Select(_ => new Thread(nebula, nebula.CPoints / cThreads, noise)).
                 ToArray();
             var tasks = threads.Select(t => new Task(() =>t.Amass(cts.Token))).ToList();
             tasks.ForEach(t => t.Start());
@@ -195,8 +162,8 @@ namespace GenerativeArt.CrabNebula
         private static (int maxhits, ushort[,] hits, int[,] r, int[,] g, int[,] b) 
             ConsolidateThreads(Thread[] threads)
         {
-            var width = threads[0]._width;
-            var height = threads[0]._height;
+            var width = threads[0].Width;
+            var height = threads[0].Height;
             var hits = new ushort[width, height];
             var r = new int[width, height];
             var g = new int[width, height];
@@ -244,13 +211,13 @@ namespace GenerativeArt.CrabNebula
                 }
 #endif
                 // Calculate the point and it's color
-                var (pt, clr) = CalcNebulaPoint(_noise);
+                var (pt, clr) = CalcRandomNebulaPoint(_noise);
 
                 // Round off to integers
                 var xPix = (int)(pt.X + 0.5);
                 var yPix = (int)(pt.Y + 0.5);
 
-                if (xPix >= 0 && xPix < _width && yPix >= 0 && yPix < _height)
+                if (xPix >= 0 && xPix < Width && yPix >= 0 && yPix < Height)
                 {
                     // Increment our color buffers appropriately
                     _r[xPix, yPix] += clr.R;
@@ -277,15 +244,19 @@ namespace GenerativeArt.CrabNebula
         /// <returns>   The calculated nebula point. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        internal (Point, Color) CalcNebulaPoint(Perlin noise)
+        internal (Point, Color) CalcRandomNebulaPoint(Perlin noise)
         {
             // Pick a random normally distributed point around (0.5, 0.5)
             var xNorm = (float)_distNormal.Sample();
             var yNorm = (float)_distNormal.Sample();
+            return CalcNebulaPoint(xNorm, yNorm, noise);
+        }
 
+        internal (Point, Color) CalcNebulaPoint(double xNorm, double yNorm, Perlin noise)
+        {
             // Pixel coordinates
-            var x = xNorm * _width;
-            var y = yNorm * _height;
+            var x = xNorm * Width;
+            var y = yNorm * Height;
 
             // Randomly distributed around (0, 0)
             var xc = xNorm - 0.5;
@@ -297,10 +268,10 @@ namespace GenerativeArt.CrabNebula
             // Normalize so 1 at the corners of (-0.5, -0.5) - (0.5, 0.5)
             var tColor = dist / SqrtTwo;
 
-            var nx = _noiseScale * (noise.Value(xNorm, yNorm, 0.75) - 0.5);
-            var ny = _noiseScale * (noise.Value(xNorm, yNorm, 0.25) - 0.5);
+            var nx = NoiseScale * (noise.Value(xNorm, yNorm, 0.75) - 0.5);
+            var ny = NoiseScale * (noise.Value(xNorm, yNorm, 0.25) - 0.5);
 
-            return (new Point(x + nx, y + ny), NebulaColor(_cBands, tColor));
+            return (new Point(x + nx, y + ny), NebulaColor(CBands, tColor));
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -314,17 +285,17 @@ namespace GenerativeArt.CrabNebula
         /// <returns>   A Color. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private static Color NebulaColor(int cBands, double t)
+        private Color NebulaColor(int cBands, double t)
         {
             var band = cBands * t;
             var iBand = (int)Math.Floor(band);
-            if (_fHardEdged)
+            if (FHardEdged)
             {
-                return (iBand & 1) == 0 ? _blend1 : _blend2;
+                return (iBand & 1) == 0 ? Blend1 : Blend2;
             }
             var tBand = band - iBand;
-            var color1 = _blend1;
-            var color2 = _blend2;
+            var color1 = Blend1;
+            var color2 = Blend2;
 
             if ((iBand & 1) == 0)
             {

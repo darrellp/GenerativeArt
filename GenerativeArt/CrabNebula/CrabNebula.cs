@@ -1,6 +1,9 @@
 ﻿
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -41,23 +44,88 @@ namespace GenerativeArt.CrabNebula
     internal class CrabNebula : IGenerator
     {
         #region Private variables
-        /// <summary>   Width of the art. </summary>
-        private int _artWidth;
-
-        /// <summary>   Height of the art. </summary>
-        private int _artHeight;
 
         /// <summary>   The main window. </summary>
         private readonly MainWindow _ourWindow;
+
+        internal int ArtHeight => _ourWindow.ArtHeight;
+        internal int ArtWidth => _ourWindow.ArtWidth;
+
+        private int _cPoints;
+        public int CPoints
+        {
+            get => _cPoints;
+            set => SetField(ref _cPoints, value);
+        }
+
+        private int _cBands;
+        public int CBands
+        {
+            get => _cBands;
+            set => SetField(ref _cBands, value);
+        }
+
+        private int _octaves;
+        public int Octaves
+        {
+            get => _octaves;
+            set => SetField(ref _octaves, value);
+        }
+
+        private double _noiseScale;
+        public double NoiseScale
+        {
+            get => _noiseScale;
+            set => SetField(ref _noiseScale, value);
+        }
+
+        private double _frequency;
+        public double Frequency
+        {
+            get => _frequency;
+            set => SetField(ref _frequency, value);
+        }
+
+        private double _persistence;
+        public double Persistence
+        {
+            get => _persistence;
+            set => SetField(ref _persistence, value);
+        }
+
+        private double _stdDev;
+        public double StdDev
+        {
+            get => _stdDev;
+            set => SetField(ref _stdDev, value);
+        }
+
+        private Color _blend1;
+        public Color Blend1
+        {
+            get => _blend1;
+            set => SetField(ref _blend1, value);
+        }
+
+        private Color _blend2;
+        public Color Blend2
+        {
+            get => _blend2;
+            set => SetField(ref _blend2, value);
+        }
+
+        private bool _fHardEdged;
+        public bool FHardEdged
+        {
+            get => _fHardEdged;
+            set => SetField(ref _fHardEdged, value);
+        }
 
         /// <summary>   Amassing tasks. </summary>
         private Task<(int, ushort[,], int[,], int[,], int[,])>? _taskAmass;
 
         /// <summary>   The draw task. </summary>
         private Task<PixelColor[]>? _taskDraw;
-
-        /// <summary>   Object which keeps the parameters from our tab page. </summary>
-        private Parameters _parameters = new();
 
         /// <summary>   The Cancellation Token Source. </summary>
         private CancellationTokenSource? _cts;
@@ -88,15 +156,16 @@ namespace GenerativeArt.CrabNebula
 
         public void Initialize()
         {
-            // Initialize our parameters
-            _parameters = new();
-            _artWidth = _ourWindow.ArtWidth;
-            _artHeight = _ourWindow.ArtHeight;
-
-            // Place the initialized values into the controls on our tab page
-            // We're required to place this down here because the call relies on
-            // stuff we've set up earlier in Initialize().
-            DistributeParameters();
+            CPoints = 6_000_000;
+            NoiseScale = 800.0;
+            StdDev = 0.15;
+            CBands = 8;
+            Frequency = 1.5;
+            Persistence = 5;
+            Octaves = 3;
+            Blend1 = Colors.Yellow;
+            Blend2 = Colors.Red;
+            FHardEdged = false;
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,10 +176,7 @@ namespace GenerativeArt.CrabNebula
 
         public void Kill()
         {
-            if (_cts != null)
-            {
-                _cts.Cancel();
-            }
+            _cts?.Cancel();
         }
         #endregion
 
@@ -137,17 +203,14 @@ namespace GenerativeArt.CrabNebula
             }
             _cts = null;
 #endif
-            // Set Parameters correctly
-            GatherParameters();
-            Thread.SetParameters(_parameters);
-            var wbmp = BitmapFactory.New(_artWidth, _artHeight);
+            var wbmp = BitmapFactory.New(ArtWidth, ArtHeight);
             wbmp.Clear(Colors.Black);
             _ourWindow.Art.Source = wbmp;
             Debug.Assert(wbmp.Format == PixelFormats.Pbgra32);
 
             // Amass our data...
             _cts = new();
-            _taskAmass = Thread.AmassAcrossThreads(_artWidth, _artHeight, _cts);
+            _taskAmass = Thread.AmassAcrossThreads(this, ArtWidth, ArtHeight, _cts);
             int maxHits;
             ushort[,] hits;
             int[,] R, G, B;
@@ -166,10 +229,10 @@ namespace GenerativeArt.CrabNebula
 
             // Write the pixel array to the art image
             var sizePixel = Marshal.SizeOf(typeof(PixelColor));
-            var stride = _artWidth * sizePixel;
+            var stride = ArtWidth * sizePixel;
 
             // The only I/O done in the generation process
-            wbmp.WritePixels(new(0, 0, _artWidth, _artHeight), pixels, stride, 0);
+            wbmp.WritePixels(new(0, 0, ArtWidth, ArtHeight), pixels, stride, 0);
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -193,15 +256,15 @@ namespace GenerativeArt.CrabNebula
 
         private PixelColor[] Draw( int maxHits, ushort[,] hits, int[,] R, int[,] G, int[,] B, CancellationToken token)
         {
-            var pixelData = new PixelColor[_artWidth * _artHeight];
+            var pixelData = new PixelColor[ArtWidth * ArtHeight];
 
             // Do conversion to double once here.
             double maxHitsDbl = maxHits;
 
             // Step through all pixels in the image
-            for (var iX = 0; iX < _artWidth; iX++)
+            for (var iX = 0; iX < ArtWidth; iX++)
             {
-                for (var iY = 0; iY < _artHeight; iY++)
+                for (var iY = 0; iY < ArtHeight; iY++)
                 {
 #if KILLABLE
                     if (token.IsCancellationRequested)
@@ -212,7 +275,7 @@ namespace GenerativeArt.CrabNebula
                     var hitCount = hits[iX, iY];
                     if (hitCount == 0)
                     {
-                        pixelData[iY * _artWidth + iX] = new(0, 0, 0);
+                        pixelData[iY * ArtWidth + iX] = new(0, 0, 0);
                     }
 
                     // Gamma correction
@@ -220,7 +283,7 @@ namespace GenerativeArt.CrabNebula
                     var mult = noiseVal / hitCount;
 
                     // Draw it
-                    pixelData[iY * _artWidth + iX] = new(
+                    pixelData[iY * ArtWidth + iX] = new(
                         (byte)(R[iX, iY] * mult),
                         (byte)(G[iX, iY] * mult),
                         (byte)(B[iX, iY] * mult));
@@ -228,50 +291,7 @@ namespace GenerativeArt.CrabNebula
             }
             return pixelData;
         }
-#endregion
-
-        #region Parameter Handling
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Gather parameters from the tab page. </summary>
-        ///
-        /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        private void GatherParameters()
-        {
-            _parameters.Octaves = (int)_ourWindow.sldrCnOctaves.Value;
-            _parameters.Persistence = _ourWindow.sldrCnPersistence.Value;
-            _parameters.NoiseScale = _ourWindow.sldrNoiseScale.Value;
-            _parameters.Frequency = _ourWindow.sldrCnFrequency.Value;
-            _parameters.CPoints = (int)_ourWindow.sldrCnCPoints.Value;
-            _parameters.CBands = (int)_ourWindow.sldrCBands.Value;
-            var btn = _ourWindow.btnBlend1;
-            var brush = (SolidColorBrush)btn.Background;
-            _parameters.Blend1 = brush.Color;
-            btn = _ourWindow.btnBlend2;
-            brush = (SolidColorBrush)btn.Background;
-            _parameters.Blend2 = brush.Color;
-            _parameters.FHardEdged = _ourWindow.cbxHardEdges.IsChecked ?? false;
-        }
-
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Distribute parameters from tab page to our local variables. </summary>
-        ///
-        /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        private void DistributeParameters()
-        {
-            _ourWindow.sldrCnOctaves.Value = _parameters.Octaves;
-            _ourWindow.sldrCnPersistence.Value = _parameters.Persistence;
-            _ourWindow.sldrNoiseScale.Value = _parameters.NoiseScale;
-            _ourWindow.sldrCnFrequency.Value = _parameters.Frequency;
-            _ourWindow.sldrCnCPoints.Value = _parameters.CPoints;
-            _ourWindow.sldrCBands.Value = _parameters.CBands;
-            _ourWindow.btnBlend1.Background = new SolidColorBrush(_parameters.Blend1);
-            _ourWindow.btnBlend2.Background = new SolidColorBrush(_parameters.Blend2);
-            _ourWindow.cbxHardEdges.IsChecked = _parameters.FHardEdged;
-        }
+        #endregion
 
         #region Hooks
         ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -416,6 +436,23 @@ namespace GenerativeArt.CrabNebula
             _ourWindow.lblCnOctaves.Content = $"Octave: {(int)e.NewValue}";
         }
         #endregion
+
+        #region Property changes
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
         #endregion
+
     }
 }
