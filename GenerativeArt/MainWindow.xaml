@@ -119,7 +119,7 @@
                         <Button x:Name="btnShSquareColors" Height="30" Margin="10,5,10,0" Content="Square Colors..."/>
                     </StackPanel>
                 </TabItem>
-                <TabItem x:Name="pgFlow" Header="Flow">
+                <TabItem x:Name="pgFlow" Header="Flow" Height="31" VerticalAlignment="Top">
                     <StackPanel Background="White">
                         <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
                             <CheckBox Content="Even" IsChecked="{Binding EvenLineSelection, Mode=TwoWay}" Margin="0,0,6,0"></CheckBox>
@@ -159,6 +159,9 @@
                             <Button x:Name="btnFlShortColor" Grid.Column="0" MinHeight="20" Margin="10,5,5,0" Background="Green"  Template="{StaticResource NoMouseOverButtonTemplate}"/>
                             <Button x:Name="btnFlLongColor" Grid.Column="1" Margin="10,5,5,0" Background="Yellow" Template="{StaticResource NoMouseOverButtonTemplate}"/>
                         </Grid>
+                        <Label x:Name="lblFlBorderWidth" Content ="Border Width: 0.0" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlBorderWidth"  Minimum="0" Maximum="0.5" Value="{Binding BorderWidth, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Button x:Name="btnFlBorderColor" Grid.Column="0" MinHeight="20" Background="Red"  Template="{StaticResource NoMouseOverButtonTemplate}" Margin="25,0,25,0"/>
 
                     </StackPanel>
                 </TabItem>

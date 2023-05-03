@@ -91,12 +91,19 @@ namespace GenerativeArt.FlowGenerator
                         lengthLastDot = length - FlowGenerator.StepDistance - thickness;
                     }
 
+                    Pen? pen = null;
+                    if (_flowgen.BorderWidth != 0.0)
+                    {
+                        var brushOutline = new SolidColorBrush(_flowgen.BorderColor);
+                        pen = new Pen(brushOutline, thickness * _flowgen.BorderWidth);
+                    }
+
                     var lengthNextDot = lengthLastDot + thickness;
                     while (lengthNextDot < length)
                     {
                         var tNextDot = (lengthNextDot - (length - FlowGenerator.StepDistance)) / FlowGenerator.StepDistance;
                         var ctrNextDot = Utilities.Lerp(this[ivtx], this[ivtx + 1], tNextDot);
-                        dc.DrawEllipse(brush, null, ctrNextDot, thickness / 2, thickness / 2);
+                        dc.DrawEllipse(brush, pen, ctrNextDot, thickness / 2, thickness / 2);
                         lengthLastDot = lengthNextDot;
                         lengthNextDot += thickness;
                     }

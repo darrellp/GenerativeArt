@@ -71,6 +71,13 @@ namespace GenerativeArt.FlowGenerator
             set => SetField(ref _angleMultiplier, value);
         }
 
+        private double _borderWidth;
+        public double BorderWidth
+        {
+            get => _borderWidth;
+            set => SetField(ref _borderWidth, value);
+        }
+
         private Color _shortColor;
         public Color ShortColor
         {
@@ -83,6 +90,13 @@ namespace GenerativeArt.FlowGenerator
         {
             get => _longColor;
             set => SetField(ref _longColor, value);
+        }
+
+        private Color _borderColor;
+        public Color BorderColor
+        {
+            get => _borderColor;
+            set => SetField(ref _borderColor, value);
         }
 
         private int _shortCount;
@@ -298,6 +312,7 @@ namespace GenerativeArt.FlowGenerator
             LongCount = 100;
             ShortColor = Colors.Green;
             LongColor = Colors.Yellow;
+            BorderColor = Colors.Red;
             SampleInterval = 7;
             MaxThickness = 7;
             GetThick = 0.5;
@@ -306,8 +321,10 @@ namespace GenerativeArt.FlowGenerator
             StartPtMult = 1.5;
             UseAlpha = false;
             DropBelow = 10;
+            BorderWidth = 0.0;
             _ourWindow.btnFlLongColor.Background = new SolidColorBrush(LongColor);
             _ourWindow.btnFlShortColor.Background = new SolidColorBrush(ShortColor);
+            _ourWindow.btnFlBorderColor.Background = new SolidColorBrush(BorderColor);
         }
 
         public void Kill()
@@ -346,8 +363,22 @@ namespace GenerativeArt.FlowGenerator
             _ourWindow.sldrFlThickRatio.ValueChanged +=SldrFlThickRatio_ValueChanged;
             _ourWindow.sldrFlStartPtMult.ValueChanged +=SldrFlStartPtMult_ValueChanged;
             _ourWindow.sldrFlDropBelow.ValueChanged +=SldrFlDropBelow_ValueChanged;
+            _ourWindow.sldrFlBorderWidth.ValueChanged +=SldrFlBorderWidth_ValueChanged;
             _ourWindow.btnFlShortColor.Click += BtnFlShortColor_Click;
             _ourWindow.btnFlLongColor.Click +=BtnFlLongColor_Click;
+            _ourWindow.btnFlBorderColor.Click +=BtnFlBorderColor_Click;
+        }
+
+        private void BtnFlBorderColor_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = _ourWindow.btnFlBorderColor;
+            var brush = (SolidColorBrush)btn.Background;
+            var (isAccepted, color) = ColorPickerDlg.GetUserColor(brush.Color);
+            if (isAccepted == true)
+            {
+                btn.Background = new SolidColorBrush(color);
+                BorderColor = color;
+            }
         }
 
         private void BtnFlLongColor_Click(object sender, RoutedEventArgs e)
@@ -372,6 +403,11 @@ namespace GenerativeArt.FlowGenerator
                 btn.Background = new SolidColorBrush(color);
                 ShortColor = color;
             }
+        }
+
+        private void SldrFlBorderWidth_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblFlBorderWidth.Content = $"Border Width: {e.NewValue:0.00}";
         }
 
         private void SldrFlDropBelow_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
