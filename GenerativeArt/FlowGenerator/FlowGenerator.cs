@@ -173,7 +173,7 @@ namespace GenerativeArt.FlowGenerator
         #endregion
 
         #region IGenerator Interface
-        public void Generate()
+        public void Generate(int seed)
         {
             var perlin = new Perlin() { Octaves = Octaves, };
             var map = new PointMap(this);//InterlineDistance, ArtWidth, ArtHeight);

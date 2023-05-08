@@ -42,11 +42,17 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition />
             </Grid.RowDefinitions>
             <Button x:Name="BtnGenerate" Grid.Row ="0"  Content="Generate" Height="30" VerticalAlignment="Top" Click="OnGenerate" />
             <Button x:Name="BtnInitialize" Grid.Row ="1"  Content="Initialize Parameters" Height="30" VerticalAlignment="Top" Click="BtnInitialize_Click"/>
-            <TabControl x:Name="tabArtType" Grid.Row="2" TabStripPlacement="Left">
+            <StackPanel Grid.Row ="2" Height="30" Orientation="Horizontal">
+                <Label Content="Seed"/>
+                <TextBox x:Name="tbxSeed"  VerticalAlignment="Center" Width="109"/>
+                <CheckBox x:Name="cbxHoldSeed" IsChecked="False" Margin="5,0,0,0" VerticalAlignment="Center" Content="Hold"/>
+            </StackPanel>
+            <TabControl x:Name="tabArtType" Grid.Row="3" TabStripPlacement="Left">
                 <TabControl.Resources>
                     <Style TargetType="{x:Type TabItem}">
                         <Setter Property="HeaderTemplate">

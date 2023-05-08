@@ -129,6 +129,8 @@ namespace GenerativeArt.CrabNebula
 
         /// <summary>   The Cancellation Token Source. </summary>
         private CancellationTokenSource? _cts;
+
+        private Random _rnd;
         #endregion
 
         #region Constructor
@@ -187,7 +189,7 @@ namespace GenerativeArt.CrabNebula
         /// <remarks>   Darrell Plank, 4/19/2023. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public async void Generate()
+        public async void Generate(int seed = -1)
         {
 #if KILLABLE
             // Check to see if we need to kill running threads
@@ -203,6 +205,7 @@ namespace GenerativeArt.CrabNebula
             }
             _cts = null;
 #endif
+            _rnd = new Random(seed);
             var wbmp = BitmapFactory.New(ArtWidth, ArtHeight);
             wbmp.Clear(Colors.Black);
             _ourWindow.Art.Source = wbmp;
@@ -210,7 +213,7 @@ namespace GenerativeArt.CrabNebula
 
             // Amass our data...
             _cts = new();
-            _taskAmass = Thread.AmassAcrossThreads(this, ArtWidth, ArtHeight, _cts);
+            _taskAmass = Thread.AmassAcrossThreads(this, ArtWidth, ArtHeight, _rnd.Next(), _cts);
             int maxHits;
             ushort[,] hits;
             int[,] R, G, B;
@@ -329,6 +332,7 @@ namespace GenerativeArt.CrabNebula
             if (isAccepted == true)
             {
                 btn.Background = new SolidColorBrush(color);
+                _blend1 = color;
             }
         }
 
@@ -349,6 +353,7 @@ namespace GenerativeArt.CrabNebula
             if (isAccepted == true)
             {
                 btn.Background = new SolidColorBrush(color);
+                _blend2 = color;
             }
         }
 

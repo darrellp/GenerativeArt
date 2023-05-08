@@ -75,7 +75,7 @@ namespace GenerativeArt.NoiseGenerator
         /// <remarks>   Darrell Plank, 4/20/2023. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public void Generate()
+        public void Generate(int seed = -1)
         {
             var wbmp = BitmapFactory.New(ArtWidth, ArtHeight);
             wbmp.Clear(Colors.Black);

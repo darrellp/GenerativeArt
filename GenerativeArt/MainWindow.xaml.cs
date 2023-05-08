@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
@@ -7,6 +8,10 @@ namespace GenerativeArt
 {
     public partial class MainWindow : System.Windows.Window
     {
+        // Random number generator to produce seeds for individual generators
+        Random rnd = new();
+        int _lastSeed = -1;
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Gets or sets the width of the art. </summary>
         ///
@@ -45,8 +50,19 @@ namespace GenerativeArt
 
         private void OnGenerate(object sender, RoutedEventArgs e)
         {
+            int seed;
+            if (cbxHoldSeed.IsChecked == true)
+            {
+                seed = _lastSeed;
+            }
+            else
+            {
+                seed = rnd.Next();
+                _lastSeed = seed;
+            }
+            tbxSeed.Text = $"{seed}";
             Debug.Assert(_generators != null, nameof(_generators) + " != null");
-            _generators[tabArtType.SelectedIndex].Generate();
+            _generators[tabArtType.SelectedIndex].Generate(seed);
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////

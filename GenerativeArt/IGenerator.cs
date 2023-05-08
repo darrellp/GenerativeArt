@@ -2,7 +2,7 @@
 {
     internal interface IGenerator
     {
-        void Generate();
+        void Generate(int seed = -1);
         void Initialize();
         void Kill();
     }

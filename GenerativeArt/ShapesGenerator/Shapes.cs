@@ -110,7 +110,7 @@ namespace GenerativeArt.ShapesGenerator
         #endregion
 
         #region IGenerator interface
-        public void Generate()
+        public void Generate(int seed = -1)
         {
             var cellSize = ArtWidth / GridCount;
             var baseRadius = cellSize * BaseScale / 2;

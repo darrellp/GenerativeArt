@@ -96,12 +96,13 @@ namespace GenerativeArt.CrabNebula
         /// <param name="noise">            The Perlin noise generator. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private Thread(CrabNebula nebula, int cPointsThread, Perlin noise)
+        private Thread(CrabNebula nebula, int cPointsThread, int seed, Perlin noise)
         {
             _nebula = nebula;
             _cPointsThread = cPointsThread;
             _noise = noise;
             _distNormal = new Normal(Mean, StdDev);
+            _distNormal.RandomSource = new Random(seed);
             _hits = new ushort[Width, Height];
             _r = new int[Width, Height];
             _g = new int[Width, Height];
@@ -127,9 +128,10 @@ namespace GenerativeArt.CrabNebula
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         internal static async Task<(int maxhits, ushort[,] hits, int[,] r, int[,] g, int[,] b)> 
-            AmassAcrossThreads(CrabNebula nebula, int width, int height, CancellationTokenSource cts)
+            AmassAcrossThreads(CrabNebula nebula, int width, int height, int seed, CancellationTokenSource cts)
         {
-            Perlin noise = new()
+            Random rnd = new Random(seed);
+            Perlin noise = new(seed + 1)
             {
                 Frequency = nebula.Frequency,
                 Persistence = nebula.Persistence,
@@ -139,7 +141,7 @@ namespace GenerativeArt.CrabNebula
             var cThreads = Environment.ProcessorCount;
             var threads = Enumerable.
                 Range(0, cThreads).
-                Select(_ => new Thread(nebula, nebula.CPoints / cThreads, noise)).
+                Select(_ => new Thread(nebula, nebula.CPoints / cThreads, rnd.Next(), noise)).
                 ToArray();
             var tasks = threads.Select(t => new Task(() =>t.Amass(cts.Token))).ToList();
             tasks.ForEach(t => t.Start());
