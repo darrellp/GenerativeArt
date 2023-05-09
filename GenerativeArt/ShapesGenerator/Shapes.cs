@@ -11,7 +11,7 @@ namespace GenerativeArt.ShapesGenerator
     public class Shapes : IGenerator, INotifyPropertyChanged
     {
         #region Private Variables
-        Random _rnd = new Random();
+        Random _rnd;
 
         private MainWindow _ourWindow { get; }
 
@@ -112,6 +112,7 @@ namespace GenerativeArt.ShapesGenerator
         #region IGenerator interface
         public void Generate(int seed = -1)
         {
+            _rnd = new Random(seed);
             var cellSize = ArtWidth / GridCount;
             var baseRadius = cellSize * BaseScale / 2;
             var circleBreakEven = PctCircles / 100.0;

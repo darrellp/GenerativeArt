@@ -22,7 +22,7 @@ namespace GenerativeArt.FlowGenerator
     internal class FlowGenerator : IGenerator, INotifyPropertyChanged
     {
         #region Private Variables
-        Random _rnd = new Random();
+        Random _rnd;
         public const int StepDistance = 4;
 
         private MainWindow _ourWindow;
@@ -175,7 +175,8 @@ namespace GenerativeArt.FlowGenerator
         #region IGenerator Interface
         public void Generate(int seed)
         {
-            var perlin = new Perlin() { Octaves = Octaves, };
+            var perlin = new Perlin(seed) { Octaves = Octaves, };
+            _rnd = new Random(seed);
             var map = new PointMap(this);//InterlineDistance, ArtWidth, ArtHeight);
 
             var xCount = (ArtWidth + InterlineDistance - 1) / InterlineDistance;

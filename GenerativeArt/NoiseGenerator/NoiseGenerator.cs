@@ -81,7 +81,14 @@ namespace GenerativeArt.NoiseGenerator
             wbmp.Clear(Colors.Black);
             _ourWindow.Art.Source = wbmp;
             Debug.Assert(wbmp.Format == PixelFormats.Pbgra32);
-            var pixels = DrawPerlin();
+            var noise = new Perlin(seed)
+            {
+                Frequency = Frequency,
+                Octaves = (int)Octaves,
+                Persistence = Persistence,
+            };
+
+            var pixels = DrawPerlin(noise);
             var sizePixel = Marshal.SizeOf(typeof(PixelColor));
             var stride = ArtWidth * sizePixel;
             wbmp.WritePixels(new Int32Rect(0, 0, ArtWidth, ArtHeight), pixels, stride, 0);
@@ -121,15 +128,8 @@ namespace GenerativeArt.NoiseGenerator
         ///
         /// <returns>   Buffer of all our pixesl to be drawn on the image. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        private PixelColor[] DrawPerlin()
+        private PixelColor[] DrawPerlin(Perlin noise)
         {
-            var noise = new Perlin()
-            {
-                Frequency = Frequency,
-                Octaves = (int)Octaves,
-                Persistence = Persistence,
-            };
-
             var pixelData = new PixelColor[ArtWidth * ArtHeight];
             for (var iX = 0; iX < ArtWidth; iX++)
             {
