@@ -6,6 +6,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Newtonsoft.Json;
+using RestSharp;
 
 namespace GenerativeArt
 {
@@ -13,7 +15,7 @@ namespace GenerativeArt
     {
         #region Private variables
         #region Enables
-        public bool[] ColorEnabled = new bool[4];
+        public bool[] ColorEnabled = new bool[5];
         private bool _enabled1;
         public bool Enabled1
         {
@@ -38,10 +40,16 @@ namespace GenerativeArt
             get => _enabled4;
             set => SetField(ref _enabled4, value);
         }
+        private bool _enabled5;
+        public bool Enabled5
+        {
+            get => _enabled5;
+            set => SetField(ref _enabled5, value);
+        }
         #endregion
 
         #region Colors
-        public HSB[] ColorsHSB = new HSB[4];
+        public HSB[] ColorsHSB = new HSB[5];
         public Color Color1 { get; set; }
         private Color _color2;
         public Color Color2
@@ -60,6 +68,12 @@ namespace GenerativeArt
         {
             get => _color4;
             set => SetField(ref _color4, value);
+        }
+        private Color _color5;
+        public Color Color5
+        {
+            get => _color5;
+            set => SetField(ref _color5, value);
         }
         #endregion
 
@@ -98,10 +112,12 @@ namespace GenerativeArt
             Color2 = palette.Color2;
             Color3 = palette.Color3;
             Color4 = palette.Color4;
+            Color5 = palette.Color5;
             Enabled1 = palette.Enabled1;
             Enabled2 = palette.Enabled2;
             Enabled3 = palette.Enabled3;
             Enabled4 = palette.Enabled4;
+            Enabled5 = palette.Enabled5;
             PaletteRGBToHSB();
         }
 
@@ -109,9 +125,9 @@ namespace GenerativeArt
 
         internal void PaletteRGBToHSB()
         {
-            var arrColor = new[] { Color1, Color2, Color3, Color4 };
+            var arrColor = new[] { Color1, Color2, Color3, Color4, Color5 };
             ColorsHSB = arrColor.Select(c => new HSB(c)).ToArray();
-            ColorEnabled = new bool[] { Enabled1, Enabled2, Enabled3, Enabled4 };
+            ColorEnabled = new bool[] { Enabled1, Enabled2, Enabled3, Enabled4, Enabled5 };
 
         }
         #endregion
@@ -140,10 +156,11 @@ namespace GenerativeArt
             return palette.RunDialog() ? palette : this;
         }
 
+        private PaletteDlg dlg;
         internal bool RunDialog()
         {
 
-            var dlg = new PaletteDlg
+            dlg = new PaletteDlg
             {
                 DataContext = this,
             };
@@ -151,10 +168,13 @@ namespace GenerativeArt
             dlg.btnColor2.Background = new SolidColorBrush(Color2);
             dlg.btnColor3.Background = new SolidColorBrush(Color3);
             dlg.btnColor4.Background = new SolidColorBrush(Color4);
+            dlg.btnColor5.Background = new SolidColorBrush(Color5);
             dlg.btnColor1.Click +=ChangeColor;
             dlg.btnColor2.Click +=ChangeColor;
             dlg.btnColor3.Click +=ChangeColor;
             dlg.btnColor4.Click +=ChangeColor;
+            dlg.btnColor5.Click +=ChangeColor;
+            dlg.btnRandomize.Click += RandomizePalette;
 
             var result = dlg.ShowDialog() ?? false;
             if (result)
@@ -166,6 +186,48 @@ namespace GenerativeArt
             return false;
         }
 
+        internal class ColorMindPalette
+        {
+            public int[][]? Result
+            {
+                get; set;
+            }
+
+            public Color[] Colors
+            {
+                get
+                {
+                    return Result!.Select(ar => Color.FromRgb((byte)ar[0], (byte)ar[1], (byte)ar[2])).ToArray();
+                }
+            }
+        }
+
+        private void RandomizePalette(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var client = new RestClient("http://darrellplank.com");
+            var request = new RestRequest("http://colormind.io/api/");
+            request.AddBody("{\"model\": \"default\"}");
+            var response = client.Get(request);
+            if (response != null)
+            {
+#pragma warning disable CS8604
+                var colorMindPalette = JsonConvert.DeserializeObject<ColorMindPalette>(response.Content);
+                Debug.Assert(colorMindPalette != null, nameof(colorMindPalette) + " != null");
+                var colors = colorMindPalette.Colors;
+#pragma warning restore CS8604
+                Color1 = colors[0];
+                dlg.btnColor1.Background = new SolidColorBrush(Color1);
+                Color2 = colors[1];
+                dlg.btnColor2.Background = new SolidColorBrush(Color2);
+                Color3 = colors[2];
+                dlg.btnColor3.Background = new SolidColorBrush(Color3);
+                Color4 = colors[3];
+                dlg.btnColor4.Background = new SolidColorBrush(Color4);
+                Color5 = colors[4];
+                dlg.btnColor5.Background = new SolidColorBrush(Color5);
+                PaletteRGBToHSB();
+            }
+        }
         private void ChangeColor(object sender, System.Windows.RoutedEventArgs e)
         {
             var btn = sender as Button;
@@ -188,8 +250,11 @@ namespace GenerativeArt
                     case 2:
                         Color3 = newColor;
                         break;
-                    default:
+                    case 3:
                         Color4 = newColor;
+                        break;
+                    default:
+                        Color5 = newColor;
                         break;
                 }
                 PaletteRGBToHSB();
@@ -200,7 +265,7 @@ namespace GenerativeArt
         {
             var selected = new List<HSB>(4);
 
-            for (var i = 0; i < 4; i++)
+            for (var i = 0; i < 5; i++)
             {
                 if (ColorEnabled[i])
                 {

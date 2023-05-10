@@ -35,6 +35,7 @@
             <ColumnDefinition Width ="1*"/>
             <ColumnDefinition Width ="1*"/>
             <ColumnDefinition Width ="1*"/>
+            <ColumnDefinition Width ="1*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height ="4*"/>
@@ -89,10 +90,19 @@
             <CheckBox x:Name="chkColor4" Content="" HorizontalAlignment="Center" Grid.Row="1" IsChecked="{Binding Enabled4, Mode=TwoWay}"
                       VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20"/>
         </Grid>
+        <Grid x:Name="GridColor5" Grid.Column="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="5*"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Button x:Name="btnColor5" Margin="5,10,5,0" Template="{StaticResource NoMouseOverButtonTemplate}"/>
+            <CheckBox x:Name="chkColor5" Content="" HorizontalAlignment="Center" Grid.Row="1" IsChecked="{Binding Enabled5, Mode=TwoWay}"
+                      VerticalContentAlignment="Stretch" Padding="0,0,0,0" Height="20"/>
+        </Grid>
         <StackPanel Grid.Row="1" Orientation="Horizontal">
             <Button x:Name="btnOkay" Height="30" Content="Okay" HorizontalAlignment="Left" IsDefault="true" VerticalAlignment="Center" Margin="9,0,0,0" Click="btnOkay_Click"/>
             <Button x:Name="btnCancel" Height="30" Content="Cancel" HorizontalAlignment="Left" IsCancel="true" VerticalAlignment="Center" Margin="9,0,0,0"/>
-            <Button x:Name="btnRandomizeCircle" Height="30" Margin="123,4,10,0" Background="Wheat" Content="Randomize" HorizontalAlignment="Right"/>
+            <Button x:Name="btnRandomize" Height="30" Margin="79,0,10,0" Background="Wheat" Content="Randomize" HorizontalAlignment="Right"/>
 
         </StackPanel>
     </Grid>
