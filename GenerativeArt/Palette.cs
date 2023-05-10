@@ -183,6 +183,7 @@ namespace GenerativeArt
                 return true;
             }
 
+            dlg = null;
             return false;
         }
 
@@ -208,25 +209,28 @@ namespace GenerativeArt
             var request = new RestRequest("http://colormind.io/api/");
             request.AddBody("{\"model\": \"default\"}");
             var response = client.Get(request);
-            if (response != null)
-            {
-#pragma warning disable CS8604
-                var colorMindPalette = JsonConvert.DeserializeObject<ColorMindPalette>(response.Content);
-                Debug.Assert(colorMindPalette != null, nameof(colorMindPalette) + " != null");
-                var colors = colorMindPalette.Colors;
-#pragma warning restore CS8604
-                Color1 = colors[0];
-                dlg.btnColor1.Background = new SolidColorBrush(Color1);
-                Color2 = colors[1];
-                dlg.btnColor2.Background = new SolidColorBrush(Color2);
-                Color3 = colors[2];
-                dlg.btnColor3.Background = new SolidColorBrush(Color3);
-                Color4 = colors[3];
-                dlg.btnColor4.Background = new SolidColorBrush(Color4);
-                Color5 = colors[4];
-                dlg.btnColor5.Background = new SolidColorBrush(Color5);
-                PaletteRGBToHSB();
-            }
+            Debug.Assert(response.Content != null, "response.Content != null");
+            var colorMindPalette = JsonConvert.DeserializeObject<ColorMindPalette>(response.Content);
+            Debug.Assert(colorMindPalette != null, nameof(colorMindPalette) + " != null");
+            var colors = colorMindPalette.Colors;
+            Color1 = colors[0];
+            dlg.btnColor1.Background = new SolidColorBrush(Color1);
+            Color2 = colors[1];
+            dlg.btnColor2.Background = new SolidColorBrush(Color2);
+            Color3 = colors[2];
+            dlg.btnColor3.Background = new SolidColorBrush(Color3);
+            Color4 = colors[3];
+            dlg.btnColor4.Background = new SolidColorBrush(Color4);
+            Color5 = colors[4];
+            dlg.btnColor5.Background = new SolidColorBrush(Color5);
+
+            dlg.chkColor1.IsChecked =
+            dlg.chkColor2.IsChecked =
+            dlg.chkColor3.IsChecked =
+            dlg.chkColor4.IsChecked =
+            dlg.chkColor5.IsChecked = true;
+
+            PaletteRGBToHSB();
         }
         private void ChangeColor(object sender, System.Windows.RoutedEventArgs e)
         {
