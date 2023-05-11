@@ -131,31 +131,40 @@ namespace GenerativeArt.ShapesGenerator
             var circleBreakEven = PctCircles / 100.0;
 
             var rtBitmap = new RenderTargetBitmap(ArtWidth, ArtHeight, 96, 96, PixelFormats.Default);
-            DrawingVisual vis = new DrawingVisual();
-            DrawingContext dc = vis.RenderOpen();
+            var vis = new DrawingVisual();
+            var dc = vis.RenderOpen();
             dc.DrawRectangle(new SolidColorBrush(Colors.Black), null, new Rect(0, 0, ArtWidth, ArtHeight));
+            var shuffledPoints = new List<(int x, int y)>();
             for (var ix = 0; ix < GridCount; ix++)
             {
                 for (var iy = 0; iy < GridCount; iy++)
                 {
-                    var xc = cellSize * (ix + 0.5 + (2 * _rnd.NextDouble() - 1) * PosOffset / 100);
-                    var yc = cellSize * (iy + 0.5 + (2 * _rnd.NextDouble() - 1) * PosOffset / 100);
-                    var radius = baseRadius * _rnd.Next(100, (int)MaxScale) / 100;
-                    var isCircle = _rnd.NextDouble() < circleBreakEven;
-                    if (isCircle)
-                    {
-                        var color = _circlePalette.SelectColor(_rnd);
-                        dc.DrawEllipse(new SolidColorBrush(color), null, new Point(xc, yc), radius, radius);
-                    }
-                    else
-                    {
-                        var color = _useCircleColors ? _circlePalette.SelectColor(_rnd) : _squarePalette.SelectColor(_rnd);
-                        var angle = 2 * (_rnd.NextDouble() - 0.5) * AngleVariance;
-                        var rect = new Rect(xc - radius, yc - radius, 2 * radius, 2 * radius);
-                        DrawRotRect(dc, color, null, angle, rect);
-                    }
+                    shuffledPoints.Add((ix, iy));
                 }
             }
+            Utilities.Shuffle<(int, int)>(shuffledPoints, _rnd);
+            for (var i = 0; i < shuffledPoints.Count; i++)
+            {
+                var ix = shuffledPoints[i].x;
+                var iy = shuffledPoints[i].y;
+                var xc = cellSize * (ix + 0.5 + (2 * _rnd.NextDouble() - 1) * PosOffset / 100);
+                var yc = cellSize * (iy + 0.5 + (2 * _rnd.NextDouble() - 1) * PosOffset / 100);
+                var radius = baseRadius * _rnd.Next(100, (int)MaxScale) / 100;
+                var isCircle = _rnd.NextDouble() < circleBreakEven;
+                if (isCircle)
+                {
+                    var color = _circlePalette.SelectColor(_rnd);
+                    dc.DrawEllipse(new SolidColorBrush(color), null, new Point(xc, yc), radius, radius);
+                }
+                else
+                {
+                    var color = _useCircleColors ? _circlePalette.SelectColor(_rnd) : _squarePalette.SelectColor(_rnd);
+                    var angle = 2 * (_rnd.NextDouble() - 0.5) * AngleVariance;
+                    var rect = new Rect(xc - radius, yc - radius, 2 * radius, 2 * radius);
+                    DrawRotRect(dc, color, null, angle, rect);
+                }
+            }
+
             dc.Close();
             rtBitmap.Render(vis);
             _ourWindow.Art.Source = rtBitmap;

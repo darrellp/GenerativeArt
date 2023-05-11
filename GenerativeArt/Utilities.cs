@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 
@@ -10,6 +7,15 @@ namespace GenerativeArt
 {
     internal static class Utilities
     {
+        internal static void Shuffle<T>(IList<T> vals, Random rnd)
+        {
+            for (var i = 0; i < vals.Count; i++)
+            {
+                var swapIndex = i + rnd.Next(vals.Count - i);
+                (vals[i], vals[swapIndex]) = (vals[swapIndex], vals[i]);
+            }
+        }
+
         internal static double Lerp(double val1, double val2, double t)
         {
             return val1 + (val2 - val1) * t;

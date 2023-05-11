@@ -16,17 +16,14 @@ namespace GenerativeArt.FlowGenerator
 
         internal bool IsValid(Streamline line, Point pt)
         {
-            foreach (var keyValue in _ptDict)
+            foreach (var (thisLine, indices) in _ptDict)
             {
-                var thisLine = keyValue.Key;
-
                 // We don't compare against our own points
                 if (thisLine == line)
                 {
                     continue;
                 }
 
-                var indices = keyValue.Value;
                 if (indices.Select(index => thisLine[index]).Any(ptTest => Utilities.Dist2(pt, ptTest) < _sepSq))
                 {
                     return false;
