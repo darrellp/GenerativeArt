@@ -111,7 +111,8 @@ namespace GenerativeArt.FlowGenerator
                 }
                 var flow = new Pen(brush, thickness)
                 {
-                    EndLineCap = PenLineCap.Round
+                    EndLineCap = PenLineCap.Round,
+                    StartLineCap = PenLineCap.Round,
                 };
                 dc.DrawLine(flow, this[ivtx], this[ivtx + 1]);
             }

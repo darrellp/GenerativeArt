@@ -298,7 +298,8 @@ namespace GenerativeArt.FlowGenerator
                 return line;
             }
 
-            while (OnBoard(ptCur))
+            int iLoop = 0;
+            while (OnBoard(ptCur) && iLoop++ < 500)
             {
                 var oldPt = ptCur;
                 ptCur = NextPoint(ptCur, -StepDistance, perlin);
