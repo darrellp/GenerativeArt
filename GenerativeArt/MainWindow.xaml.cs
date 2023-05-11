@@ -11,7 +11,7 @@ namespace GenerativeArt
     public partial class MainWindow : System.Windows.Window
     {
         // Random number generator to produce seeds for individual generators
-        Random rnd = new();
+        readonly Random _rnd = new();
         int _lastSeed = -1;
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,13 +53,18 @@ namespace GenerativeArt
         private void OnGenerate(object sender, RoutedEventArgs e)
         {
             int seed;
-            if (cbxHoldSeed.IsChecked == true)
+            var isValid = int.TryParse(this.tbxSeed.Text, out var inputSeed);
+            if (isValid && inputSeed != _lastSeed)
+            {
+                seed = _lastSeed = inputSeed;
+            }
+            else if (cbxHoldSeed.IsChecked == true)
             {
                 seed = _lastSeed;
             }
             else
             {
-                seed = rnd.Next();
+                seed = _rnd.Next();
                 _lastSeed = seed;
             }
             tbxSeed.Text = $"{seed}";
@@ -160,7 +165,8 @@ namespace GenerativeArt
         private void OnLoad(object sender, RoutedEventArgs e)
         {
             Debug.Assert(_generators != null, nameof(_generators) + " != null");
-            if (!_generators[tabArtType.SelectedIndex].DoesSerialization)
+            var gen = _generators[tabArtType.SelectedIndex];
+            if (!gen.DoesSerialization)
             {
                 // ReSharper disable ConvertToConstant.Local
                 var messageBoxText = "This generator does not support saving.";
@@ -172,7 +178,7 @@ namespace GenerativeArt
                 return;
             }
 
-            var ext = _generators[tabArtType.SelectedIndex].SerialExtension;
+            var ext = gen.SerialExtension;
             // Create OpenFileDialog
             var openFileDialog = new Microsoft.Win32.OpenFileDialog
             {
@@ -185,10 +191,12 @@ namespace GenerativeArt
             var result = openFileDialog.ShowDialog();
             if (result == true)
             {
+                // Make sure any unassigned fields get their default values
+                gen.Initialize();
                 var json = File.ReadAllText(openFileDialog.FileName);
-                _lastSeed = _generators[tabArtType.SelectedIndex].Deserialize(json);
+                _lastSeed = gen.Deserialize(json);
                 tbxSeed.Text = $"{_lastSeed}";
-                _generators[tabArtType.SelectedIndex].Generate(_lastSeed);
+                gen.Generate(_lastSeed);
             }
         }
     }
