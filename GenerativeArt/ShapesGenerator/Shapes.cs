@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -8,14 +9,17 @@ using System.Windows.Media.Imaging;
 
 namespace GenerativeArt.ShapesGenerator
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class Shapes : IGenerator, INotifyPropertyChanged
     {
         #region Private Variables
         Random _rnd;
 
         private MainWindow _ourWindow { get; }
+        [JsonProperty] private int _seed;
 
         private double _gridCount;
+        [JsonProperty]
         public double GridCount
         {
             get => _gridCount;
@@ -23,6 +27,7 @@ namespace GenerativeArt.ShapesGenerator
         }
 
         private double _baseScale;
+        [JsonProperty]
         public double BaseScale
         {
             get => _baseScale;
@@ -30,6 +35,7 @@ namespace GenerativeArt.ShapesGenerator
         }
 
         private double _maxScale;
+        [JsonProperty]
         public double MaxScale
         {
             get => _maxScale;
@@ -37,6 +43,7 @@ namespace GenerativeArt.ShapesGenerator
         }
 
         private double _posOffset;
+        [JsonProperty]
         public double PosOffset
         {
             get => _posOffset;
@@ -44,6 +51,7 @@ namespace GenerativeArt.ShapesGenerator
         }
 
         private double _pctCircles;
+        [JsonProperty]
         public double PctCircles
         {
             get => _pctCircles;
@@ -51,6 +59,7 @@ namespace GenerativeArt.ShapesGenerator
         }
 
         private double _angleVariance;
+        [JsonProperty]
         public double AngleVariance
         {
             get => _angleVariance;
@@ -59,7 +68,9 @@ namespace GenerativeArt.ShapesGenerator
 
         #region Colors
         private bool _useCircleColors;
+        [JsonProperty]
         private Palette _circlePalette;
+        [JsonProperty]
         private Palette _squarePalette;
         #endregion
 
@@ -177,6 +188,20 @@ namespace GenerativeArt.ShapesGenerator
         public void Kill()
         {
         }
+
+        public string Serialize(int seed)
+        {
+            _seed = seed;
+            return JsonConvert.SerializeObject(this);
+        }
+
+        public int Deserialize(string json)
+        {
+            JsonConvert.PopulateObject(json, this);
+            return _seed;
+        }
+
+        public string SerialExtension => "shp";
         #endregion
 
         #region Hooks
