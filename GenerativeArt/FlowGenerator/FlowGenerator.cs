@@ -1,4 +1,5 @@
 ﻿using GenerativeArt.Noises;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,17 +20,20 @@ namespace GenerativeArt.FlowGenerator
     ///             Darrell Plank, 4/27/2023. </remarks>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    [JsonObject(MemberSerialization.OptIn)]
     internal class FlowGenerator : IGenerator, INotifyPropertyChanged
     {
         #region Private Variables
         Random _rnd;
         public const int StepDistance = 4;
+        [JsonProperty] private int _seed;
 
         private MainWindow _ourWindow;
         internal int ArtHeight => _ourWindow.ArtHeight;
         internal int ArtWidth => _ourWindow.ArtWidth;
 
         private bool _evenLineSelection;
+        [JsonProperty]
         public bool EvenLineSelection
         {
             get => _evenLineSelection;
@@ -37,6 +41,7 @@ namespace GenerativeArt.FlowGenerator
         }
 
         private int _dropBelow;
+        [JsonProperty]
         public int DropBelow
         {
             get => _dropBelow;
@@ -44,6 +49,7 @@ namespace GenerativeArt.FlowGenerator
         }
 
         private bool _useAlpha;
+        [JsonProperty]
         public bool UseAlpha
         {
             get => _useAlpha;
@@ -51,6 +57,7 @@ namespace GenerativeArt.FlowGenerator
         }
 
         private bool _dotted;
+        [JsonProperty]
         public bool Dotted
         {
             get => _dotted;
@@ -58,6 +65,7 @@ namespace GenerativeArt.FlowGenerator
         }
 
         private double _lineCount;
+        [JsonProperty]
         public double LineCount
         {
             get => _lineCount;
@@ -65,6 +73,7 @@ namespace GenerativeArt.FlowGenerator
         }
 
         private double _angleMultiplier;
+        [JsonProperty]
         public double AngleMultiplier
         {
             get => _angleMultiplier;
@@ -72,6 +81,7 @@ namespace GenerativeArt.FlowGenerator
         }
 
         private double _borderWidth;
+        [JsonProperty]
         public double BorderWidth
         {
             get => _borderWidth;
@@ -79,6 +89,7 @@ namespace GenerativeArt.FlowGenerator
         }
 
         private Color _shortColor;
+        [JsonProperty]
         public Color ShortColor
         {
             get => _shortColor;
@@ -86,6 +97,7 @@ namespace GenerativeArt.FlowGenerator
         }
 
         private Color _longColor;
+        [JsonProperty]
         public Color LongColor
         {
             get => _longColor;
@@ -93,6 +105,7 @@ namespace GenerativeArt.FlowGenerator
         }
 
         private Color _borderColor;
+        [JsonProperty]
         public Color BorderColor
         {
             get => _borderColor;
@@ -100,6 +113,7 @@ namespace GenerativeArt.FlowGenerator
         }
 
         private int _shortCount;
+        [JsonProperty]
         public int ShortCount
         {
             get => _shortCount;
@@ -111,6 +125,7 @@ namespace GenerativeArt.FlowGenerator
         }
 
         private int _longCount;
+        [JsonProperty]
         public int LongCount
         {
             get => _longCount;
@@ -122,6 +137,7 @@ namespace GenerativeArt.FlowGenerator
         }
 
         private int _sampleInterval;
+        [JsonProperty]
         public int SampleInterval
         {
             get => _sampleInterval;
@@ -129,6 +145,7 @@ namespace GenerativeArt.FlowGenerator
         }
 
         private int _octaves;
+        [JsonProperty]
         public int Octaves
         {
             get => _octaves;
@@ -136,6 +153,7 @@ namespace GenerativeArt.FlowGenerator
         }
 
         private double _maxThickness;
+        [JsonProperty]
         public double MaxThickness
         {
             get => _maxThickness;
@@ -143,6 +161,7 @@ namespace GenerativeArt.FlowGenerator
         }
 
         private double _getThick;
+        [JsonProperty]
         public double GetThick
         {
             get => _getThick;
@@ -150,6 +169,7 @@ namespace GenerativeArt.FlowGenerator
         }
 
         private double _interlineDistance;
+        [JsonProperty]
         public double InterlineDistance
         {
             get => _interlineDistance;
@@ -157,6 +177,7 @@ namespace GenerativeArt.FlowGenerator
         }
 
         public double _startPtMult;
+        [JsonProperty]
         public double StartPtMult
         {
             get => _startPtMult;
@@ -332,7 +353,21 @@ namespace GenerativeArt.FlowGenerator
         {
             throw new NotImplementedException();
         }
-#endregion
+
+        public string Serialize(int seed)
+        {
+            _seed = seed;
+            return JsonConvert.SerializeObject(this);
+        }
+
+        public int Deserialize(string json)
+        {
+            JsonConvert.PopulateObject(json, this);
+            return _seed;
+        }
+
+        public string SerialExtension => "flw";
+        #endregion
 
         #region Property changes
         public event PropertyChangedEventHandler? PropertyChanged;

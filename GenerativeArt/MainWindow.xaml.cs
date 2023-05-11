@@ -139,10 +139,14 @@ namespace GenerativeArt
             }
             var json = _generators[tabArtType.SelectedIndex].Serialize(_lastSeed);
             // Create SaveFileDialog
+            var ext = _generators[tabArtType.SelectedIndex].SerialExtension;
+
             var saveFileDialog = new Microsoft.Win32.SaveFileDialog
             {
                 AddExtension = true,
-                DefaultExt = _generators[tabArtType.SelectedIndex].SerialExtension
+                DefaultExt = ext,
+                Filter = $"Generator documents (.{ext})|*.{ext}"
+
             };
 
             // Launch SaveFileDialog by calling ShowDialog method

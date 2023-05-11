@@ -1,4 +1,5 @@
 ﻿
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -22,9 +23,6 @@ namespace GenerativeArt.CrabNebula
     // Todo: Alpha
     // Todo: Standard Deviation control
     // Todo: Data Binding
-    
-    // Actually, I may never do data binding.  It works okay right now so I may just use data binding moving
-    // forward but leave crab nebula the way it is.
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>
@@ -41,7 +39,8 @@ namespace GenerativeArt.CrabNebula
     /// <remarks>   Darrell Plank, 4/19/2023. </remarks>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    internal class CrabNebula : IGenerator
+    [JsonObject(MemberSerialization.OptIn)]
+    internal class CrabNebula : IGenerator, INotifyPropertyChanged
     {
         #region Private variables
 
@@ -50,8 +49,10 @@ namespace GenerativeArt.CrabNebula
 
         internal int ArtHeight => _ourWindow.ArtHeight;
         internal int ArtWidth => _ourWindow.ArtWidth;
+        [JsonProperty] private int _seed;
 
         private int _cPoints;
+        [JsonProperty]
         public int CPoints
         {
             get => _cPoints;
@@ -59,6 +60,7 @@ namespace GenerativeArt.CrabNebula
         }
 
         private int _cBands;
+        [JsonProperty]
         public int CBands
         {
             get => _cBands;
@@ -66,6 +68,7 @@ namespace GenerativeArt.CrabNebula
         }
 
         private int _octaves;
+        [JsonProperty]
         public int Octaves
         {
             get => _octaves;
@@ -73,6 +76,7 @@ namespace GenerativeArt.CrabNebula
         }
 
         private double _noiseScale;
+        [JsonProperty]
         public double NoiseScale
         {
             get => _noiseScale;
@@ -80,6 +84,7 @@ namespace GenerativeArt.CrabNebula
         }
 
         private double _frequency;
+        [JsonProperty]
         public double Frequency
         {
             get => _frequency;
@@ -87,6 +92,7 @@ namespace GenerativeArt.CrabNebula
         }
 
         private double _persistence;
+        [JsonProperty]
         public double Persistence
         {
             get => _persistence;
@@ -94,6 +100,7 @@ namespace GenerativeArt.CrabNebula
         }
 
         private double _stdDev;
+        [JsonProperty]
         public double StdDev
         {
             get => _stdDev;
@@ -101,6 +108,7 @@ namespace GenerativeArt.CrabNebula
         }
 
         private Color _blend1;
+        [JsonProperty]
         public Color Blend1
         {
             get => _blend1;
@@ -108,6 +116,7 @@ namespace GenerativeArt.CrabNebula
         }
 
         private Color _blend2;
+        [JsonProperty]
         public Color Blend2
         {
             get => _blend2;
@@ -115,6 +124,7 @@ namespace GenerativeArt.CrabNebula
         }
 
         private bool _fHardEdged;
+        [JsonProperty]
         public bool FHardEdged
         {
             get => _fHardEdged;
@@ -180,6 +190,20 @@ namespace GenerativeArt.CrabNebula
         {
             _cts?.Cancel();
         }
+
+        public string Serialize(int seed)
+        {
+            _seed = seed;
+            return JsonConvert.SerializeObject(this);
+        }
+
+        public int Deserialize(string json)
+        {
+            JsonConvert.PopulateObject(json, this);
+            return _seed;
+        }
+
+        public string SerialExtension => "nla";
         #endregion
 
         #region Generating/Drawing
