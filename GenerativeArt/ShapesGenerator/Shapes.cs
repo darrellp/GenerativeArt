@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using MathNet.Numerics.Distributions;
 
 namespace GenerativeArt.ShapesGenerator
 {
@@ -34,6 +35,30 @@ namespace GenerativeArt.ShapesGenerator
             set => SetField(ref _baseScale, value);
         }
 
+        private bool _fixedInsets;
+        [JsonProperty]
+        public bool FixedInsets
+        {
+            get => _fixedInsets;
+            set => SetField(ref _fixedInsets, value);
+        }
+
+        private int _insetsMean;
+        [JsonProperty]
+        public int InsetsMean
+        {
+            get => _insetsMean;
+            set => SetField(ref _insetsMean, value);
+        }
+
+        private double _insetsStdDev;
+        [JsonProperty]
+        public double InsetsStdDev
+        {
+            get => _insetsStdDev;
+            set => SetField(ref _insetsStdDev, value);
+        }
+
         private double _maxScale;
         [JsonProperty]
         public double MaxScale
@@ -48,6 +73,14 @@ namespace GenerativeArt.ShapesGenerator
         {
             get => _posOffset;
             set => SetField(ref _posOffset, value);
+        }
+
+        private double _borderWidth;
+        [JsonProperty]
+        public double BorderWidth
+        {
+            get => _borderWidth;
+            set => SetField(ref _borderWidth, value);
         }
 
         private double _pctCircles;
@@ -67,6 +100,14 @@ namespace GenerativeArt.ShapesGenerator
         }
 
         #region Colors
+        private Color _borderColor;
+        [JsonProperty]
+        public Color BorderColor
+        {
+            get => _borderColor;
+            set => SetField(ref _borderColor, value);
+        }
+
         private bool _useCircleColors;
         [JsonProperty]
         private Palette _circlePalette;
@@ -126,6 +167,9 @@ namespace GenerativeArt.ShapesGenerator
         public void Generate(int seed = -1)
         {
             _rnd = new Random(seed);
+            var normal = new Normal(InsetsMean, InsetsMean / 2.0);
+            // var normal = new Normal(InsetsMean, InsetsStdDev);
+            normal.RandomSource = new Random(seed);
             var cellSize = ArtWidth / GridCount;
             var baseRadius = cellSize * BaseScale / 2;
             var circleBreakEven = PctCircles / 100.0;
@@ -143,25 +187,41 @@ namespace GenerativeArt.ShapesGenerator
                 }
             }
             Utilities.Shuffle<(int, int)>(shuffledPoints, _rnd);
+
             for (var i = 0; i < shuffledPoints.Count; i++)
             {
+                var pen = BorderWidth > 0 ? new Pen(new SolidColorBrush(BorderColor), BorderWidth) : null;
                 var ix = shuffledPoints[i].x;
                 var iy = shuffledPoints[i].y;
                 var xc = cellSize * (ix + 0.5 + (2 * _rnd.NextDouble() - 1) * PosOffset / 100);
                 var yc = cellSize * (iy + 0.5 + (2 * _rnd.NextDouble() - 1) * PosOffset / 100);
-                var radius = baseRadius * _rnd.Next(100, (int)MaxScale) / 100;
+                var outerRadius = baseRadius * _rnd.Next(100, (int)MaxScale) / 100;
                 var isCircle = _rnd.NextDouble() < circleBreakEven;
-                if (isCircle)
+
+                // 1 shapeInset means just the plain shape drawn
+                // No perfect solution (other than using a more suitable distribution which is probably what
+                // I should do here) to negative values but they're either rare or this isn't a bad solution
+                
+                // TODO: Use a good distribution which won't give us negative values
+                var shapeInsets = FixedInsets ? InsetsMean : (int)Math.Abs(normal.Sample()) + 1;
+                var angle = 2 * (_rnd.NextDouble() - 0.5) * AngleVariance;
+                
+                for (int iInsets = 0; iInsets <= shapeInsets; iInsets++)
                 {
-                    var color = _circlePalette.SelectColor(_rnd);
-                    dc.DrawEllipse(new SolidColorBrush(color), null, new Point(xc, yc), radius, radius);
-                }
-                else
-                {
-                    var color = _useCircleColors ? _circlePalette.SelectColor(_rnd) : _squarePalette.SelectColor(_rnd);
-                    var angle = 2 * (_rnd.NextDouble() - 0.5) * AngleVariance;
-                    var rect = new Rect(xc - radius, yc - radius, 2 * radius, 2 * radius);
-                    DrawRotRect(dc, color, null, angle, rect);
+                    var radius = outerRadius * (shapeInsets - iInsets)/ (shapeInsets);
+                    if (isCircle)
+                    {
+                        var color = _circlePalette.SelectColor(_rnd);
+                        dc.DrawEllipse(new SolidColorBrush(color), pen, new Point(xc, yc), radius, radius);
+                    }
+                    else
+                    {
+                        var color = _useCircleColors ? _circlePalette.SelectColor(_rnd) : _squarePalette.SelectColor(_rnd);
+                        var rect = new Rect(xc - radius, yc - radius, 2 * radius, 2 * radius);
+                        DrawRotRect(dc, color, pen, angle, rect);
+                    }
+
+                    pen = null;
                 }
             }
 
@@ -187,6 +247,12 @@ namespace GenerativeArt.ShapesGenerator
             PosOffset = 0.1;
             PctCircles = 50;
             AngleVariance = 0.01;
+            FixedInsets = true;
+            InsetsMean = 2;
+            InsetsMean = 1;
+            InsetsStdDev = 0;
+            BorderColor = Colors.Black;
+            BorderWidth = 0;
             _useCircleColors = false;
             _circlePalette = new Palette(DefaultPalette);
             _squarePalette = new Palette(DefaultPalette);
@@ -228,8 +294,23 @@ namespace GenerativeArt.ShapesGenerator
             _ourWindow.sldrShPosOffset.ValueChanged +=SldrShPosOffset_ValueChanged;
             _ourWindow.sldrShPctCircles.ValueChanged +=SldrShPctCircles_ValueChanged;
             _ourWindow.sldrShAngleVariance.ValueChanged +=SldrShAngleVariance_ValueChanged;
+            _ourWindow.sldrShBorderWidth.ValueChanged +=SldrShBorderWidth_ValueChanged;
+            _ourWindow.sldrShInsets.ValueChanged +=SldrShInsets_ValueChanged;
             _ourWindow.btnShCircleColors.Click +=BtnShCircleColors_Click;
             _ourWindow.btnShSquareColors.Click +=BtnShSquareColors_Click;
+            _ourWindow.btnShBorderColor.Click +=BtnShBorderColor_Click;
+        }
+
+        private void BtnShBorderColor_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = _ourWindow.btnShBorderColor;
+            var brush = (SolidColorBrush)btn.Background;
+            var (isAccepted, color) = ColorPickerDlg.GetUserColor(brush.Color);
+            if (isAccepted == true)
+            {
+                btn.Background = new SolidColorBrush(color);
+                BorderColor = color;
+            }
         }
 
         private void BtnShSquareColors_Click(object sender, RoutedEventArgs e)
@@ -240,6 +321,16 @@ namespace GenerativeArt.ShapesGenerator
         private void BtnShCircleColors_Click(object sender, RoutedEventArgs e)
         {
             _circlePalette = _circlePalette.GetUserPalette();
+        }
+
+        private void SldrShBorderWidth_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblShBorderWidth.Content = $"Border Width: {e.NewValue:0.00}";
+        }
+
+        private void SldrShInsets_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblShInsets.Content = $"Insets: {e.NewValue:#0}";
         }
 
         private void SldrShAngleVariance_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)

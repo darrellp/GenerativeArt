@@ -7,176 +7,189 @@
         xmlns:shapes="clr-namespace:GenerativeArt.ShapesGenerator"
         mc:Ignorable="d"
         Title="MainWindow" Height="800" Width="1000" ResizeMode="NoResize" SizeToContent="WidthAndHeight">
-<Window.Resources>
-    <ControlTemplate x:Key="NoMouseOverButtonTemplate"   
+    <Window.Resources>
+        <ControlTemplate x:Key="NoMouseOverButtonTemplate"   
                      TargetType="Button">
-        <Border Background="{TemplateBinding Background}"  
+            <Border Background="{TemplateBinding Background}"  
                 BorderBrush="{TemplateBinding BorderBrush}"  
                 BorderThickness="{TemplateBinding BorderThickness}">
-            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"  
+                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"  
                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-        </Border>
+            </Border>
 
-        <ControlTemplate.Triggers>
-            <Trigger Property="IsEnabled"  
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsEnabled"  
                      Value="False">
-                <Setter Property="Background"  
+                    <Setter Property="Background"  
                         Value="{x:Static SystemColors.ControlLightBrush}" />
-                <Setter Property="Foreground"  
+                    <Setter Property="Foreground"  
                         Value="{x:Static SystemColors.GrayTextBrush}" />
-            </Trigger>
-        </ControlTemplate.Triggers>
-    </ControlTemplate>
-</Window.Resources>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+    </Window.Resources>
 
-<Grid Loaded="Grid_Loaded">
-    <Grid.ColumnDefinitions>
-        <ColumnDefinition x:Name="ArtColumn" Width="800"/>
-        <ColumnDefinition Width="200"/>
-    </Grid.ColumnDefinitions>
-    <Grid.RowDefinitions>
-        <RowDefinition x:Name="ArtRow" Height="800"/>
-    </Grid.RowDefinitions>
-    <Image x:Name="Art" Grid.Column = "0" Stretch="UniformToFill" />
-    <Grid Grid.Column="1" Background="Wheat">
+    <Grid Loaded="Grid_Loaded">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="ArtColumn" Width="800"/>
+            <ColumnDefinition Width="200"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition />
+            <RowDefinition x:Name="ArtRow" Height="800"/>
         </Grid.RowDefinitions>
-        <Button x:Name="BtnGenerate" Grid.Row ="0"  Content="Generate" Height="30" VerticalAlignment="Top" Click="OnGenerate" />
-        <Button x:Name="BtnInitialize" Grid.Row ="1"  Content="Initialize Parameters" Height="30" VerticalAlignment="Top" Click="BtnInitialize_Click"/>
-        <StackPanel Grid.Row ="2" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button x:Name="BtnSave" Grid.Row ="0"  Content="Save" Height="30" VerticalAlignment="Top" Click="OnSave" Margin="0,0,14,0" />
-            <Button x:Name="BtnLoad" Grid.Row ="0"  Content="Load" Height="30" VerticalAlignment="Top" Click="OnLoad" />
-        </StackPanel>
-        <StackPanel Grid.Row ="3" Height="30" Orientation="Horizontal">
-            <Label Content="Seed"/>
-            <TextBox x:Name="tbxSeed"  VerticalAlignment="Center" Width="109"/>
-            <CheckBox x:Name="cbxHoldSeed" IsChecked="False" Margin="5,0,0,0" VerticalAlignment="Center" Content="Hold"/>
-        </StackPanel>
-        <TabControl x:Name="tabArtType" Grid.Row="4" TabStripPlacement="Left">
-            <TabControl.Resources>
-                <Style TargetType="{x:Type TabItem}">
-                    <Setter Property="HeaderTemplate">
-                        <Setter.Value>
-                            <DataTemplate>
-                                <ContentPresenter Content="{TemplateBinding Content}">
-                                    <ContentPresenter.LayoutTransform>
-                                        <RotateTransform Angle="270" />
-                                    </ContentPresenter.LayoutTransform>
-                                </ContentPresenter>
-                            </DataTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    <Setter Property="Padding" Value="3" />
-                </Style>
-            </TabControl.Resources>
-            <TabItem x:Name="pgNebula" Header="Crab Nebula">
-                <StackPanel Background="White">
-                    <Label x:Name="lblCnCPoints" Content ="Point Count" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrCnCPoints" Value="{Binding CPoints, Mode=TwoWay}" Margin="10,0,10,0" Maximum="24000000" Minimum="1000000" IsSnapToTickEnabled="True" TickFrequency="1000000"/>
-                    <Label x:Name="lblCnOctaves" Content ="Octaves" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrCnOctaves" Value="{Binding Octaves, Mode=TwoWay}" Margin="10,0,10,0" Maximum="4" Minimum="1" IsSnapToTickEnabled="True" TickFrequency="1"/>
-                    <Label x:Name="lblCnPersistence" Content ="Persistence" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrCnPersistence" Value="{Binding Persistence, Mode=TwoWay}" Margin="10,0,10,0" Maximum="10" Minimum="0"/>
-                    <Label x:Name="lblNoiseScale" Content ="Noise Scale" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrNoiseScale" Value="{Binding NoiseScale, Mode=TwoWay}" Maximum="2000" Minimum="0" Margin="10,0,10,0"/>
-                    <Label x:Name="lblCnFrequency" Content ="Frequency" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrCnFrequency" Value="{Binding Frequency, Mode=TwoWay}" Maximum="4" Minimum="0.1" Margin="10,0,10,0"/>
-                    <Label x:Name="lblCBands" Content ="Frequency" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrCBands" Value="{Binding CBands, Mode=TwoWay}" Maximum="300" Minimum="1" Margin="10,0,10,0" IsSnapToTickEnabled="True" TickFrequency="1"/>
-                    <Label Content ="Blend Colors" HorizontalAlignment="Center"/>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <Button x:Name="btnBlend1" Grid.Column="0" MinHeight="20" Margin="10,5,5,0" Background="Yellow"  Template="{StaticResource NoMouseOverButtonTemplate}"/>
-                        <Button x:Name="btnBlend2" Grid.Column="1" Margin="10,5,5,0" Background="Red" Template="{StaticResource NoMouseOverButtonTemplate}"/>
-                    </Grid>
-                    <CheckBox x:Name="cbxHardEdges" IsChecked="{Binding FHardEdged, Mode=TwoWay}" Content="Hard Edged Bands" HorizontalAlignment="Center" Margin="0,15,0,0"/>
-                </StackPanel>
-            </TabItem>
-            <TabItem x:Name="pgNoise" Header="Noise">
-                <StackPanel Background="White">
-                    <Label x:Name="lblNsOctaves" Content ="Octaves" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrNsOctaves" Maximum="8" Minimum="1" Value="{Binding Octaves, Mode=TwoWay}" Margin="10,0,10,0" 
-                            IsSnapToTickEnabled="True" TickFrequency="1"/>
-                    <Label x:Name="lblNsPersistence" Content ="Persistence" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrNsPersistence" Maximum="2" Minimum="0" Value="{Binding Persistence, Mode=TwoWay}" Margin="10,0,10,0" />
-                    <Label x:Name="lblNsFrequency" Content ="Frequency" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrNsFrequency" Maximum="10" Minimum="0.1" Value="{Binding Frequency, Mode=TwoWay}" Margin="10,0,10,0"/>
-                </StackPanel>
-            </TabItem>
-            <TabItem x:Name="pgShapes" Header="Shapes">
-                <StackPanel Background="White">
-                    <Label x:Name="lblShGridCount" Content ="Grid Count" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrShGridCount" Minimum="1" Maximum="50" Value="{Binding GridCount, Mode=TwoWay}" Margin="10,0,10,0" 
-                            IsSnapToTickEnabled="True" TickFrequency="1"/>
-                    <Label x:Name="lblShBaseScale" Content ="Base Scale" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrShBaseScale"  Minimum="0.1" Maximum="2" Value="{Binding BaseScale, Mode=TwoWay}" Margin="10,0,10,0"/>
-                    <Label x:Name="lblShMaxScale" Content ="Max Scale" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrShMaxScale"  Minimum="100" Maximum="500" Value="{Binding MaxScale, Mode=TwoWay}" Margin="10,0,10,0"/>
-                    <Label x:Name="lblShPosOffset" Content ="Max Scale" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrShPosOffset"  Minimum="0" Maximum="50" Value="{Binding PosOffset, Mode=TwoWay}" Margin="10,0,10,0"/>
-                    <Label x:Name="lblShPctCircles" Content ="Max Scale" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrShPctCircles"  Minimum="0" Maximum="100" Value="{Binding PctCircles, Mode=TwoWay}" Margin="10,0,10,0"/>
-                    <Label x:Name="lblShAngleVariance" Content ="Angle Variance" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrShAngleVariance"  Minimum="0" Maximum="90" Value="{Binding AngleVariance, Mode=TwoWay}" Margin="10,0,10,0"/>
-                    <Button x:Name="btnShCircleColors" Height="30" Margin="10,5,10,0" Content="Circle Colors..."/>
-                    <Button x:Name="btnShSquareColors" Height="30" Margin="10,5,10,0" Content="Square Colors..."/>
-                </StackPanel>
-            </TabItem>
-            <TabItem x:Name="pgFlow" Header="Flow" Height="31" VerticalAlignment="Top">
-                <StackPanel Background="White">
-                    <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
-                        <CheckBox Content="Even" IsChecked="{Binding EvenLineSelection, Mode=TwoWay}" Margin="0,0,6,0"></CheckBox>
-                        <CheckBox Content="Alpha" HorizontalAlignment="Left" IsChecked="{Binding UseAlpha, Mode=TwoWay}" Margin="0,0,10,0"></CheckBox>
-                        <CheckBox Content="Dots" HorizontalAlignment="Left" IsChecked="{Binding Dotted, Mode=TwoWay}"></CheckBox>
+        <Image x:Name="Art" Grid.Column = "0" Stretch="UniformToFill" />
+        <Grid Grid.Column="1" Background="Wheat">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Button x:Name="BtnGenerate" Grid.Row ="0"  Content="Generate" Height="30" VerticalAlignment="Top" Click="OnGenerate" />
+            <Button x:Name="BtnInitialize" Grid.Row ="1"  Content="Initialize Parameters" Height="30" VerticalAlignment="Top" Click="BtnInitialize_Click"/>
+            <StackPanel Grid.Row ="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button x:Name="BtnSave" Grid.Row ="0"  Content="Save" Height="30" VerticalAlignment="Top" Click="OnSave" Margin="0,0,14,0" />
+                <Button x:Name="BtnLoad" Grid.Row ="0"  Content="Load" Height="30" VerticalAlignment="Top" Click="OnLoad" />
+            </StackPanel>
+            <StackPanel Grid.Row ="3" Height="30" Orientation="Horizontal">
+                <Label Content="Seed"/>
+                <TextBox x:Name="tbxSeed"  VerticalAlignment="Center" Width="109"/>
+                <CheckBox x:Name="cbxHoldSeed" IsChecked="False" Margin="5,0,0,0" VerticalAlignment="Center" Content="Hold"/>
+            </StackPanel>
+            <TabControl x:Name="tabArtType" Grid.Row="4" TabStripPlacement="Left">
+                <TabControl.Resources>
+                    <Style TargetType="{x:Type TabItem}">
+                        <Setter Property="HeaderTemplate">
+                            <Setter.Value>
+                                <DataTemplate>
+                                    <ContentPresenter Content="{TemplateBinding Content}">
+                                        <ContentPresenter.LayoutTransform>
+                                            <RotateTransform Angle="270" />
+                                        </ContentPresenter.LayoutTransform>
+                                    </ContentPresenter>
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="Padding" Value="3" />
+                    </Style>
+                </TabControl.Resources>
+                <TabItem x:Name="pgNebula" Header="Crab Nebula">
+                    <StackPanel Background="White">
+                        <Label x:Name="lblCnCPoints" Content ="Point Count" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrCnCPoints" Value="{Binding CPoints, Mode=TwoWay}" Margin="10,0,10,0" Maximum="24000000" Minimum="1000000" IsSnapToTickEnabled="True" TickFrequency="1000000"/>
+                        <Label x:Name="lblCnOctaves" Content ="Octaves" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrCnOctaves" Value="{Binding Octaves, Mode=TwoWay}" Margin="10,0,10,0" Maximum="4" Minimum="1" IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Label x:Name="lblCnPersistence" Content ="Persistence" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrCnPersistence" Value="{Binding Persistence, Mode=TwoWay}" Margin="10,0,10,0" Maximum="10" Minimum="0"/>
+                        <Label x:Name="lblNoiseScale" Content ="Noise Scale" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrNoiseScale" Value="{Binding NoiseScale, Mode=TwoWay}" Maximum="2000" Minimum="0" Margin="10,0,10,0"/>
+                        <Label x:Name="lblCnFrequency" Content ="Frequency" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrCnFrequency" Value="{Binding Frequency, Mode=TwoWay}" Maximum="4" Minimum="0.1" Margin="10,0,10,0"/>
+                        <Label x:Name="lblCBands" Content ="Frequency" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrCBands" Value="{Binding CBands, Mode=TwoWay}" Maximum="300" Minimum="1" Margin="10,0,10,0" IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Label Content ="Blend Colors" HorizontalAlignment="Center"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="btnBlend1" Grid.Column="0" MinHeight="20" Margin="10,5,5,0" Background="Yellow"  Template="{StaticResource NoMouseOverButtonTemplate}"/>
+                            <Button x:Name="btnBlend2" Grid.Column="1" Margin="10,5,5,0" Background="Red" Template="{StaticResource NoMouseOverButtonTemplate}"/>
+                        </Grid>
+                        <CheckBox x:Name="cbxHardEdges" IsChecked="{Binding FHardEdged, Mode=TwoWay}" Content="Hard Edged Bands" HorizontalAlignment="Center" Margin="0,15,0,0"/>
                     </StackPanel>
-                    <Label x:Name="lblFlOctaves" Content ="Octaves" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrFlOctaves" Minimum="1" Maximum="6" Value="{Binding Octaves, Mode=TwoWay}" Margin="10,0,10,0" 
+                </TabItem>
+                <TabItem x:Name="pgNoise" Header="Noise">
+                    <StackPanel Background="White">
+                        <Label x:Name="lblNsOctaves" Content ="Octaves" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrNsOctaves" Maximum="8" Minimum="1" Value="{Binding Octaves, Mode=TwoWay}" Margin="10,0,10,0" 
                             IsSnapToTickEnabled="True" TickFrequency="1"/>
-                    <Label x:Name="lblFlInterlineDistance" Content ="Line Separation" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrFlInterlineDistance"  Minimum="4" Maximum="30" Value="{Binding InterlineDistance, Mode=TwoWay}" Margin="10,0,10,0"/>
-                    <Label x:Name="lblFlLineThickness" Content ="Line Separation" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrFlLineThickness"  Minimum="1" Maximum="30" Value="{Binding MaxThickness, Mode=TwoWay}" Margin="10,0,10,0"/>
-                    <Label x:Name="lblFlAngleMultiplier" Content ="Angle Multiplier" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrFlAngleMultiplier"  Minimum="0" Maximum="150" Value="{Binding AngleMultiplier, Mode=TwoWay}" Margin="10,0,10,0"/>
-                    <Label x:Name="lblFlShortCount" Content ="Short Color Thresh" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrFlShortCount" Minimum="0" Maximum="200" Value="{Binding ShortCount, Mode=TwoWay}" Margin="10,0,10,0" 
+                        <Label x:Name="lblNsPersistence" Content ="Persistence" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrNsPersistence" Maximum="2" Minimum="0" Value="{Binding Persistence, Mode=TwoWay}" Margin="10,0,10,0" />
+                        <Label x:Name="lblNsFrequency" Content ="Frequency" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrNsFrequency" Maximum="10" Minimum="0.1" Value="{Binding Frequency, Mode=TwoWay}" Margin="10,0,10,0"/>
+                    </StackPanel>
+                </TabItem>
+                <TabItem x:Name="pgShapes" Header="Shapes">
+                    <StackPanel Background="White">
+                        <Label x:Name="lblShGridCount" Content ="Grid Count" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrShGridCount" Minimum="1" Maximum="50" Value="{Binding GridCount, Mode=TwoWay}" Margin="10,0,10,0" 
                             IsSnapToTickEnabled="True" TickFrequency="1"/>
-                    <Label x:Name="lblFlLongCount" Content ="Short Color Thresh" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrFlLongCount" Minimum="0" Maximum="200" Value="{Binding LongCount, Mode=TwoWay}" Margin="10,0,10,0" 
-                            IsSnapToTickEnabled="True" TickFrequency="1"/>
-                    <Label x:Name="lblFlDropBelow" Content ="Drop Below Length" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrFlDropBelow" Minimum="1" Maximum="250" Value="{Binding DropBelow, Mode=TwoWay}" Margin="10,0,10,0" 
-                            IsSnapToTickEnabled="True" TickFrequency="1"/>
-                    <Label x:Name="lblFlSampleInterval" Content ="SampleInterval" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrFlSampleInterval" Minimum="2" Maximum="20" Value="{Binding SampleInterval, Mode=TwoWay}" Margin="10,0,10,0" 
-                            IsSnapToTickEnabled="True" TickFrequency="1"/>
-                    <Label x:Name="lblFlThickRatio" Content ="Thickness Ratio" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrFlThickRatio"  Minimum="0" Maximum="0.5" Value="{Binding GetThick, Mode=TwoWay}" Margin="10,0,10,0"/>
-                    <Label x:Name="lblFlStartPtMult" Content ="Start Pt Multiplier" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrFlStartPtMult"  Minimum="1" Maximum="4" Value="{Binding StartPtMult, Mode=TwoWay}" Margin="10,0,10,0"/>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <Button x:Name="btnFlShortColor" Grid.Column="0" MinHeight="20" Margin="10,5,5,0" Background="Green"  Template="{StaticResource NoMouseOverButtonTemplate}"/>
-                        <Button x:Name="btnFlLongColor" Grid.Column="1" Margin="10,5,5,0" Background="Yellow" Template="{StaticResource NoMouseOverButtonTemplate}"/>
-                    </Grid>
-                    <Label x:Name="lblFlBorderWidth" Content ="Border Width: 0.0" HorizontalAlignment="Center"/>
-                    <Slider x:Name="sldrFlBorderWidth"  Minimum="0" Maximum="0.5" Value="{Binding BorderWidth, Mode=TwoWay}" Margin="10,0,10,0"/>
-                    <Button x:Name="btnFlBorderColor" Grid.Column="0" MinHeight="20" Background="Red"  Template="{StaticResource NoMouseOverButtonTemplate}" Margin="25,0,25,0"/>
+                        <Label x:Name="lblShBaseScale" Content ="Base Scale" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrShBaseScale"  Minimum="0.1" Maximum="2" Value="{Binding BaseScale, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Label x:Name="lblShMaxScale" Content ="Max Scale" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrShMaxScale"  Minimum="100" Maximum="500" Value="{Binding MaxScale, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Label x:Name="lblShPosOffset" Content ="Max Scale" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrShPosOffset"  Minimum="0" Maximum="50" Value="{Binding PosOffset, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Label x:Name="lblShPctCircles" Content ="Max Scale" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrShPctCircles"  Minimum="0" Maximum="100" Value="{Binding PctCircles, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Label x:Name="lblShAngleVariance" Content ="Angle Variance" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrShAngleVariance"  Minimum="0" Maximum="90" Value="{Binding AngleVariance, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Button x:Name="btnShCircleColors" Height="30" Margin="10,5,10,0" Content="Circle Colors..."/>
+                        <Button x:Name="btnShSquareColors" Height="30" Margin="10,5,10,0" Content="Square Colors..."/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60*"/>
+                                <ColumnDefinition Width="70*"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox Grid.Column="0" x:Name="cbShFixedInsets" Grid.ColumnSpan="2" Content="Fixed" IsChecked="{Binding FixedInsets, Mode=TwoWay}" VerticalAlignment="Center"/>
+                            <Label Grid.Column="2" x:Name="lblShInsets" Content ="Insets: 1" HorizontalAlignment="Center"/>
+                        </Grid>
+                        <Slider x:Name="sldrShInsets"  Minimum="1" Maximum="20" Value="{Binding InsetsMean, Mode=TwoWay}" Margin="10,0,10,0" 
+                                IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Label x:Name="lblShBorderWidth" Content ="Border Width: 0.0" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrShBorderWidth"  Minimum="0" Maximum="5" Value="{Binding BorderWidth, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Button x:Name="btnShBorderColor" Grid.Column="0" MinHeight="20" Background="Black"  Template="{StaticResource NoMouseOverButtonTemplate}" Margin="25,0,25,0"/>
 
-                </StackPanel>
-            </TabItem>
-        </TabControl>
+                    </StackPanel>
+                </TabItem>
+                <TabItem x:Name="pgFlow" Header="Flow" Height="31" VerticalAlignment="Top">
+                    <StackPanel Background="White">
+                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                            <CheckBox Content="Even" IsChecked="{Binding EvenLineSelection, Mode=TwoWay}" Margin="0,0,6,0"></CheckBox>
+                            <CheckBox Content="Alpha" HorizontalAlignment="Left" IsChecked="{Binding UseAlpha, Mode=TwoWay}" Margin="0,0,10,0"></CheckBox>
+                            <CheckBox Content="Dots" HorizontalAlignment="Left" IsChecked="{Binding Dotted, Mode=TwoWay}"></CheckBox>
+                        </StackPanel>
+                        <Label x:Name="lblFlOctaves" Content ="Octaves" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlOctaves" Minimum="1" Maximum="6" Value="{Binding Octaves, Mode=TwoWay}" Margin="10,0,10,0" 
+                            IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Label x:Name="lblFlInterlineDistance" Content ="Line Separation" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlInterlineDistance"  Minimum="4" Maximum="30" Value="{Binding InterlineDistance, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Label x:Name="lblFlLineThickness" Content ="Line Separation" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlLineThickness"  Minimum="1" Maximum="30" Value="{Binding MaxThickness, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Label x:Name="lblFlAngleMultiplier" Content ="Angle Multiplier" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlAngleMultiplier"  Minimum="0" Maximum="150" Value="{Binding AngleMultiplier, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Label x:Name="lblFlShortCount" Content ="Short Color Thresh" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlShortCount" Minimum="0" Maximum="200" Value="{Binding ShortCount, Mode=TwoWay}" Margin="10,0,10,0" 
+                            IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Label x:Name="lblFlLongCount" Content ="Short Color Thresh" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlLongCount" Minimum="0" Maximum="200" Value="{Binding LongCount, Mode=TwoWay}" Margin="10,0,10,0" 
+                            IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Label x:Name="lblFlDropBelow" Content ="Drop Below Length" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlDropBelow" Minimum="1" Maximum="250" Value="{Binding DropBelow, Mode=TwoWay}" Margin="10,0,10,0" 
+                            IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Label x:Name="lblFlSampleInterval" Content ="SampleInterval" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlSampleInterval" Minimum="2" Maximum="20" Value="{Binding SampleInterval, Mode=TwoWay}" Margin="10,0,10,0" 
+                            IsSnapToTickEnabled="True" TickFrequency="1"/>
+                        <Label x:Name="lblFlThickRatio" Content ="Thickness Ratio" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlThickRatio"  Minimum="0" Maximum="0.5" Value="{Binding GetThick, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Label x:Name="lblFlStartPtMult" Content ="Start Pt Multiplier" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlStartPtMult"  Minimum="1" Maximum="4" Value="{Binding StartPtMult, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="btnFlShortColor" Grid.Column="0" MinHeight="20" Margin="10,5,5,0" Background="Green"  Template="{StaticResource NoMouseOverButtonTemplate}"/>
+                            <Button x:Name="btnFlLongColor" Grid.Column="1" Margin="10,5,5,0" Background="Yellow" Template="{StaticResource NoMouseOverButtonTemplate}"/>
+                        </Grid>
+                        <Label x:Name="lblFlBorderWidth" Content ="Border Width: 0.0" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrFlBorderWidth"  Minimum="0" Maximum="0.5" Value="{Binding BorderWidth, Mode=TwoWay}" Margin="10,0,10,0"/>
+                        <Button x:Name="btnFlBorderColor" Grid.Column="0" MinHeight="20" Background="Red"  Template="{StaticResource NoMouseOverButtonTemplate}" Margin="25,0,25,0"/>
+                    </StackPanel>
+                </TabItem>
+            </TabControl>
+        </Grid>
     </Grid>
-</Grid>
 </Window>
