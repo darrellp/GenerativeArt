@@ -105,7 +105,12 @@ namespace GenerativeArt.ShapesGenerator
         public Color BorderColor
         {
             get => _borderColor;
-            set => SetField(ref _borderColor, value);
+            set
+            {
+                var brush = new SolidColorBrush(value);
+                _ourWindow.btnShBorderColor.Background = brush;
+                SetField(ref _borderColor, value);
+            }
         }
 
         private bool _useCircleColors;
