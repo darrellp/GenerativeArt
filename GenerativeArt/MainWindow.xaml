@@ -128,6 +128,9 @@
                         <Slider x:Name="sldrShAngleVariance"  Minimum="0" Maximum="90" Value="{Binding AngleVariance, Mode=TwoWay}" Margin="10,0,10,0"/>
                         <Button x:Name="btnShCircleColors" Height="30" Margin="10,5,10,0" Content="Circle Colors..."/>
                         <Button x:Name="btnShSquareColors" Height="30" Margin="10,5,10,0" Content="Square Colors..."/>
+                        <Label x:Name="lblShAlpha" Content ="Transparency: 255" HorizontalAlignment="Center"/>
+                        <Slider x:Name="sldrShAlpha"  Minimum="0" Maximum="255" Value="{Binding Alpha, Mode=TwoWay}" Margin="10,0,10,0" 
+                                IsSnapToTickEnabled="True" TickFrequency="1"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="60*"/>

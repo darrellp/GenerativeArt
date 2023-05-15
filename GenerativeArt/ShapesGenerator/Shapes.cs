@@ -51,6 +51,14 @@ namespace GenerativeArt.ShapesGenerator
             set => SetField(ref _insetsMean, value);
         }
 
+        private int _alpha;
+        [JsonProperty]
+        public int Alpha
+        {
+            get => _alpha;
+            set => SetField(ref _alpha, value);
+        }
+
         private double _insetsStdDev;
         [JsonProperty]
         public double InsetsStdDev
@@ -217,11 +225,13 @@ namespace GenerativeArt.ShapesGenerator
                     if (isCircle)
                     {
                         var color = _circlePalette.SelectColor(_rnd);
+                        color.A = (byte)Alpha;
                         dc.DrawEllipse(new SolidColorBrush(color), pen, new Point(xc, yc), radius, radius);
                     }
                     else
                     {
                         var color = _useCircleColors ? _circlePalette.SelectColor(_rnd) : _squarePalette.SelectColor(_rnd);
+                        color.A = (byte)Alpha;
                         var rect = new Rect(xc - radius, yc - radius, 2 * radius, 2 * radius);
                         DrawRotRect(dc, color, pen, angle, rect);
                     }
@@ -256,6 +266,7 @@ namespace GenerativeArt.ShapesGenerator
             InsetsMean = 2;
             InsetsMean = 1;
             InsetsStdDev = 0;
+            Alpha = 255;
             BorderColor = Colors.Black;
             BorderWidth = 0;
             _useCircleColors = false;
@@ -301,6 +312,7 @@ namespace GenerativeArt.ShapesGenerator
             _ourWindow.sldrShAngleVariance.ValueChanged +=SldrShAngleVariance_ValueChanged;
             _ourWindow.sldrShBorderWidth.ValueChanged +=SldrShBorderWidth_ValueChanged;
             _ourWindow.sldrShInsets.ValueChanged +=SldrShInsets_ValueChanged;
+            _ourWindow.sldrShAlpha.ValueChanged +=SldrShAlpha_ValueChanged; ;
             _ourWindow.btnShCircleColors.Click +=BtnShCircleColors_Click;
             _ourWindow.btnShSquareColors.Click +=BtnShSquareColors_Click;
             _ourWindow.btnShBorderColor.Click +=BtnShBorderColor_Click;
@@ -326,6 +338,11 @@ namespace GenerativeArt.ShapesGenerator
         private void BtnShCircleColors_Click(object sender, RoutedEventArgs e)
         {
             _circlePalette = _circlePalette.GetUserPalette();
+        }
+
+        private void SldrShAlpha_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _ourWindow.lblShAlpha.Content = $"Opacity: {e.NewValue: ##0}";
         }
 
         private void SldrShBorderWidth_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
