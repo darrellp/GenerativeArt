@@ -147,7 +147,7 @@
 
                     </StackPanel>
                 </TabItem>
-                <TabItem x:Name="pgFlow" Header="Flow" Height="31" VerticalAlignment="Top">
+                <TabItem x:Name="pgFlow" Header="Flow" Height="31" VerticalAlignment="Bottom">
                     <StackPanel Background="White">
                         <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
                             <CheckBox Content="Even" IsChecked="{Binding EvenLineSelection, Mode=TwoWay}" Margin="0,0,6,0"></CheckBox>
@@ -159,14 +159,14 @@
                             IsSnapToTickEnabled="True" TickFrequency="1"/>
                         <Label x:Name="lblFlInterlineDistance" Content ="Line Separation" HorizontalAlignment="Center"/>
                         <Slider x:Name="sldrFlInterlineDistance"  Minimum="4" Maximum="30" Value="{Binding InterlineDistance, Mode=TwoWay}" Margin="10,0,10,0"/>
-                        <Label x:Name="lblFlLineThickness" Content ="Line Separation" HorizontalAlignment="Center"/>
+                        <Label x:Name="lblFlLineThickness" Content ="Line Thickness" HorizontalAlignment="Center"/>
                         <Slider x:Name="sldrFlLineThickness"  Minimum="1" Maximum="30" Value="{Binding MaxThickness, Mode=TwoWay}" Margin="10,0,10,0"/>
                         <Label x:Name="lblFlAngleMultiplier" Content ="Angle Multiplier" HorizontalAlignment="Center"/>
                         <Slider x:Name="sldrFlAngleMultiplier"  Minimum="0" Maximum="150" Value="{Binding AngleMultiplier, Mode=TwoWay}" Margin="10,0,10,0"/>
                         <Label x:Name="lblFlShortCount" Content ="Short Color Thresh" HorizontalAlignment="Center"/>
                         <Slider x:Name="sldrFlShortCount" Minimum="0" Maximum="200" Value="{Binding ShortCount, Mode=TwoWay}" Margin="10,0,10,0" 
                             IsSnapToTickEnabled="True" TickFrequency="1"/>
-                        <Label x:Name="lblFlLongCount" Content ="Short Color Thresh" HorizontalAlignment="Center"/>
+                        <Label x:Name="lblFlLongCount" Content ="Long Color Thresh" HorizontalAlignment="Center"/>
                         <Slider x:Name="sldrFlLongCount" Minimum="0" Maximum="200" Value="{Binding LongCount, Mode=TwoWay}" Margin="10,0,10,0" 
                             IsSnapToTickEnabled="True" TickFrequency="1"/>
                         <Label x:Name="lblFlDropBelow" Content ="Drop Below Length" HorizontalAlignment="Center"/>
@@ -190,6 +190,15 @@
                         <Label x:Name="lblFlBorderWidth" Content ="Border Width: 0.0" HorizontalAlignment="Center"/>
                         <Slider x:Name="sldrFlBorderWidth"  Minimum="0" Maximum="0.5" Value="{Binding BorderWidth, Mode=TwoWay}" Margin="10,0,10,0"/>
                         <Button x:Name="btnFlBorderColor" Grid.Column="0" MinHeight="20" Background="Red"  Template="{StaticResource NoMouseOverButtonTemplate}" Margin="25,0,25,0"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox x:Name="cbxFlower" Grid.Column="0" MinHeight="20" IsChecked="{Binding IncludeFlower, Mode=TwoWay}" Margin="10,5,5,0" Content="Flower" VerticalAlignment="Center"/>
+                            <Button x:Name="btnFlowerParms" Grid.Column="1" Margin="10,5,5,0" Content="Parameters" />
+                        </Grid>
+
                     </StackPanel>
                 </TabItem>
             </TabControl>

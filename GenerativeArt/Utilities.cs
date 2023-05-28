@@ -21,6 +21,38 @@ namespace GenerativeArt
             return val1 + (val2 - val1) * t;
         }
 
+        internal static double LerpAngle(double angle1, double angle2, double t)
+        {
+            var flipStartEnd = false;
+            var small = MathRemainder(angle1, 2 * Math.PI);
+            var large = MathRemainder(angle2, 2 * Math.PI);
+
+            // Put them in the proper order
+            if (small > large)
+            {
+                (small, large) = (large, small);
+                flipStartEnd = !flipStartEnd;
+            }
+
+            // Determine if we need to go the "other way" around the circle
+            if (large - small > Math.PI)
+            {
+                (small, large) = (large, small + 2 * Math.PI);
+                flipStartEnd = !flipStartEnd;
+            }
+
+            return small + (large - small) * (flipStartEnd ? (1 - t) : t);
+        }
+
+        // Does a mathematical remainder, putting x in range [0, r)
+        internal static double MathRemainder(double x, double r)
+        {
+            int mult = x < 0 ?
+                (int)Math.Ceiling((-x) / r) :
+                -(int)Math.Floor(x / r);
+            return x + mult * r;
+        }
+
         internal static Point Lerp(Point p1, Point p2, double t)
         {
             return p1 + (p2 - p1) * t;

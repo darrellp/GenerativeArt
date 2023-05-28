@@ -1,0 +1,23 @@
+﻿<Window x:Class="GenerativeArt.FlowGenerator.FlowerParameters"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GenerativeArt.FlowGenerator"
+        mc:Ignorable="d"
+        Title="FlowerParameters" Height="200" Width="300">
+    <Grid>
+        <StackPanel Background="White">
+            <Label x:Name="lblCtrRadius" Content ="Center Radius" HorizontalAlignment="Center"/>
+            <Slider x:Name="sldrCtrRadius" Minimum="1" Maximum="200" Value="{Binding FlowerCtrRadius, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Margin="10,0,10,0" ValueChanged="sldrCtrRadius_ValueChanged"/>
+            <Label x:Name="lblPetalLength" Content ="Petal Length" HorizontalAlignment="Center"/>
+            <Slider x:Name="sldrPetalLength" Minimum="0" Maximum="300" Value="{Binding FlowerPetalLength, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Margin="10,0,10,0" ValueChanged="sldrPetalLength_ValueChanged"/>
+            <Label x:Name="lblDropOff" Content ="Dropoff" HorizontalAlignment="Center"/>
+            <Slider x:Name="sldrDropOff" Minimum="0" Maximum="300" Value="{Binding FlowerDropoff, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Margin="10,0,10,0" ValueChanged="sldrDropOff_ValueChanged"/>
+            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                <Button Content="Ok" Grid.Column="0" IsDefault="true" Margin="10,0,5,5" Click="Button_Click" Width="40" />
+                <Button Content="Cancel" Grid.Column="1" IsCancel="True" Margin="5,0,10,5" Width="40" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

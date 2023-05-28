@@ -15,13 +15,15 @@ namespace GenerativeArt.FlowGenerator
         private int searchPos = 0;
         private bool fFirstSide = true;
 
+        internal bool ForwardOnly = false;
         internal int FwdCount => _fwd.Count;
         internal int BwdCount => _bwd.Count;
         internal int Count => _fwd.Count + _bwd.Count;
 
-        internal Streamline(FlowGenerator flowgen)
+        internal Streamline(FlowGenerator flowgen, bool forwardOnly = false)
         {
             _flowgen = flowgen;
+            ForwardOnly=forwardOnly;
         }
 
         internal int Add(Point pt, bool fForward)
@@ -57,7 +59,7 @@ namespace GenerativeArt.FlowGenerator
             {
                 var distFromBack = BwdCount + ivtx;
                 var distFromFront = FwdCount - ivtx;
-                var dist = Math.Min(distFromBack, distFromFront);
+                var dist = ForwardOnly ? distFromFront : Math.Min(distFromBack, distFromFront);
                 var thickness = _flowgen.MaxThickness;
                 var alpha = 255.0;
 

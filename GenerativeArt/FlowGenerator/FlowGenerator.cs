@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -71,6 +72,51 @@ namespace GenerativeArt.FlowGenerator
             get => _lineCount;
             set => SetField(ref _lineCount, value);
         }
+
+        #region Flowers
+        private bool _includeFlower;
+        [JsonProperty]
+        public bool IncludeFlower
+        {
+            get => _includeFlower;
+            set => SetField(ref _includeFlower, value);
+        }
+
+        private Point _flowerPt;
+        // Flowers have a center radius which is forbidden to streamlines.  Then the petals start and have only the radial direction
+        // to influence them for flowerPetalLength.  After that the perlin noise is lerped into the influence until influenceRadius
+        // is reached at which point Perlin noise takes over entirely.
+        private double InfluenceStart => FlowerCtrRadius + FlowerPetalLength;
+        private double InfluenceEnd => InfluenceStart + FlowerDropoff;
+
+        private double _flowerDropoff = 190.0;     // Includes flowerCtrRadius and flowerPetalLength:
+                                                  // <--flowerCtrRadius--><--flowerPetalLength--><--FlowerDropoff---->
+                                                  // <----------------------influenceEnd----------------------------->
+                                                  // Assert(influenceRadius >= flowerCtrRadius + flowerPetalLength);
+        [JsonProperty]
+        public double FlowerDropoff
+        {
+            get => _flowerDropoff;
+            set => SetField(ref _flowerDropoff, value);
+        }
+
+
+        private double _flowerCtrRadius = 30.0;
+        [JsonProperty]
+        public double FlowerCtrRadius
+        {
+            get => _flowerCtrRadius;
+            set => SetField(ref _flowerCtrRadius, value);
+        }
+
+        private double _flowerPetalLength = 80.0;
+        [JsonProperty]
+        public double FlowerPetalLength
+        {
+            get => _flowerPetalLength;
+            set => SetField(ref _flowerPetalLength, value);
+        }
+        #endregion
 
         private double _angleMultiplier;
         [JsonProperty]
@@ -198,29 +244,38 @@ namespace GenerativeArt.FlowGenerator
         {
             var perlin = new Perlin(seed) { Octaves = Octaves, };
             _rnd = new Random(seed);
-            var map = new PointMap(this);//InterlineDistance, ArtWidth, ArtHeight);
+            var map = new PointMap(this);
 
             var xCount = (ArtWidth + InterlineDistance - 1) / InterlineDistance;
             var yCount = (ArtHeight + InterlineDistance - 1) / InterlineDistance;
             var searchLineQueue = new Queue<Streamline>();
             var lines = new List<Streamline>();
+            _flowerPt = new Point(_rnd.NextDouble() * ArtWidth, _rnd.NextDouble() * ArtHeight);
 
             // Calculate all our flow lines
-            int iLines = 0;
+            var iLines = 0;
+            if (IncludeFlower)
+            {
+                MakeFlowers(_flowerPt, searchLineQueue, lines, map, perlin);
+            }
+
             while (true)
             {
                 Point startPt;
                 if (!EvenLineSelection || searchLineQueue.Count == 0)
                 {
-                    startPt = new Point(ArtWidth * _rnd.NextDouble(), ArtHeight * _rnd.NextDouble());
-                    if (iLines++ ==  LineCount)
+                    do
+                    {
+                        startPt = new Point(ArtWidth * _rnd.NextDouble(), ArtHeight * _rnd.NextDouble());
+                    } while (Utilities.Dist2(startPt, _flowerPt) < (FlowerCtrRadius + FlowerPetalLength) * (FlowerCtrRadius + FlowerPetalLength));
+                    if (iLines++ >=  LineCount)
                     {
                         break;
                     }
                 }
                 else
                 {
-                    var fFound = false;
+                    bool fFound;
                     while (true)
                     {
                         var searchLine = searchLineQueue.Peek();
@@ -270,10 +325,29 @@ namespace GenerativeArt.FlowGenerator
             _ourWindow.Art.Source = rtBitmap;
         }
 
-        private Streamline? ProduceLine(Point ptStart, Perlin perlin, PointMap map)
+        private void MakeFlowers(Point flowerPt, Queue<Streamline> searchLineQueue, List<Streamline>  lines, PointMap map, Perlin perlin)
+        {
+            var innerCircumference = 2 * Math.PI * FlowerCtrRadius;
+            var petalCount = (int)Math.Floor(innerCircumference / InterlineDistance);
+            var randOffset = _rnd.NextDouble() * Math.PI * 2;
+
+            for (var iPetal = 0; iPetal < petalCount; iPetal++)
+            {
+                var angle = 2 * Math.PI *iPetal / petalCount + randOffset;
+                var ptStart = new Point(flowerPt.X + Math.Cos(angle) * FlowerCtrRadius, flowerPt.Y + Math.Sin(angle) * FlowerCtrRadius);
+                var line = ProduceLine(ptStart, perlin, map, true);
+                if (line != null)
+                {
+                    lines.Add(line);
+                    searchLineQueue.Enqueue(line);
+                }
+            }
+        }
+
+        private Streamline? ProduceLine(Point ptStart, Perlin perlin, PointMap map, bool fForwardOnly = false)
         {
             var ptCur = ptStart;
-            var line = new Streamline(this);
+            var line = new Streamline(this, fForwardOnly);
 
             if (!map.Register(line, ptStart, true))
             {
@@ -290,6 +364,11 @@ namespace GenerativeArt.FlowGenerator
                 {
                     break;
                 }
+            }
+
+            if (fForwardOnly)
+            {
+                return line;
             }
 
             ptCur = NextPoint(ptStart, -StepDistance, perlin);
@@ -318,11 +397,32 @@ namespace GenerativeArt.FlowGenerator
             return pt.X >= 0 && pt.Y >= 0 && pt.X < ArtWidth && pt.Y < ArtHeight;
         }
 
-        Point NextPoint( Point pt, double dist, Perlin perlin)
+        Point NextPoint( Point pt, double stepDistance, Perlin perlin)
         {
+            var angle = 0.0;
+            var flowerDistance = IncludeFlower ? Utilities.Dist(pt, _flowerPt) : Double.MaxValue;
+            Debug.Assert(flowerDistance >= FlowerCtrRadius - stepDistance);
+            var anglePerlin = perlin.Value(pt.X / ArtWidth, pt.Y / ArtHeight) * AngleMultiplier;
+            if (!IncludeFlower || flowerDistance > InfluenceEnd)
+            {
+                angle = anglePerlin;
+            }
+            else
+            {
+                var angleCenter = Math.Atan2(pt.Y - _flowerPt.Y, pt.X - _flowerPt.X);
+                if (flowerDistance < InfluenceStart)
+                {
+                    angle = angleCenter;
+                }
+                else if (flowerDistance < InfluenceEnd)
+                {
+                    angle = Utilities.LerpAngle(angleCenter, anglePerlin, 
+                        (flowerDistance - InfluenceStart) / (InfluenceEnd - InfluenceStart));
+                }
+            }
+
             // Higher multipliers result in more chaos
-            var angle = perlin.Value(pt.X / ArtWidth, pt.Y / ArtHeight) * AngleMultiplier;
-            return new Point(Math.Cos(angle) * dist + pt.X, Math.Sin(angle) * dist + pt.Y);
+            return new Point(Math.Cos(angle) * stepDistance + pt.X, Math.Sin(angle) * stepDistance + pt.Y);
         }
 
         public void Initialize()
@@ -345,6 +445,10 @@ namespace GenerativeArt.FlowGenerator
             UseAlpha = false;
             DropBelow = 10;
             BorderWidth = 0.0;
+            IncludeFlower = false;
+            FlowerCtrRadius = 30.0;
+            FlowerPetalLength = 80.0;
+            FlowerDropoff = 190.0;
             _ourWindow.btnFlLongColor.Background = new SolidColorBrush(LongColor);
             _ourWindow.btnFlShortColor.Background = new SolidColorBrush(ShortColor);
             _ourWindow.btnFlBorderColor.Background = new SolidColorBrush(BorderColor);
@@ -404,6 +508,16 @@ namespace GenerativeArt.FlowGenerator
             _ourWindow.btnFlShortColor.Click += BtnFlShortColor_Click;
             _ourWindow.btnFlLongColor.Click +=BtnFlLongColor_Click;
             _ourWindow.btnFlBorderColor.Click +=BtnFlBorderColor_Click;
+            _ourWindow.btnFlowerParms.Click +=BtnFlowerParms_Click;
+        }
+
+        private void BtnFlowerParms_Click(object sender, RoutedEventArgs e)
+        {
+            var flowerDlg = new FlowerParameters
+            {
+                DataContext = this
+            };
+            flowerDlg.ShowDialog();
         }
 
         private void BtnFlBorderColor_Click(object sender, RoutedEventArgs e)
